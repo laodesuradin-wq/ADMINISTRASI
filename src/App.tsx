@@ -40,7 +40,10 @@ import {
   ADMIN_PASSWORD, 
   formatTanggalIndonesia, 
   hitungUmur, 
-  generateNomorSurat 
+  isValidNIK, 
+  isValidKK, 
+  isValidName,
+  VALIDATION
 } from './utils';
 
 // --- COMPONENTS ---
@@ -59,7 +62,7 @@ export default function App() {
   const [showChat, setShowChat] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [chatMessages, setChatMessages] = useState<{text: string, type: 'user' | 'ai'}[]>([
-    { text: "Selamat datang! Saya adalah asisten digital Dusun Amaholu Losy. Ada yang bisa saya bantu terkait layanan administrasi hari ini?", type: 'ai' }
+    { text: "Assalamu'alaikum/Selamat Sejahtera, warga Amaholu Losy! Saya adalah Asisten Digital Dusun. Dengan senang hati saya siap melayani keperluan administrasi Anda. Apa yang bisa saya bantu hari ini?", type: 'ai' }
   ]);
 
   const [isMobile, setIsMobile] = useState(true);
@@ -144,38 +147,121 @@ export default function App() {
   };
 
   const saveFamily = (family: Family) => {
+    // Check for duplicate KK if it's a new entry or KK is changed
+    const duplicateKK = db.some((f, idx) => f.no_kk === family.no_kk && idx !== editingIndex);
+    if (duplicateKK) return alert("Peringatan Keamanan: Nomor KK ini sudah terdaftar dalam sistem!");
+
+    // Check for duplicate NIK across all families
+    const allNiks = db.flatMap((f, idx) => 
+      idx === editingIndex ? [] : f.anggota.map(a => a.nik)
+    );
+    const hasDuplicateNIK = family.anggota.some(a => allNiks.includes(a.nik));
+    if (hasDuplicateNIK) return alert("Peringatan Keamanan: Salah satu NIK sudah terdaftar di keluarga lain!");
+
+    // Check for duplicate NIK within the same family
+    const familyNiks = family.anggota.map(a => a.nik);
+    const hasDuplicateNIKInFamily = familyNiks.some((nik, idx) => familyNiks.indexOf(nik) !== idx);
+    if (hasDuplicateNIKInFamily) return alert("Kesalahan Input: Ada NIK ganda dalam satu KK!");
+
+    // Create a trimmed version of the family data
+    const trimmedFamily: Family = {
+      ...family,
+      no_kk: family.no_kk.trim(),
+      alamat: family.alamat.trim(),
+      rt_rw: family.rt_rw.trim(),
+      anggota: family.anggota.map(a => ({
+        ...a,
+        nama: a.nama.trim(),
+        nik: a.nik.trim(),
+        tempat_lahir: a.tempat_lahir.trim(),
+        pendidikan: a.pendidikan.trim(),
+        pekerjaan: a.pekerjaan.trim()
+      }))
+    };
+
     if (editingIndex !== null) {
       const newDb = [...db];
-      newDb[editingIndex] = family;
+      newDb[editingIndex] = trimmedFamily;
       setDb(newDb);
     } else {
-      setDb([...db, family]);
+      setDb([...db, trimmedFamily]);
     }
     setActiveModal(null);
   };
 
+  const chatSessionRef = useRef<any>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages, isTyping]);
+
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || isTyping) return;
     
-    const newMessages = [...chatMessages, { text, type: 'user' as const }];
-    setChatMessages(newMessages);
+    // Add user message
+    const userMsg = { text, type: 'user' as const };
+    setChatMessages(prev => [...prev, userMsg]);
     setIsTyping(true);
 
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: text,
-        config: {
-          systemInstruction: "Anda adalah asisten AI resmi bernama 'Asisten SIAK' untuk Dusun Amaholu Losy, Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku. Dusun ini dipimpin oleh Kepala Dusun Fauji Ali. Tugas Anda adalah membantu warga dan administrator dalam hal sistem kependudukan (SIAK). Jawablah dalam Bahasa Indonesia yang ramah, sopan, dan membantu. Anda dapat membantu menjelaskan cara membuat surat keterangan (Domisili, Usaha, Tidak Mampu, Kematian), cara login warga (menggunakan No KK dan password NIK Kepala Keluarga), dan informasi umum tentang dusun. Jika ditanya hal teknis yang tidak Anda ketahui, sarankan menghubungi operator dusun di nomor 082146362670. Berikan jawaban yang ringkas namun informatif.",
-        },
-      });
+      
+      // Initialize chat session if it doesn't exist
+      if (!chatSessionRef.current) {
+        chatSessionRef.current = ai.chats.create({
+          model: "gemini-3-flash-preview",
+          config: {
+            systemInstruction: `Anda adalah asisten AI resmi bernama 'Asisten SIAK' untuk Dusun Amaholu Losy, Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku. Dusun ini dipimpin oleh Kepala Dusun Fauji Ali. 
+            
+            Tugas utama Anda:
+            1. Memberikan layanan informasi publik yang ramah, sopan, dan sangat membantu warga Dusun Amaholu Losy.
+            2. Menjelaskan persyaratan dan prosedur pembuatan surat (Domisili, Usaha, Tidak Mampu, Kematian).
+            3. Memandu cara login ke aplikasi SIAK Mobile (Nomor KK dan NIK Kepala Keluarga).
+            4. Menghubungkan warga dengan operator dusun jika ada masalah teknis yang tidak dapat diselesaikan AI.
+            
+            Konteks Dusun:
+            - Dusun: Amaholu Losy
+            - Negeri: Luhu
+            - Kabupaten: Seram Bagian Barat
+            - Kepala Dusun: Bapak Fauji Ali
+            
+            Gaya Komunikasi:
+            - Mulailah dengan sapaan yang hangat.
+            - Gunakan bahasa yang santun khas masyarakat Maluku yang ramah.
+            - Pastikan warga merasa terbantu dan dihargai.
+            
+            Keamanan:
+            - Jangan meminta data sensitif seperti NIK atau Nomor KK secara langsung dalam chat.
+            
+            Kontak Penting:
+            Operator Dusun (WA): 0821-4636-2670.`,
+          },
+        });
+      }
 
-      const aiText = response.text || "Maaf, saya sedang mengalami kendala teknis. Silakan coba lagi nanti.";
-      setChatMessages(prev => [...prev, { text: aiText, type: 'ai' as const }]);
+      // Add placeholder for AI response
+      setChatMessages(prev => [...prev, { text: '', type: 'ai' as const }]);
+      
+      const streamResponse = await chatSessionRef.current.sendMessageStream({ message: text });
+      let fullText = "";
+
+      for await (const chunk of streamResponse) {
+        fullText += chunk.text;
+        setChatMessages(prev => {
+          const updated = [...prev];
+          if (updated.length > 0) {
+            updated[updated.length - 1] = { text: fullText, type: 'ai' as const };
+          }
+          return updated;
+        });
+      }
+
     } catch (error) {
       console.error("AI Error:", error);
-      setChatMessages(prev => [...prev, { text: "Error: Gagal menghubungi pusat data asisten AI.", type: 'ai' as const }]);
+      setChatMessages(prev => [...prev, { text: "Maaf, terjadi kesalahan teknis. Silakan coba beberapa saat lagi atau hubungi operator kami.", type: 'ai' as const }]);
     } finally {
       setIsTyping(false);
     }
@@ -343,68 +429,89 @@ export default function App() {
                 </button>
               </div>
               
-              <div className="flex-1 p-6 overflow-y-auto bg-slate-50/50 space-y-6 scroll-smooth">
-                {chatMessages.map((msg, i) => (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    key={i} 
-                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div className={`max-w-[88%] px-5 py-4 rounded-[1.5rem] text-[13px] leading-relaxed relative ${
-                      msg.type === 'user' 
-                        ? 'bg-blue-600 text-white rounded-br-none shadow-xl shadow-blue-500/20 font-medium' 
-                        : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none shadow-sm font-semibold'
-                    }`}>
-                      {msg.text}
-                      <div className={`absolute bottom-[-4px] ${msg.type === 'user' ? 'right-0 border-t-[8px] border-t-blue-600 border-l-[8px] border-l-transparent' : 'left-0 border-t-[8px] border-t-white border-r-[8px] border-r-transparent'}`}></div>
-                    </div>
-                  </motion.div>
-                ))}
-                {isTyping && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-                    <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1.5">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
-              <div className="p-6 bg-white border-t border-slate-100">
-                <form 
-                  className="flex gap-3"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const input = (e.target as any).message;
-                    const text = input.value;
-                    if (text) {
-                      handleSendMessage(text);
-                      input.value = '';
-                    }
-                  }}
+              <div 
+                ref={chatContainerRef}
+                className="flex-1 p-6 overflow-y-auto bg-slate-50/50 space-y-6 scroll-smooth"
+              >
+              {chatMessages.length === 1 && (
+                <div className="grid grid-cols-1 gap-2 mb-4">
+                  {[
+                    "Bagaimana cara buat SKTM?",
+                    "Syarat Surat Domisili apa saja?",
+                    "Lupa password login warga",
+                    "Info bantuan sosial (Bansos)"
+                  ].map(q => (
+                    <button 
+                      key={q}
+                      onClick={() => handleSendMessage(q)}
+                      className="px-4 py-2 bg-white border border-blue-100 rounded-xl text-[10px] font-bold text-blue-600 text-left hover:bg-blue-50 transition-colors shadow-sm"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {chatMessages.map((msg, i) => (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  key={i} 
+                  className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <input 
-                    autoComplete="off"
-                    name="message"
-                    type="text" 
-                    placeholder="Tanyakan sesuatu..."
-                    className="flex-1 bg-slate-100/80 rounded-2xl px-6 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-blue-500/5 focus:bg-white focus:border-blue-500/20 transition-all border-2 border-transparent"
-                    disabled={isTyping}
-                  />
-                  <button 
-                    type="submit"
-                    disabled={isTyping}
-                    className="bg-gradient-to-br from-blue-600 to-blue-800 text-white w-14 h-14 rounded-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/30 flex items-center justify-center p-0"
-                  >
-                    <Send size={22} className="relative left-0.5" />
-                  </button>
-                </form>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  <div className={`max-w-[88%] px-5 py-4 rounded-[1.5rem] text-[13px] leading-relaxed relative ${
+                    msg.type === 'user' 
+                      ? 'bg-blue-600 text-white rounded-br-none shadow-xl shadow-blue-500/20 font-medium' 
+                      : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none shadow-sm font-semibold'
+                  }`}>
+                    {msg.text}
+                    <div className={`absolute bottom-[-4px] ${msg.type === 'user' ? 'right-0 border-t-[8px] border-t-blue-600 border-l-[8px] border-l-transparent' : 'left-0 border-t-[8px] border-t-white border-r-[8px] border-r-transparent'}`}></div>
+                  </div>
+                </motion.div>
+              ))}
+              {isTyping && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+                  <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1.5">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+
+            <div className="p-6 bg-white border-t border-slate-100">
+              <form 
+                className="flex gap-3"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const input = (e.target as any).message;
+                  const text = input.value;
+                  if (text) {
+                    handleSendMessage(text);
+                    input.value = '';
+                  }
+                }}
+              >
+                <input 
+                  autoComplete="off"
+                  name="message"
+                  type="text" 
+                  placeholder="Tanyakan sesuatu..."
+                  className="flex-1 bg-slate-100/80 rounded-2xl px-6 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-blue-500/5 focus:bg-white focus:border-blue-500/20 transition-all border-2 border-transparent"
+                  disabled={isTyping}
+                />
+                <button 
+                  type="submit"
+                  disabled={isTyping}
+                  className="bg-gradient-to-br from-blue-600 to-blue-800 text-white w-14 h-14 rounded-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/30 flex items-center justify-center p-0"
+                >
+                  <Send size={22} className="relative left-0.5" />
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
         
         <div className="flex justify-end items-center gap-4">
             <motion.button 
@@ -453,13 +560,13 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
     const db = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
     if (role === 'warga') {
-      const family = db.find((f: Family) => f.no_kk === noKK);
+      const family = db.find((f: Family) => f.no_kk === noKK.trim());
       if (!family) return setError("Nomor KK tidak ditemukan.");
       const kepala = family.anggota.find((a: Resident) => a.hubungan === 'Kepala Keluarga');
       if (!kepala) return setError("Data Kepala Keluarga tidak ditemukan.");
-      if (kepala.nik !== password) return setError("Password (NIK) salah.");
+      if (kepala.nik.trim() !== password.trim()) return setError("Password (NIK) salah.");
       
-      onLogin({ role: 'warga', no_kk: noKK, nama: kepala.nama });
+      onLogin({ role: 'warga', no_kk: noKK.trim(), nama: kepala.nama });
     } else {
       if (adminEmail === ADMIN_EMAIL && adminPass === ADMIN_PASSWORD) {
         onLogin({ role: 'admin', nama: 'Administrator', email: adminEmail });
@@ -507,14 +614,12 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
             <h1 className="text-xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
               SIAK <span className="text-blue-500">MOBILE</span>
             </h1>
-            <div className="h-0.5 w-8 bg-amber-500 rounded-full mb-2"></div>
-            <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest leading-none">Negeri Luhu • Amaholu Losy</p>
+            <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest leading-none">Dusun Amaholu Losy</p>
           </div>
         </div>
 
         <div className="w-full bg-white p-5 md:p-6 flex flex-col justify-center">
           <div className="mb-4 text-center sm:text-left">
-             <p className="text-blue-600 text-[8px] font-black uppercase tracking-[0.4em] mb-0.5 leading-none">Otentikasi Seluler</p>
              <h2 className="text-lg font-black text-slate-900 tracking-tight">Masuk Ke Sistem</h2>
           </div>
 
@@ -523,13 +628,13 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
               onClick={() => setRole('warga')}
               className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${role === 'warga' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-500'}`}
             >
-              Akses Publik
+              Login Warga
             </button>
             <button 
               onClick={() => setRole('admin')}
               className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${role === 'admin' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-500'}`}
             >
-              Otoritas
+              Login Admin
             </button>
           </div>
 
@@ -555,7 +660,10 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
                       placeholder="16-digit kode KK"
                       className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
                       value={noKK}
-                      onChange={(e) => setNoKK(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 16);
+                        setNoKK(val);
+                      }}
                       required
                     />
                   </div>
@@ -569,7 +677,10 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
                       placeholder="NIK Kepala Keluarga"
                       className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 16);
+                        setPassword(val);
+                      }}
                       required
                     />
                   </div>
@@ -609,19 +720,11 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
             )}
 
             <button type="submit" className="w-full py-4 bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-xl shadow-lg hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 group text-xs">
-              Otorisasi Masuk
+              Masuk
             </button>
           </form>
 
-          <div className="mt-8 flex items-center justify-between">
-             <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-loose max-w-[150px]">
-                Antarmuka Digital Sensus Resmi • v2.6
-             </p>
-             <div className="flex gap-1.5">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full"></div>
-             </div>
+          <div className="mt-8 flex items-center justify-center">
           </div>
         </div>
       </motion.div>
@@ -1116,8 +1219,23 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
 
   const handleSumbit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (data.no_kk.length !== 16) return alert("No. KK harus 16 digit.");
-    if (data.anggota.length === 0) return alert("Minimal harus ada 1 anggota.");
+    if (!isValidKK(data.no_kk)) return alert("Data Gagal Simpan: Nomor KK harus tepat 16 digit angka.");
+    if (data.anggota.length === 0) return alert("Minimal harus ada 1 anggota keluarga yang terdaftar.");
+    
+    // Check if there is exactly one head of family
+    const headCount = data.anggota.filter(a => a.hubungan === 'Kepala Keluarga').length;
+    if (headCount === 0) return alert("Kesalahan: Keluarga harus memiliki minimal satu Kepala Keluarga.");
+    if (headCount > 1) return alert("Kesalahan: Dalam satu KK tidak boleh ada lebih dari satu Kepala Keluarga.");
+
+    // Validate each member
+    for (const member of data.anggota) {
+      if (!isValidName(member.nama)) return alert(`Kesalahan Input: Nama "${member.nama}" mengandung karakter yang tidak diizinkan.`);
+      if (!isValidNIK(member.nik)) return alert(`Data Gagal Simpan: NIK untuk "${member.nama}" harus tepat 16 digit angka.`);
+      
+      const birthDate = new Date(member.tgl);
+      if (birthDate > new Date()) return alert(`Kesalahan Tanggal: Tanggal lahir "${member.nama}" tidak boleh di masa depan.`);
+    }
+
     onSave(data);
   };
 
@@ -1174,7 +1292,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">ID Resmi (KK)</label>
                <input 
                 value={data.no_kk} 
-                onChange={e => setData({...data, no_kk: e.target.value})}
+                onChange={e => setData({...data, no_kk: e.target.value.replace(/\D/g, '').slice(0, 16)})}
                 maxLength={16}
                 disabled={isReadOnly}
                 required
@@ -1197,7 +1315,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">Wilayah / RT</label>
                <input 
                 value={data.rt_rw} 
-                onChange={e => setData({...data, rt_rw: e.target.value})}
+                onChange={e => setData({...data, rt_rw: e.target.value.replace(/\D/g, '').slice(0, 3)})}
                 disabled={isReadOnly}
                 required
                 placeholder="00"
@@ -1256,7 +1374,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">NIK</label>
                        <input 
                         value={ag.nik} 
-                        onChange={e => updateMember(i, 'nik', e.target.value)}
+                        onChange={e => updateMember(i, 'nik', e.target.value.replace(/\D/g, '').slice(0, 16))}
                         disabled={isReadOnly}
                         required
                         maxLength={16}
@@ -1561,14 +1679,16 @@ function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterTy
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const resident = residentOptions.find(r => r.nama === targetName);
-    if (!resident) return alert("Pilih warga dari daftar!");
+    const resident = residentOptions.find(r => r.nama.trim() === targetName.trim());
+    if (!resident) return alert("Kesalahan: Silakan pilih nama warga yang valid dari daftar yang tersedia.");
     
+    if (nomorSurat.trim().length < 5) return alert("Peringatan: Format nomor surat tidak valid.");
+
     onPreview({
       type,
-      nomor: nomorSurat,
+      nomor: nomorSurat.trim(),
       resident,
-      usaha: usaha,
+      usaha: usaha.trim(),
       date: new Date().toISOString()
     });
   };

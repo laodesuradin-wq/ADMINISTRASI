@@ -39,3 +39,22 @@ export function generateNomorSurat(): string {
   const year = new Date().getFullYear();
   return `      /KD/DAL/${year}`;
 }
+
+export const VALIDATION = {
+  NIK_REGEX: /^\d{16}$/,
+  KK_REGEX: /^\d{16}$/,
+  NAME_REGEX: /^[a-zA-Z\s.'-]+$/,
+  NUMERIC_ONLY: /^\d+$/
+};
+
+export function isValidNIK(nik: string): boolean {
+  return VALIDATION.NIK_REGEX.test(nik);
+}
+
+export function isValidKK(kk: string): boolean {
+  return VALIDATION.KK_REGEX.test(kk);
+}
+
+export function isValidName(name: string): boolean {
+  return VALIDATION.NAME_REGEX.test(name);
+}
