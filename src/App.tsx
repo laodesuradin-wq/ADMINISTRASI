@@ -485,49 +485,49 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
       <motion.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-[340px] bg-white rounded-[2.5rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.4)] flex flex-col relative z-10 border border-white/20"
+        className="w-full max-w-[320px] bg-white rounded-[2rem] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.3)] flex flex-col relative z-10 border border-white/10"
       >
-        <div className="w-full p-6 text-white flex flex-col justify-center bg-slate-900 relative overflow-hidden h-[220px]">
+        <div className="w-full p-5 text-white flex flex-col justify-center bg-slate-900 relative overflow-hidden h-[160px]">
           <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
           
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2.5 mb-5 shadow-2xl relative z-10"
+            className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2 mb-3 shadow-xl relative z-10"
           >
             <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg/800px-Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg.png" 
-              alt="Logo Garuda" 
-              className="w-full h-full object-contain brightness-0"
+              src="https://iili.io/BbSYeoB.png" 
+              alt="Logo Resmi" 
+              className="w-full h-full object-contain"
               referrerPolicy="no-referrer"
             />
           </motion.div>
 
           <div className="relative z-10">
-            <h1 className="text-2xl font-black leading-tight mb-1.5 tracking-tighter uppercase font-sans">
+            <h1 className="text-xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
               SIAK <span className="text-blue-500">MOBILE</span>
             </h1>
-            <div className="h-1 w-10 bg-amber-500 rounded-full mb-3"></div>
-            <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Negeri Luhu • Amaholu Losy</p>
+            <div className="h-0.5 w-8 bg-amber-500 rounded-full mb-2"></div>
+            <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest leading-none">Negeri Luhu • Amaholu Losy</p>
           </div>
         </div>
 
-        <div className="w-full bg-white p-6 md:p-8 flex flex-col justify-center">
-          <div className="mb-6">
-             <p className="text-blue-600 text-[9px] font-black uppercase tracking-[0.4em] mb-1 leading-none">Otentikasi Seluler</p>
-             <h2 className="text-xl font-black text-slate-900 tracking-tight">Masuk Ke Sistem</h2>
+        <div className="w-full bg-white p-5 md:p-6 flex flex-col justify-center">
+          <div className="mb-4 text-center sm:text-left">
+             <p className="text-blue-600 text-[8px] font-black uppercase tracking-[0.4em] mb-0.5 leading-none">Otentikasi Seluler</p>
+             <h2 className="text-lg font-black text-slate-900 tracking-tight">Masuk Ke Sistem</h2>
           </div>
 
-          <div className="p-2 bg-slate-100 rounded-[2rem] flex gap-2 mb-12">
+          <div className="p-1.5 bg-slate-100 rounded-2xl flex gap-1 mb-8">
             <button 
               onClick={() => setRole('warga')}
-              className={`flex-1 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all ${role === 'warga' ? 'bg-white text-blue-600 shadow-xl' : 'text-slate-400 hover:text-slate-600'}`}
+              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${role === 'warga' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-500'}`}
             >
               Akses Publik
             </button>
             <button 
               onClick={() => setRole('admin')}
-              className={`flex-1 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all ${role === 'admin' ? 'bg-white text-blue-600 shadow-xl' : 'text-slate-400 hover:text-slate-600'}`}
+              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${role === 'admin' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-500'}`}
             >
               Otoritas
             </button>
@@ -537,37 +537,37 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mb-10 p-5 bg-rose-50 border-2 border-rose-100 text-rose-600 text-xs font-black uppercase tracking-widest rounded-3xl flex items-center gap-4 shadow-sm"
+              className="mb-6 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-black uppercase tracking-wider rounded-xl flex items-center gap-3 shadow-sm"
             >
-              <X size={20} className="shrink-0" /> <span>{error}</span>
+              <X size={14} className="shrink-0" /> <span>{error}</span>
             </motion.div>
           )}
 
-          <form onSubmit={handleLoginSubmit} className="space-y-8">
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
             {role === 'warga' ? (
               <>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Nomor Kartu Keluarga (KK)</label>
+                <div className="space-y-1.5">
+                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Nomor Kartu Keluarga (KK)</label>
                   <div className="relative group">
-                    <Users className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={22} />
+                    <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={16} />
                     <input 
                       type="text" 
                       placeholder="16-digit kode KK"
-                      className="w-full pl-16 pr-8 py-5 bg-slate-50 border-2 border-slate-100 rounded-[1.5rem] outline-none focus:border-blue-600 focus:bg-white transition-all font-black text-slate-900 placeholder:text-slate-300 shadow-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
                       value={noKK}
                       onChange={(e) => setNoKK(e.target.value)}
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Kunci Pribadi (NIK)</label>
+                <div className="space-y-1.5">
+                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Kunci Pribadi (NIK)</label>
                   <div className="relative group">
-                    <Shield className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={22} />
+                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={16} />
                     <input 
                       type="password" 
                       placeholder="NIK Kepala Keluarga"
-                      className="w-full pl-16 pr-8 py-5 bg-slate-50 border-2 border-slate-100 rounded-[1.5rem] outline-none focus:border-blue-600 focus:bg-white transition-all font-black text-slate-900 placeholder:text-slate-300 shadow-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -577,28 +577,28 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
               </>
             ) : (
               <>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Identitas Otoritas</label>
+                <div className="space-y-1.5">
+                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Identitas Otoritas</label>
                   <div className="relative group">
-                    <UserIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={22} />
+                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={16} />
                     <input 
                       type="email" 
                       placeholder="Email Kedinasan Resmi"
-                      className="w-full pl-16 pr-8 py-5 bg-slate-50 border-2 border-slate-100 rounded-[1.5rem] outline-none focus:border-blue-600 focus:bg-white transition-all font-black text-slate-900 placeholder:text-slate-300 shadow-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Kunci Akses Sistem</label>
+                <div className="space-y-1.5">
+                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Kunci Akses Sistem</label>
                   <div className="relative group">
-                    <Shield className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={22} />
+                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={16} />
                     <input 
                       type="password" 
                       placeholder="Masukkan kunci administrator"
-                      className="w-full pl-16 pr-8 py-5 bg-slate-50 border-2 border-slate-100 rounded-[1.5rem] outline-none focus:border-blue-600 focus:bg-white transition-all font-black text-slate-900 placeholder:text-slate-300 shadow-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
                       value={adminPass}
                       onChange={(e) => setAdminPass(e.target.value)}
                       required
@@ -608,19 +608,19 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
               </>
             )}
 
-            <button type="submit" className="w-full py-5 bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-[1.5rem] shadow-[0_20px_50px_rgba(15,23,42,0.3)] hover:bg-slate-800 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 group">
+            <button type="submit" className="w-full py-4 bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-xl shadow-lg hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 group text-xs">
               Otorisasi Masuk
             </button>
           </form>
 
-          <div className="mt-12 flex items-center justify-between">
-             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-loose max-w-[180px]">
-                Antarmuka Digital Sensus Resmi • Didukung oleh Mesin SIAK v2.6
+          <div className="mt-8 flex items-center justify-between">
+             <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-loose max-w-[150px]">
+                Antarmuka Digital Sensus Resmi • v2.6
              </p>
-             <div className="flex gap-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+             <div className="flex gap-1.5">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full"></div>
              </div>
           </div>
         </div>
@@ -703,10 +703,13 @@ function DashboardView({
     >
       <header className="bg-slate-950 px-4 py-4 flex items-center justify-between sticky top-0 z-40 no-print border-b border-white/5">
         <div className="flex items-center gap-3 relative z-10">
-          <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center p-1 shadow-lg overflow-hidden">
-            <div className="w-full h-full bg-slate-900 rounded-lg flex items-center justify-center">
-               <Shield size={24} className="text-white" />
-            </div>
+          <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center p-1.5 shadow-lg overflow-hidden">
+            <img 
+              src="https://iili.io/BbSYeoB.png" 
+              className="w-full h-full object-contain" 
+              alt="Logo" 
+              referrerPolicy="no-referrer"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -750,7 +753,7 @@ function DashboardView({
             </div>
 
                 {/* Menu Navigasi Mobile Grid */}
-                <div className={`grid ${session.role === 'admin' ? 'grid-cols-2' : 'grid-cols-1'} gap-3 bg-white/5 p-3 rounded-[2rem] border border-white/10 backdrop-blur-xl shadow-2xl mb-8`}>
+                <div className={`grid ${session.role === 'admin' ? 'grid-cols-2' : 'grid-cols-1'} gap-2 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-xl shadow-2xl mb-6`}>
                   {/* Button DATA KEPENDUDUKAN */}
                   <div className="relative group col-span-1">
                     <button 
@@ -758,117 +761,40 @@ function DashboardView({
                         setDataMenuOpen(!dataMenuOpen);
                         setAdminMenuOpen(false);
                       }}
-                      className={`w-full p-4 md:p-8 rounded-[2rem] md:rounded-[3rem] transition-all flex flex-col items-center justify-center gap-3 md:gap-5 border-2 ${
-                        dataMenuOpen ? 'bg-blue-600 border-blue-400 text-white shadow-[0_20px_50px_rgba(37,99,235,0.4)]' : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10 hover:text-white shadow-none'
+                      className={`w-full p-2 md:p-3.5 rounded-xl md:rounded-2xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 border-2 ${
+                        dataMenuOpen ? 'bg-blue-600 border-blue-400 text-white shadow-[0_10px_25px_rgba(37,99,235,0.3)]' : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10 hover:text-white shadow-none'
                       } active:scale-95`}
                     >
-                      <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-3xl md:text-5xl transition-transform ${dataMenuOpen ? 'bg-white/20' : 'bg-blue-500/10'}`}>👥</div>
+                      <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl transition-transform ${dataMenuOpen ? 'bg-white/20' : 'bg-blue-500/10'}`}>👥</div>
                       <div className="text-center">
-                        <span className="block text-[9px] md:text-xs font-black uppercase tracking-wider mb-1 leading-none">{session.role === 'admin' ? 'Database' : 'Akses Data'}</span>
-                        <span className="block text-[11px] md:text-base font-black uppercase tracking-tight opacity-90 leading-tight">{session.role === 'admin' ? 'Kependudukan' : 'Terpadu'}</span>
+                        <span className="block text-[6px] md:text-[8px] font-black uppercase tracking-wider mb-0.5 leading-none">{session.role === 'admin' ? 'Database' : 'Data'}</span>
+                        <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-tight opacity-90 leading-tight">{session.role === 'admin' ? 'Kependudukan' : 'Keluarga'}</span>
                       </div>
-                      <ChevronDown size={14} className={`transition-all duration-500 ${dataMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
+                      <ChevronDown size={10} className={`transition-all duration-500 ${dataMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
                     </button>
 
-                    <AnimatePresence>
-                      {dataMenuOpen && (
-                        <>
-                          <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md" onClick={() => setDataMenuOpen(false)} />
-                          <motion.div 
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[94%] max-w-[340px] bg-white rounded-[2rem] shadow-[0_50px_150px_rgba(0,0,0,0.8)] border border-white/20 z-[101] overflow-hidden flex flex-col max-h-[72vh]"
-                          >
-                            <div className="bg-slate-900 px-4 py-3 border-b-4 border-blue-600 flex items-center justify-between sticky top-0 z-20">
-                              <div className="flex items-center gap-2.5">
-                                <div className="w-9 h-9 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-500 border border-blue-500/20 shadow-inner">
-                                  <Users size={18} />
-                                </div>
-                                <div>
-                                  <h3 className="font-black text-base text-white tracking-tighter uppercase leading-none">Data Terpadu</h3>
-                                  <p className="text-[6px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1 flex items-center gap-1.5">
-                                     <Shield size={7} /> Sistem Digital Pusat v3.0
-                                  </p>
-                                </div>
-                              </div>
-                              <button 
-                                onClick={() => setDataMenuOpen(false)}
-                                className="w-8 h-8 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center border border-white/10 active:scale-90 transition-all font-bold shadow-xl"
-                              >
-                                <X size={18} />
-                              </button>
-                            </div>
-
-                            <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-none bg-white">
-                              <div className="grid grid-cols-2 gap-2">
-                                {[
-                                  { 
-                                    label: session.role === 'admin' ? "LIHAT DATA" : "DATA KELUARGA", 
-                                    sub: session.role === 'admin' ? "DATABASE" : "AKSES DATA", 
-                                    icon: "📋", 
-                                    action: () => setIsDatabaseViewOpen(true) 
-                                  },
-                                  { 
-                                    label: session.role === 'admin' ? "TAMBAH KK" : "FORMULIR BARU", 
-                                    sub: session.role === 'admin' ? "OPERASI DATA" : "INPUT DATA", 
-                                    icon: "📝", 
-                                    action: () => openNewFamilyModal() 
-                                  },
-                                  { label: "EKSPOR DATA", sub: "DOKUMEN EXCEL", icon: "💾", action: () => exportToExcel(), adminOnly: true },
-                                  { label: "STATISTIK", sub: "REKAPITULASI", icon: "📊", action: () => openStats(), adminOnly: true }
-                                ].map((item, idx) => {
-                                  if (item.adminOnly && session.role !== 'admin') return null;
-                                  return (
-                                    <button 
-                                      key={idx}
-                                      onClick={() => { item.action(); setDataMenuOpen(false); }}
-                                      className="p-3.5 rounded-[1.5rem] bg-[#d4cfe4] border border-slate-200/50 flex flex-col items-start group active:scale-95 transition-all text-left h-full shadow-sm"
-                                    >
-                                      <div className="mb-2 text-lg group-hover:scale-110 transition-transform">
-                                        <span className="opacity-80 grayscale group-hover:grayscale-0 transition-all">{item.icon}</span>
-                                      </div>
-                                      <p className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-1 leading-none opacity-60">{item.sub}</p>
-                                      <h4 className="text-[11px] font-black text-slate-900 tracking-tighter uppercase leading-tight">{item.label}</h4>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                            <div className="bg-slate-950 p-6 text-center relative overflow-hidden">
-                               <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                               <p className="text-blue-500 text-[7px] font-black uppercase tracking-[0.2em] leading-relaxed relative z-10 mx-auto text-center">
-                                  SIAK MOBILE • SISTEM INTEGRASI<br/>
-                                  PELAYANAN PUBLIK TERPADU<br/>
-                                  KEPENDUDUKAN.
-                                </p>
-                            </div>
-                          </motion.div>
-                        </>
-                      )}
-                    </AnimatePresence>
+                    {/* Portal Keluarga moved to main section inline */}
                   </div>
 
                   {/* Button DOKUMEN SURAT */}
                   {session.role === 'admin' && (
                     <div className="relative group col-span-1">
-                      <button 
-                        onClick={() => {
-                          setAdminMenuOpen(!adminMenuOpen);
-                          setDataMenuOpen(false);
-                        }}
-                        className={`w-full p-4 md:p-8 rounded-[2rem] md:rounded-[3rem] transition-all flex flex-col items-center justify-center gap-3 md:gap-5 border-2 ${
-                          adminMenuOpen ? 'bg-amber-600 border-amber-400 text-white shadow-[0_20px_50px_rgba(217,119,6,0.4)]' : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10 hover:text-white shadow-none'
-                        } active:scale-95`}
-                      >
-                        <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-3xl md:text-5xl transition-transform ${adminMenuOpen ? 'bg-white/20' : 'bg-amber-500/10'}`}>📄</div>
-                        <div className="text-center">
-                          <span className="block text-[9px] md:text-xs font-black uppercase tracking-wider mb-1 leading-none">Administrasi</span>
-                          <span className="block text-[11px] md:text-base font-black uppercase tracking-tight opacity-90 leading-tight">Digital Surat</span>
-                        </div>
-                        <ChevronDown size={14} className={`transition-all duration-500 ${adminMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
-                      </button>
+                        <button 
+                          onClick={() => {
+                            setAdminMenuOpen(!adminMenuOpen);
+                            setDataMenuOpen(false);
+                          }}
+                          className={`w-full p-2 md:p-3.5 rounded-xl md:rounded-2xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 border-2 ${
+                            adminMenuOpen ? 'bg-amber-600 border-amber-400 text-white shadow-[0_10px_25px_rgba(217,119,6,0.3)]' : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10 hover:text-white shadow-none'
+                          } active:scale-95`}
+                        >
+                          <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl transition-transform ${adminMenuOpen ? 'bg-white/20' : 'bg-amber-500/10'}`}>📄</div>
+                          <div className="text-center">
+                            <span className="block text-[6px] md:text-[8px] font-black uppercase tracking-wider mb-0.5 leading-none">Administrasi</span>
+                            <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-tight opacity-90 leading-tight">Digital Surat</span>
+                          </div>
+                          <ChevronDown size={10} className={`transition-all duration-500 ${adminMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
+                        </button>
 
                       <AnimatePresence>
                         {adminMenuOpen && (
@@ -958,47 +884,91 @@ function DashboardView({
                 </div>
 
             <main className="p-4 md:p-8 container mx-auto">
-        <div className="max-w-6xl mx-auto space-y-8">
-          {session.role === 'warga' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-purple-950 rounded-[3.5rem] shadow-[0_20px_80px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden group mb-12 p-8 sm:p-12 text-white"
-            >
-              <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-[100px]"></div>
-              
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-                <div className="relative shrink-0">
-                  <div className="absolute inset-0 bg-blue-600/10 blur-3xl rounded-full scale-150"></div>
-                  <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-800 rounded-[2rem] flex items-center justify-center shadow-2xl relative z-10 border-[3px] border-white/10">
-                    <UserIcon size={44} className="text-white drop-shadow-lg" />
-                  </div>
-                </div>
-                <div className="text-center md:text-left flex-1">
-                  <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-blue-500/20 border border-blue-400/30 rounded-full text-[9px] font-black text-blue-400 uppercase tracking-widest mb-3">
-                    <Shield size={10} /> Otentikasi Berhasil
-                  </div>
-                  <h3 className="text-3xl font-black text-white mb-3 tracking-tighter">Selamat Datang, {session.nama}</h3>
-                  <p className="text-slate-300 text-base leading-relaxed max-w-2xl font-medium">
-                    Akses portal digital kependudukan diaktifkan. Anda dapat memeriksa validitas data keluarga, mencetak simulasi Kartu Keluarga, dan mengajukan surat administrasi secara mandiri.
-                  </p>
-                </div>
-                <div className="hidden xl:flex flex-col gap-3">
-                   <div className="px-6 py-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status Kependudukan</p>
-                      <p className="font-black text-emerald-400 text-sm">Terdaftar Aktif</p>
-                   </div>
-                   <div className="px-6 py-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Verifikasi System</p>
-                      <p className="font-black text-blue-400 text-sm">SIAK Terpadu</p>
-                   </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
+              <div className="max-w-6xl mx-auto space-y-8">
+                {/* PORTAL KELUARGA INLINE SECTION (Previously Modal) */}
+                <AnimatePresence>
+                  {dataMenuOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                      className="w-full max-w-[340px] mx-auto bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden flex flex-col transition-all duration-500"
+                    >
+                      <div className="bg-white px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-md">
+                            <Users size={16} />
+                          </div>
+                          <div>
+                            <h3 className="font-black text-[11px] text-slate-900 tracking-tight uppercase leading-none">Portal Keluarga</h3>
+                            <p className="text-[6px] font-black text-blue-600 uppercase tracking-widest mt-1 opacity-70">
+                               SIAK MOBILE v3.0
+                            </p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => { onLogout(); setDataMenuOpen(false); }}
+                          className="w-8 h-8 bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-lg flex items-center justify-center transition-all active:scale-90"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
 
-          </div>
-        </main>
+                      <div className="p-4 space-y-4 bg-white">
+                         <div className="p-4 bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-100 text-center shadow-sm relative overflow-hidden">
+                           <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+                           <p className="text-[7px] font-black text-blue-600 uppercase tracking-[0.2em] mb-1 leading-none relative z-10">Otentikasi Berhasil</p>
+                           <h3 className="text-[8px] font-black text-slate-400 tracking-[0.1em] mb-1 uppercase relative z-10">Selamat Datang,</h3>
+                           <p className="text-base font-black text-slate-900 uppercase tracking-tighter leading-tight break-words relative z-10">{session.nama}</p>
+                         </div>
+
+                         <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { 
+                              label: session.role === 'admin' ? "LIHAT DATA" : "DATA KELUARGA", 
+                              sub: session.role === 'admin' ? "DATABASE" : "AKSES DATA", 
+                              icon: "📋", 
+                              action: () => setIsDatabaseViewOpen(true) 
+                            },
+                            { 
+                              label: session.role === 'admin' ? "TAMBAH KK" : "FORMULIR BARU", 
+                              sub: session.role === 'admin' ? "OPERASI DATA" : "INPUT DATA", 
+                              icon: "📝", 
+                              action: () => openNewFamilyModal() 
+                            },
+                            { label: "EKSPOR DATA", sub: "EXCEL", icon: "💾", action: () => exportToExcel(), adminOnly: true },
+                            { label: "STATISTIK", sub: "REKAP", icon: "📊", action: () => openStats(), adminOnly: true }
+                          ].map((item, idx) => {
+                            if (item.adminOnly && session.role !== 'admin') return null;
+                            return (
+                              <button 
+                                key={idx}
+                                onClick={() => { item.action(); setDataMenuOpen(false); }}
+                                className="p-3 rounded-xl bg-[#d4cfe4]/80 border border-slate-200/50 flex flex-col items-start group active:scale-95 transition-all text-left h-full shadow-sm"
+                              >
+                                <div className="mb-1 text-base group-hover:scale-110 transition-transform">
+                                  <span className="opacity-80 grayscale group-hover:grayscale-0 transition-all">{item.icon}</span>
+                                </div>
+                                <p className="text-[5px] font-black text-slate-500 uppercase tracking-widest mb-1 leading-none opacity-60">{item.sub}</p>
+                                <h4 className="text-[10px] font-black text-slate-900 tracking-tighter uppercase leading-tight">{item.label}</h4>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <div className="p-3 bg-slate-900 rounded-xl text-center relative overflow-hidden">
+                          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                          <p className="text-blue-400 text-[5px] font-black uppercase tracking-[0.2em] leading-relaxed relative z-10 max-w-[180px] mx-auto">
+                             Portal Digital Terintegrasi<br/>
+                             Pelayanan Publik Dusun Amaholu
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </main>
 
         <AnimatePresence>
           {isDatabaseViewOpen && (
@@ -1794,7 +1764,12 @@ function PreviewModal({ data, onClose }: { data: any, onClose: () => void }) {
           <div ref={printAreaRef} className="bg-white p-8 sm:p-20 text-black print:shadow-none print:m-0 print:w-full print:p-[15mm] text-[12pt] print-area relative" style={{ width: '210mm', minHeight: '297mm', fontFamily: '"Times New Roman", Times, serif' }}>
           <div className="flex items-start gap-4 pb-4 mb-4 border-b-4 border-black">
             <div className="w-24 h-24 flex items-center justify-center overflow-hidden shrink-0">
-               <img src="https://media.istockphoto.com/id/1141706692/vector/eagle-symbol-isolated-vector-graphic-on-white-background.jpg?s=612x612&w=0&k=20&c=qF5XFvR-zI1_bC99R_N2e8yI6Q839DoxuJ2F7iY9h_0=" className="w-full grayscale brightness-0" alt="Logo" />
+               <img 
+                 src="https://iili.io/BbSYeoB.png" 
+                 className="w-full grayscale brightness-0" 
+                 alt="Logo" 
+                 referrerPolicy="no-referrer"
+               />
             </div>
             <div className="flex-1 text-center font-bold">
               <p className="text-[14pt] leading-tight mb-1">PEMERINTAH KABUPATEN SERAM BAGIAN BARAT</p>
@@ -1976,10 +1951,18 @@ function PrintKKModal({ family, onClose }: { family: Family, onClose: () => void
           className="shadow-2xl mb-20 origin-top"
         >
           <div ref={printAreaRef} className="bg-white p-12 text-black print:shadow-none print:m-0 print:w-full print:p-8 print-area relative" style={{ width: '297mm', minHeight: '210mm', fontFamily: '"Times New Roman", serif' }}>
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold uppercase tracking-widest">KARTU KELUARGA</h2>
-            <p className="text-xl font-bold mt-1">No. {family.no_kk}</p>
-          </div>
+            <div className="absolute top-12 left-12 w-24 h-24 flex items-center justify-center overflow-hidden">
+              <img 
+                src="https://iili.io/BbSYeoB.png" 
+                className="w-full object-contain" 
+                alt="Logo KK" 
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold uppercase tracking-widest">KARTU KELUARGA</h2>
+              <p className="text-xl font-bold mt-1">No. {family.no_kk}</p>
+            </div>
 
           <div className="grid grid-cols-2 gap-12 text-sm font-bold mb-8">
             <div className="space-y-1">
