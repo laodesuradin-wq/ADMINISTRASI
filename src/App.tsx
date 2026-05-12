@@ -207,7 +207,12 @@ export default function App() {
     setIsTyping(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("API_KEY_MISSING: Silakan hubungi administrator untuk konfigurasi kunci API Gemini di Settings > Secrets.");
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       
       // Initialize chat session if it doesn't exist
       if (!chatSessionRef.current) {
@@ -252,16 +257,28 @@ export default function App() {
         fullText += chunk.text;
         setChatMessages(prev => {
           const updated = [...prev];
-          if (updated.length > 0) {
+          if (updated.length > 0 && updated[updated.length - 1].type === 'ai') {
             updated[updated.length - 1] = { text: fullText, type: 'ai' as const };
           }
           return updated;
         });
       }
 
-    } catch (error) {
-      console.error("AI Error:", error);
-      setChatMessages(prev => [...prev, { text: "Maaf, terjadi kesalahan teknis. Silakan coba beberapa saat lagi atau hubungi operator kami.", type: 'ai' as const }]);
+    } catch (error: any) {
+      console.error("AI Error Details:", error);
+      
+      let errorMessage = "Maaf, terjadi kesalahan teknis pada sistem asisten digital. Silakan coba beberapa saat lagi.";
+      
+      if (error?.message?.includes("API_KEY_MISSING")) {
+        errorMessage = "Akses AI belum dikonfigurasi. Mohon periksa pengaturan API Key di panel Secrets.";
+      } else if (error?.message?.includes("429") || error?.message?.includes("quota")) {
+        errorMessage = "Kuota layanan harian telah habis atau terlalu banyak permintaan. Silakan coba lagi nanti.";
+      }
+
+      setChatMessages(prev => {
+        const filtered = prev.filter(m => m.text !== ''); // Remove placeholder if it exists
+        return [...filtered, { text: errorMessage, type: 'ai' as const }];
+      });
     } finally {
       setIsTyping(false);
     }
