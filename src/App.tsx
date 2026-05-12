@@ -485,36 +485,37 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
       <motion.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-[400px] bg-white rounded-[3rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.4)] flex flex-col relative z-10 border border-white/20"
+        className="w-full max-w-[340px] bg-white rounded-[2.5rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.4)] flex flex-col relative z-10 border border-white/20"
       >
-        <div className="w-full p-8 text-white flex flex-col justify-center bg-slate-900 relative overflow-hidden h-[280px]">
+        <div className="w-full p-6 text-white flex flex-col justify-center bg-slate-900 relative overflow-hidden h-[220px]">
           <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
           
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center p-3 mb-6 shadow-2xl relative z-10"
+            className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2.5 mb-5 shadow-2xl relative z-10"
           >
             <img 
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg/800px-Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg.png" 
               alt="Logo Garuda" 
               className="w-full h-full object-contain brightness-0"
+              referrerPolicy="no-referrer"
             />
           </motion.div>
 
           <div className="relative z-10">
-            <h1 className="text-3xl font-black leading-tight mb-2 tracking-tighter uppercase font-sans">
+            <h1 className="text-2xl font-black leading-tight mb-1.5 tracking-tighter uppercase font-sans">
               SIAK <span className="text-blue-500">MOBILE</span>
             </h1>
-            <div className="h-1 w-12 bg-amber-500 rounded-full mb-4"></div>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Negeri Luhu • Amaholu Losy</p>
+            <div className="h-1 w-10 bg-amber-500 rounded-full mb-3"></div>
+            <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Negeri Luhu • Amaholu Losy</p>
           </div>
         </div>
 
-        <div className="w-full bg-white p-8 md:p-10 flex flex-col justify-center">
-          <div className="mb-8">
-             <p className="text-blue-600 text-[10px] font-black uppercase tracking-[0.4em] mb-1.5 leading-none">Otentikasi Seluler</p>
-             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Masuk Ke Sistem</h2>
+        <div className="w-full bg-white p-6 md:p-8 flex flex-col justify-center">
+          <div className="mb-6">
+             <p className="text-blue-600 text-[9px] font-black uppercase tracking-[0.4em] mb-1 leading-none">Otentikasi Seluler</p>
+             <h2 className="text-xl font-black text-slate-900 tracking-tight">Masuk Ke Sistem</h2>
           </div>
 
           <div className="p-2 bg-slate-100 rounded-[2rem] flex gap-2 mb-12">
@@ -607,13 +608,13 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
               </>
             )}
 
-            <button type="submit" className="w-full py-6 bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-[1.5rem] shadow-[0_20px_50px_rgba(15,23,42,0.3)] hover:bg-slate-800 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 group">
+            <button type="submit" className="w-full py-5 bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-[1.5rem] shadow-[0_20px_50px_rgba(15,23,42,0.3)] hover:bg-slate-800 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 group">
               Otorisasi Masuk
             </button>
           </form>
 
-          <div className="mt-16 flex items-center justify-between">
-             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-loose max-w-[200px]">
+          <div className="mt-12 flex items-center justify-between">
+             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-loose max-w-[180px]">
                 Antarmuka Digital Sensus Resmi • Didukung oleh Mesin SIAK v2.6
              </p>
              <div className="flex gap-2">
@@ -727,21 +728,21 @@ function DashboardView({
 
       <div className="flex flex-1 overflow-hidden no-print bg-[#0a0f1e]">
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto scrollbar-none pb-20">
+          <div className="flex-1 overflow-y-auto scrollbar-none pb-20 px-4">
             <div className="pt-6 pb-4 relative z-10">
-              <div className="container mx-auto px-5 text-center">
-                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 mb-8">
+              <div className="container mx-auto text-center">
+                 <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 mb-6">
                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span> Sistem Digital Terintegrasi
                  </p>
                  
                  {session.role === 'admin' && (
-                   <div className="relative group max-w-md mx-auto mb-10">
+                   <div className="relative group max-w-sm mx-auto mb-8">
                      <input 
                        type="text" 
                        placeholder="Cari Nama atau No. KK..."
                        value={searchTerm}
                        onChange={(e) => setSearchTerm(e.target.value)}
-                       className="w-full px-8 py-5 rounded-[2rem] bg-slate-900/50 border-2 border-slate-800/80 backdrop-blur-xl text-white placeholder:text-slate-600 outline-none focus:border-blue-500/50 transition-all shadow-2xl font-bold text-base text-center"
+                       className="w-full px-6 py-4 rounded-[1.5rem] bg-slate-900/50 border-2 border-slate-800/80 backdrop-blur-xl text-white placeholder:text-slate-600 outline-none focus:border-blue-500/50 transition-all shadow-2xl font-bold text-sm text-center"
                      />
                    </div>
                  )}
@@ -749,7 +750,7 @@ function DashboardView({
             </div>
 
                 {/* Menu Navigasi Mobile Grid */}
-                <div className={`grid ${session.role === 'admin' ? 'grid-cols-2' : 'grid-cols-1'} gap-3 bg-white/5 p-4 rounded-[2.5rem] border border-white/10 backdrop-blur-xl shadow-2xl`}>
+                <div className={`grid ${session.role === 'admin' ? 'grid-cols-2' : 'grid-cols-1'} gap-3 bg-white/5 p-3 rounded-[2rem] border border-white/10 backdrop-blur-xl shadow-2xl mb-8`}>
                   {/* Button DATA KEPENDUDUKAN */}
                   <div className="relative group col-span-1">
                     <button 
@@ -763,8 +764,8 @@ function DashboardView({
                     >
                       <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-3xl md:text-5xl transition-transform ${dataMenuOpen ? 'bg-white/20' : 'bg-blue-500/10'}`}>👥</div>
                       <div className="text-center">
-                        <span className="block text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1">{session.role === 'admin' ? 'Database' : 'Akses Data'}</span>
-                        <span className="block text-xs md:text-base font-black uppercase tracking-widest opacity-80">{session.role === 'admin' ? 'Kependudukan' : 'Terpadu'}</span>
+                        <span className="block text-[9px] md:text-xs font-black uppercase tracking-wider mb-1 leading-none">{session.role === 'admin' ? 'Database' : 'Akses Data'}</span>
+                        <span className="block text-[11px] md:text-base font-black uppercase tracking-tight opacity-90 leading-tight">{session.role === 'admin' ? 'Kependudukan' : 'Terpadu'}</span>
                       </div>
                       <ChevronDown size={14} className={`transition-all duration-500 ${dataMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
                     </button>
@@ -863,8 +864,8 @@ function DashboardView({
                       >
                         <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-3xl md:text-5xl transition-transform ${adminMenuOpen ? 'bg-white/20' : 'bg-amber-500/10'}`}>📄</div>
                         <div className="text-center">
-                          <span className="block text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1">Administrasi</span>
-                          <span className="block text-xs md:text-base font-black uppercase tracking-widest opacity-80">Digital Surat</span>
+                          <span className="block text-[9px] md:text-xs font-black uppercase tracking-wider mb-1 leading-none">Administrasi</span>
+                          <span className="block text-[11px] md:text-base font-black uppercase tracking-tight opacity-90 leading-tight">Digital Surat</span>
                         </div>
                         <ChevronDown size={14} className={`transition-all duration-500 ${adminMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
                       </button>
@@ -949,8 +950,8 @@ function DashboardView({
                     >
                       <div className="w-12 h-12 md:w-20 md:h-20 bg-emerald-500/10 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-3xl md:text-5xl group-hover:scale-110 transition-transform">📈</div>
                       <div className="text-center">
-                        <span className="block text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1">Visualisasi</span>
-                        <span className="block text-xs md:text-base font-black uppercase tracking-widest opacity-80">Grafik Warga</span>
+                        <span className="block text-[9px] md:text-xs font-black uppercase tracking-wider mb-1 leading-none">Visualisasi</span>
+                        <span className="block text-[11px] md:text-base font-black uppercase tracking-tight opacity-90 leading-tight">Grafik Warga</span>
                       </div>
                     </button>
                   )}
@@ -1110,9 +1111,10 @@ function DashboardView({
     </div>
   </div>
 
-      <footer className="bg-slate-900 border-t border-white/5 py-8 md:py-12 px-8 text-center no-print shrink-0">
-        <p className="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.3em]">
-          Pemerintah Dusun Amaholu Losy © 2026 | SIAK MOBILE Kependudukan
+      <footer className="bg-slate-900 border-t border-white/5 py-6 px-6 text-center no-print shrink-0">
+        <p className="text-slate-600 text-[8px] md:text-xs font-black uppercase tracking-[0.2em] leading-relaxed">
+          Pemerintah Dusun Amaholu Losy © 2024<br/>
+          <span className="opacity-40 tracking-widest">Sistem Informasi Administrasi Kependudukan</span>
         </p>
       </footer>
     </motion.div>
