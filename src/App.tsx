@@ -62,6 +62,19 @@ export default function App() {
     { text: "Selamat datang! Saya adalah asisten digital Dusun Amaholu Losy. Ada yang bisa saya bantu terkait layanan administrasi hari ini?", type: 'ai' }
   ]);
 
+  const [isMobile, setIsMobile] = useState(true);
+
+  // Check for mobile device/screen
+  useEffect(() => {
+    const handleResize = () => {
+      // Strictly mobile width (< 640px)
+      setIsMobile(window.innerWidth < 640);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Load Initial Data
   useEffect(() => {
     const savedDb = localStorage.getItem(STORAGE_KEY);
@@ -168,6 +181,49 @@ export default function App() {
     }
   };
 
+  if (!isMobile) {
+    return (
+      <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-8 text-center z-[99999] overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        </div>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-10 max-w-sm"
+        >
+          <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-900 rounded-[2rem] flex items-center justify-center mx-auto mb-10 shadow-[0_20px_50px_rgba(37,99,235,0.3)] border border-white/20">
+            <Shield size={48} className="text-white animate-pulse" />
+          </div>
+          
+          <h1 className="text-4xl font-black text-white tracking-tighter leading-tight mb-4 uppercase text-center">
+            MOBILE <br />
+            <span className="text-blue-500">ENVIRONMENT</span>
+          </h1>
+          
+          <div className="h-1.5 w-16 bg-amber-500 mx-auto rounded-full mb-10"></div>
+          
+          <p className="text-slate-400 text-xs font-black uppercase tracking-[0.2em] leading-relaxed mb-12">
+            Peringatan: Antarmuka SIAK Amaholu telah dioptimalkan secara eksklusif untuk perangkat seluler. 
+            Sistem mendeteksi layar lebar yang tidak didukung.
+          </p>
+          
+          <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 backdrop-blur-md">
+            <p className="text-blue-400 text-[9px] font-black uppercase tracking-[0.4em] mb-4">Aksesibilitas</p>
+            <p className="text-white/60 text-[10px] font-bold leading-loose uppercase tracking-widest">
+              Gunakan Smartphone Anda untuk mendapatkan fungsionalitas penuh aplikasi.
+            </p>
+          </div>
+        </motion.div>
+        
+        <div className="mt-20 text-slate-700 font-black text-[8px] uppercase tracking-[0.6em]">
+          SECURITY ARCHITECTURE • SIAK MOBILE
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       <AnimatePresence mode="wait">
@@ -264,7 +320,7 @@ export default function App() {
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              className="mb-6 w-[22rem] md:w-[26rem] h-[600px] bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.25)] border border-white/20 flex flex-col overflow-hidden relative"
+              className="mb-6 w-[calc(100vw-48px)] max-w-[400px] h-[75vh] max-h-[600px] bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.25)] border border-white/20 flex flex-col overflow-hidden relative"
             >
               <div className="p-6 bg-gradient-to-r from-slate-900 to-blue-900 text-white flex justify-between items-center relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
@@ -351,15 +407,6 @@ export default function App() {
         </AnimatePresence>
         
         <div className="flex justify-end items-center gap-4">
-          {!showChat && (
-             <motion.div 
-               initial={{ opacity: 0, x: 20 }}
-               animate={{ opacity: 1, x: 0 }}
-               className="px-4 py-2 bg-white rounded-xl shadow-xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500 pointer-events-none whitespace-nowrap"
-             >
-               Punya pertanyaan? 👇
-             </motion.div>
-          )}
             <motion.button 
             onClick={() => setShowChat(!showChat)}
             animate={{ 
@@ -436,17 +483,17 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
       </div>
 
       <motion.div 
-        initial={{ y: 30, opacity: 0 }}
+        initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-6xl bg-white rounded-[3.5rem] overflow-hidden shadow-[0_50px_150px_rgba(0,0,0,0.5)] flex flex-col md:flex-row relative z-10 border border-white/20"
+        className="w-full max-w-[400px] bg-white rounded-[3rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.4)] flex flex-col relative z-10 border border-white/20"
       >
-        <div className="w-full md:w-[45%] p-12 md:p-16 text-white flex flex-col justify-center bg-slate-900 relative overflow-hidden">
+        <div className="w-full p-8 text-white flex flex-col justify-center bg-slate-900 relative overflow-hidden h-[280px]">
           <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
           
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center p-4 mb-10 shadow-2xl relative z-10"
+            className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center p-3 mb-6 shadow-2xl relative z-10"
           >
             <img 
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg/800px-Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg.png" 
@@ -455,31 +502,19 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
             />
           </motion.div>
 
-          <div className="relative z-10 mt-auto">
-            <h1 className="text-4xl md:text-5xl font-black leading-tight mb-4 tracking-tighter uppercase">
-              SIAK <span className="text-blue-500">PORTAL</span>
+          <div className="relative z-10">
+            <h1 className="text-3xl font-black leading-tight mb-2 tracking-tighter uppercase font-sans">
+              SIAK <span className="text-blue-500">MOBILE</span>
             </h1>
-            <div className="h-1.5 w-20 bg-amber-500 rounded-full mb-8"></div>
-            <p className="text-slate-400 text-lg font-bold uppercase tracking-[0.2em] mb-4">Negeri Luhu</p>
-            <p className="text-slate-500 text-sm leading-relaxed max-w-sm mb-12">
-              Sistem Informasi Administrasi Kependudukan Terpadu untuk Dusun Amaholu Losy. Berdedikasi untuk pelayanan terbaik dan integritas data.
-            </p>
-
-            <div className="space-y-4">
-               <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-white/5 p-4 rounded-2xl border border-white/5">
-                  <Shield size={16} className="text-blue-500" /> Sesi Terenkripsi Aman
-               </div>
-               <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-white/5 p-4 rounded-2xl border border-white/5">
-                  <Info size={16} className="text-amber-500" /> Identitas Digital Terverifikasi
-               </div>
-            </div>
+            <div className="h-1 w-12 bg-amber-500 rounded-full mb-4"></div>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Negeri Luhu • Amaholu Losy</p>
           </div>
         </div>
 
-        <div className="w-full md:w-[55%] bg-white p-12 md:p-20 flex flex-col justify-center">
-          <div className="mb-12">
-             <p className="text-blue-600 text-xs font-black uppercase tracking-[0.4em] mb-2 leading-none">Otentikasi Diperlukan</p>
-             <h2 className="text-4xl font-black text-slate-900 tracking-tight">Kontrol Akses</h2>
+        <div className="w-full bg-white p-8 md:p-10 flex flex-col justify-center">
+          <div className="mb-8">
+             <p className="text-blue-600 text-[10px] font-black uppercase tracking-[0.4em] mb-1.5 leading-none">Otentikasi Seluler</p>
+             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Masuk Ke Sistem</h2>
           </div>
 
           <div className="p-2 bg-slate-100 rounded-[2rem] flex gap-2 mb-12">
@@ -624,6 +659,8 @@ function DashboardView({
   key?: React.Key;
 }) {
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const [dataMenuOpen, setDataMenuOpen] = useState(false);
+  const [isDatabaseViewOpen, setIsDatabaseViewOpen] = useState(false);
 
   const exportToExcel = () => {
     if (allFamilies.length === 0) return alert("Database kosong.");
@@ -663,151 +700,148 @@ function DashboardView({
       animate={{ opacity: 1 }}
       className="flex flex-col h-screen no-print-bg"
     >
-      <header className="bg-slate-950 border-b-2 md:border-b-4 border-amber-500 py-1.5 md:py-2 px-3 md:px-8 flex items-center justify-between sticky top-0 z-40 no-print shadow-2xl relative overflow-hidden">
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]"></div>
-        
-        <div className="flex items-center gap-2 md:gap-4 group cursor-pointer relative z-10">
-          <div className="w-8 h-8 md:w-11 md:h-11 bg-white rounded-lg md:rounded-xl flex items-center justify-center p-1 md:p-1.5 shadow-[0_0_20px_rgba(255,255,255,0.1)] ring-1 ring-white/20 transition-transform duration-500 group-hover:rotate-6">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg/800px-Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg.png" 
-              alt="Logo Indonesia" 
-              className="w-full h-full object-contain brightness-0"
-            />
+      <header className="bg-slate-950 px-4 py-4 flex items-center justify-between sticky top-0 z-40 no-print border-b border-white/5">
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center p-1 shadow-lg overflow-hidden">
+            <div className="w-full h-full bg-slate-900 rounded-lg flex items-center justify-center">
+               <Shield size={24} className="text-white" />
+            </div>
           </div>
-          <div className="block">
-            <h1 className="font-black text-xs md:text-xl text-white leading-none tracking-tighter uppercase">SIAK <span className="hidden xs:inline">PROFESSIONAL</span></h1>
-            <div className="flex items-center gap-1.5 mt-0.5 md:mt-1.5">
-              <span className="text-[7px] md:text-[9px] bg-amber-500 text-slate-900 px-1 md:px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest">AMAHOLU</span>
-              <span className="text-[7px] md:text-[9px] text-slate-400 font-bold uppercase tracking-widest opacity-80 border-l border-slate-700 pl-1.5 md:pl-2 hidden xs:block">MALUKU</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="font-black text-lg text-white leading-none tracking-tighter uppercase">SIAK <span className="text-blue-500">MOBILE</span></h1>
+            </div>
+            <div className="inline-block mt-1">
+              <span className="text-[8px] bg-amber-500 text-slate-900 px-2 py-0.5 rounded-full font-black uppercase tracking-widest leading-none">AMAHOLU</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-4 relative z-10">
-          <div className="hidden sm:flex items-center gap-3 px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl shadow-inner backdrop-blur-md">
-            <div className="relative">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500/20 to-blue-600/10 rounded-lg flex items-center justify-center text-blue-400 ring-1 ring-white/10">
-                {session.role === 'admin' ? <Shield size={16} /> : <UserIcon size={16} />}
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-[3px] border-slate-950"></div>
-            </div>
-            <div className="text-right">
-              <p className="text-xs font-black text-white leading-none">{session.nama}</p>
-              <p className="text-[8px] text-blue-400 font-black uppercase mt-1 tracking-[0.2em]">{session.role}</p>
-            </div>
-          </div>
-          <button 
-            onClick={onLogout}
-            className="group flex items-center justify-center h-8 md:h-10 px-3 md:px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg md:rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-red-900/40 hover:scale-105 active:scale-95"
-            title="Keluar Sistem"
-          >
-            <LogOut size={14} className="group-hover:-translate-x-1 transition-transform md:w-4 md:h-4" />
-            <span className="hidden sm:inline ml-2">Selesai</span>
-          </button>
-        </div>
+        <button 
+          onClick={onLogout}
+          className="w-11 h-11 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+        >
+          <LogOut size={20} />
+        </button>
       </header>
 
-      <div className="flex flex-1 overflow-hidden no-print">
-        {/* Sidebar Mini Ungu */}
-        <aside className="hidden md:flex w-16 lg:w-20 bg-purple-950 flex-col items-center py-8 gap-8 border-r border-white/5 overflow-y-auto scrollbar-none shadow-2xl relative z-30 shrink-0">
-          <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-purple-400 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group tooltip-trigger relative" title="Data Induk">
-            <Users size={20} className="group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-purple-400 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group" title="Layanan Surat">
-            <FileText size={20} className="group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-purple-400 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group" title="Statistik">
-            <BarChart3 size={20} className="group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-purple-400 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group" title="Registrasi">
-            <PlusCircle size={20} className="group-hover:scale-110 transition-transform" />
-          </div>
-          
-          <div className="mt-auto flex flex-col gap-6">
-            <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-purple-400 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group" title="Bantuan">
-              <MessageSquare size={18} />
-            </div>
-            <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center text-red-400 border border-red-500/10 hover:bg-red-500/20 transition-all cursor-pointer group" onClick={onLogout} title="Keluar">
-              <LogOut size={18} />
-            </div>
-          </div>
-        </aside>
-
+      <div className="flex flex-1 overflow-hidden no-print bg-[#0a0f1e]">
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto scrollbar-official">
-            <div className="bg-slate-900 pt-8 pb-14 relative overflow-hidden">
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
-                <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-blue-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-[100px]"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-600/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-[80px]"></div>
+          <div className="flex-1 overflow-y-auto scrollbar-none pb-20">
+            <div className="pt-6 pb-4 relative z-10">
+              <div className="container mx-auto px-5 text-center">
+                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 mb-8">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span> Sistem Digital Terintegrasi
+                 </p>
+                 
+                 {session.role === 'admin' && (
+                   <div className="relative group max-w-md mx-auto mb-10">
+                     <input 
+                       type="text" 
+                       placeholder="Cari Nama atau No. KK..."
+                       value={searchTerm}
+                       onChange={(e) => setSearchTerm(e.target.value)}
+                       className="w-full px-8 py-5 rounded-[2rem] bg-slate-900/50 border-2 border-slate-800/80 backdrop-blur-xl text-white placeholder:text-slate-600 outline-none focus:border-blue-500/50 transition-all shadow-2xl font-bold text-base text-center"
+                     />
+                   </div>
+                 )}
               </div>
-              
-              <div className="container mx-auto px-6 relative z-10">
-                {/* Menu Navigasi di Atas */}
-                <nav className="flex flex-wrap items-stretch justify-center gap-1.5 md:gap-2 bg-white/5 p-1.5 md:p-2 rounded-2xl md:rounded-[2rem] border border-white/10 backdrop-blur-xl shadow-2xl mb-12">
-                  <button 
-                    onClick={() => {
-                      const el = document.getElementById('database-section');
-                      el?.scrollIntoView({ behavior: 'smooth' });
-                      setAdminMenuOpen(false);
-                    }}
-                    className="group flex-1 min-w-[70px] md:min-w-[120px] py-1.5 md:py-2.5 px-2 md:px-5 rounded-lg md:rounded-2xl text-slate-300 font-black text-[8px] md:text-[10px] uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all flex flex-col items-center justify-center gap-1 md:gap-1.5 border border-transparent hover:border-white/20"
-                  >
-                    <Users size={14} className="md:w-[18px] md:h-[18px] group-hover:scale-110 transition-transform" /> 
-                    <span>Data</span>
-                  </button>
+            </div>
 
-                  <div className="relative group flex-1 min-w-[70px] md:min-w-[120px]">
+                {/* Menu Navigasi Mobile Grid */}
+                <div className={`grid ${session.role === 'admin' ? 'grid-cols-2' : 'grid-cols-1'} gap-3 bg-white/5 p-4 rounded-[2.5rem] border border-white/10 backdrop-blur-xl shadow-2xl`}>
+                  {/* Button DATA KEPENDUDUKAN */}
+                  <div className="relative group col-span-1">
                     <button 
-                      onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                      className={`w-full h-full py-1.5 md:py-2.5 px-2 md:px-5 rounded-lg md:rounded-2xl font-black text-[8px] md:text-[10px] uppercase tracking-widest transition-all flex flex-col items-center justify-center gap-1 md:gap-1.5 border ${
-                        adminMenuOpen ? 'bg-white text-slate-900 border-white' : 'text-slate-300 hover:bg-white hover:text-slate-900 border-transparent hover:border-white/20'
-                      }`}
+                      onClick={() => {
+                        setDataMenuOpen(!dataMenuOpen);
+                        setAdminMenuOpen(false);
+                      }}
+                      className={`w-full p-4 md:p-8 rounded-[2rem] md:rounded-[3rem] transition-all flex flex-col items-center justify-center gap-3 md:gap-5 border-2 ${
+                        dataMenuOpen ? 'bg-blue-600 border-blue-400 text-white shadow-[0_20px_50px_rgba(37,99,235,0.4)]' : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10 hover:text-white shadow-none'
+                      } active:scale-95`}
                     >
-                      <FileText size={14} className="md:w-[18px] md:h-[18px] group-hover:scale-110 transition-transform" /> 
-                      <span className="flex items-center gap-1 md:gap-2 whitespace-nowrap">Surat <ChevronDown size={10} className={`transition-all duration-500 ${adminMenuOpen ? 'rotate-180' : ''}`} /></span>
+                      <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-3xl md:text-5xl transition-transform ${dataMenuOpen ? 'bg-white/20' : 'bg-blue-500/10'}`}>👥</div>
+                      <div className="text-center">
+                        <span className="block text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1">{session.role === 'admin' ? 'Database' : 'Akses Data'}</span>
+                        <span className="block text-xs md:text-base font-black uppercase tracking-widest opacity-80">{session.role === 'admin' ? 'Kependudukan' : 'Terpadu'}</span>
+                      </div>
+                      <ChevronDown size={14} className={`transition-all duration-500 ${dataMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
                     </button>
-                    
+
                     <AnimatePresence>
-                      {adminMenuOpen && (
+                      {dataMenuOpen && (
                         <>
-                          <div 
-                            className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[4px] md:hidden"
-                            onClick={() => setAdminMenuOpen(false)}
-                          />
+                          <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md" onClick={() => setDataMenuOpen(false)} />
                           <motion.div 
-                            initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                            className="fixed inset-x-8 top-1/2 -translate-y-1/2 md:absolute md:inset-x-auto md:top-full md:left-1/2 md:-translate-x-1/2 md:translate-y-0 mt-0 md:mt-4 w-auto md:w-80 bg-white rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.4)] border border-slate-100 z-50 p-4 ring-1 ring-slate-200"
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[94%] max-w-[340px] bg-white rounded-[2rem] shadow-[0_50px_150px_rgba(0,0,0,0.8)] border border-white/20 z-[101] overflow-hidden flex flex-col max-h-[72vh]"
                           >
-                            <div className="px-4 py-3 border-b border-slate-50 mb-2 text-center md:text-left">
-                              <p className="text-[9px] font-black text-blue-600 uppercase tracking-[0.2em] mb-1">Administrasi Digital</p>
-                              <h4 className="text-base font-black text-slate-900 tracking-tight">Dokumen Kedinasan</h4>
+                            <div className="bg-slate-900 px-4 py-3 border-b-4 border-blue-600 flex items-center justify-between sticky top-0 z-20">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-9 h-9 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-500 border border-blue-500/20 shadow-inner">
+                                  <Users size={18} />
+                                </div>
+                                <div>
+                                  <h3 className="font-black text-base text-white tracking-tighter uppercase leading-none">Data Terpadu</h3>
+                                  <p className="text-[6px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1 flex items-center gap-1.5">
+                                     <Shield size={7} /> Sistem Digital Pusat v3.0
+                                  </p>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => setDataMenuOpen(false)}
+                                className="w-8 h-8 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center border border-white/10 active:scale-90 transition-all font-bold shadow-xl"
+                              >
+                                <X size={18} />
+                              </button>
                             </div>
-                            <div className="grid grid-cols-1 gap-1">
-                              {[
-                                { name: "Surat Keterangan Usaha", icon: "💼", color: "bg-amber-50 text-amber-600" },
-                                { name: "Surat Keterangan Tidak Mampu", icon: "🤝", color: "bg-blue-50 text-blue-600" },
-                                { name: "Surat Keterangan Kematian", icon: "🕊️", color: "bg-slate-50 text-slate-600" },
-                                { name: "Surat Keterangan Domisili", icon: "🏠", color: "bg-emerald-50 text-emerald-600" }
-                              ].map((item) => (
-                                <button 
-                                  key={item.name}
-                                  onClick={() => {
-                                    openLetter(item.name as LetterType);
-                                    setAdminMenuOpen(false);
-                                  }}
-                                  className="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-blue-600 transition-all flex items-center gap-3 group"
-                                >
-                                  <div className={`w-10 h-10 ${item.color} rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform shadow-sm`}>{item.icon}</div>
-                                  <div className="flex-1 overflow-hidden">
-                                    <span className="text-[11px] font-black tracking-tight block truncate uppercase">{item.name.replace('Surat Keterangan ', '')}</span>
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Templat Digital</span>
-                                  </div>
-                                </button>
-                              ))}
+
+                            <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-none bg-white">
+                              <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  { 
+                                    label: session.role === 'admin' ? "LIHAT DATA" : "DATA KELUARGA", 
+                                    sub: session.role === 'admin' ? "DATABASE" : "AKSES DATA", 
+                                    icon: "📋", 
+                                    action: () => setIsDatabaseViewOpen(true) 
+                                  },
+                                  { 
+                                    label: session.role === 'admin' ? "TAMBAH KK" : "FORMULIR BARU", 
+                                    sub: session.role === 'admin' ? "OPERASI DATA" : "INPUT DATA", 
+                                    icon: "📝", 
+                                    action: () => openNewFamilyModal() 
+                                  },
+                                  { label: "EKSPOR DATA", sub: "DOKUMEN EXCEL", icon: "💾", action: () => exportToExcel(), adminOnly: true },
+                                  { label: "STATISTIK", sub: "REKAPITULASI", icon: "📊", action: () => openStats(), adminOnly: true }
+                                ].map((item, idx) => {
+                                  if (item.adminOnly && session.role !== 'admin') return null;
+                                  return (
+                                    <button 
+                                      key={idx}
+                                      onClick={() => { item.action(); setDataMenuOpen(false); }}
+                                      className="p-3.5 rounded-[1.5rem] bg-[#d4cfe4] border border-slate-200/50 flex flex-col items-start group active:scale-95 transition-all text-left h-full shadow-sm"
+                                    >
+                                      <div className="mb-2 text-lg group-hover:scale-110 transition-transform">
+                                        <span className="opacity-80 grayscale group-hover:grayscale-0 transition-all">{item.icon}</span>
+                                      </div>
+                                      <p className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-1 leading-none opacity-60">{item.sub}</p>
+                                      <h4 className="text-[11px] font-black text-slate-900 tracking-tighter uppercase leading-tight">{item.label}</h4>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div className="bg-slate-950 p-6 text-center relative overflow-hidden">
+                               <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                               <p className="text-blue-500 text-[7px] font-black uppercase tracking-[0.2em] leading-relaxed relative z-10 mx-auto text-center">
+                                  SIAK MOBILE • SISTEM INTEGRASI<br/>
+                                  PELAYANAN PUBLIK TERPADU<br/>
+                                  KEPENDUDUKAN.
+                                </p>
                             </div>
                           </motion.div>
                         </>
@@ -815,54 +849,112 @@ function DashboardView({
                     </AnimatePresence>
                   </div>
 
-                  <button 
-                    onClick={() => {
-                      openStats();
-                      setAdminMenuOpen(false);
-                    }}
-                    className="group flex-1 min-w-[70px] md:min-w-[120px] py-1.5 md:py-2.5 px-2 md:px-5 rounded-lg md:rounded-2xl text-slate-300 font-black text-[8px] md:text-[10px] uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all flex flex-col items-center justify-center gap-1 md:gap-1.5 border border-transparent hover:border-white/20"
-                  >
-                    <BarChart3 size={14} className="md:w-[18px] md:h-[18px] group-hover:scale-110 transition-transform" /> 
-                    <span>Grafik</span>
-                  </button>
+                  {/* Button DOKUMEN SURAT */}
+                  {session.role === 'admin' && (
+                    <div className="relative group col-span-1">
+                      <button 
+                        onClick={() => {
+                          setAdminMenuOpen(!adminMenuOpen);
+                          setDataMenuOpen(false);
+                        }}
+                        className={`w-full p-4 md:p-8 rounded-[2rem] md:rounded-[3rem] transition-all flex flex-col items-center justify-center gap-3 md:gap-5 border-2 ${
+                          adminMenuOpen ? 'bg-amber-600 border-amber-400 text-white shadow-[0_20px_50px_rgba(217,119,6,0.4)]' : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10 hover:text-white shadow-none'
+                        } active:scale-95`}
+                      >
+                        <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-3xl md:text-5xl transition-transform ${adminMenuOpen ? 'bg-white/20' : 'bg-amber-500/10'}`}>📄</div>
+                        <div className="text-center">
+                          <span className="block text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1">Administrasi</span>
+                          <span className="block text-xs md:text-base font-black uppercase tracking-widest opacity-80">Digital Surat</span>
+                        </div>
+                        <ChevronDown size={14} className={`transition-all duration-500 ${adminMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
+                      </button>
 
+                      <AnimatePresence>
+                        {adminMenuOpen && (
+                          <>
+                            <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md" onClick={() => setAdminMenuOpen(false)} />
+                            <motion.div 
+                              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[94%] max-w-[340px] bg-white rounded-[2rem] shadow-[0_50px_150px_rgba(0,0,0,0.8)] border border-white/20 z-[101] overflow-hidden flex flex-col max-h-[72vh]"
+                            >
+                              <div className="bg-slate-900 px-4 py-3 border-b-4 border-blue-600 flex items-center justify-between sticky top-0 z-20">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-9 h-9 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-500 border border-blue-500/20 shadow-inner">
+                                    <FileText size={18} />
+                                  </div>
+                                  <div>
+                                    <h3 className="font-black text-base text-white tracking-tighter uppercase leading-none">Administrasi</h3>
+                                    <p className="text-[6px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1 flex items-center gap-1.5">
+                                       <Shield size={7} /> Layanan Digital Surat v3.0
+                                    </p>
+                                  </div>
+                                </div>
+                                <button 
+                                  onClick={() => setAdminMenuOpen(false)}
+                                  className="w-8 h-8 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center border border-white/10 active:scale-90 transition-all font-bold shadow-xl"
+                                >
+                                  <X size={18} />
+                                </button>
+                              </div>
+
+                              <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-none bg-white">
+                                <div className="grid grid-cols-2 gap-2">
+                                  {[
+                                    { name: "Surat Keterangan Usaha", label: "SK USAHA", sub: "Layanan Usaha", icon: "💼" },
+                                    { name: "Surat Keterangan Tidak Mampu", label: "SKTM", sub: "Bantuan Sosial", icon: "🤝" },
+                                    { name: "Surat Keterangan Kematian", label: "AKTA MATI", sub: "Saksi Kematian", icon: "🕊️" },
+                                    { name: "Surat Keterangan Domisili", label: "DOMISILI", sub: "Bukti Tinggal", icon: "🏠" }
+                                  ].map((item) => (
+                                    <button 
+                                      key={item.name}
+                                      onClick={() => { openLetter(item.name as LetterType); setAdminMenuOpen(false); }}
+                                      className="p-3.5 rounded-[1.5rem] bg-[#d4cfe4] border border-slate-200/50 flex flex-col items-start group active:scale-95 transition-all text-left h-full shadow-sm"
+                                    >
+                                      <div className="mb-2 text-lg group-hover:scale-110 transition-transform">
+                                        <span className="opacity-80 grayscale group-hover:grayscale-0 transition-all">{item.icon}</span>
+                                      </div>
+                                      <p className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-1 leading-none opacity-60">{item.sub}</p>
+                                      <h4 className="text-[11px] font-black text-slate-900 tracking-tighter uppercase leading-tight">{item.label}</h4>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="bg-slate-950 p-6 text-center relative overflow-hidden">
+                                 <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                                 <p className="text-blue-500 text-[7px] font-black uppercase tracking-[0.2em] leading-relaxed relative z-10 mx-auto text-center">
+                                   SIAK MOBILE • SISTEM INTEGRASI<br/>
+                                   PELAYANAN PUBLIK TERPADU<br/>
+                                   KEPENDUDUKAN.
+                                 </p>
+                              </div>
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
+
+                  {/* Button STATISTIK */}
                   {session.role === 'admin' && (
                     <button 
                       onClick={() => {
-                        openNewFamilyModal();
+                        openStats();
+                        setDataMenuOpen(false);
                         setAdminMenuOpen(false);
                       }}
-                      className="group flex-1 min-w-[80px] md:min-w-[140px] py-1.5 md:py-2.5 px-2 md:px-5 rounded-lg md:rounded-2xl bg-blue-600 text-white font-black text-[8px] md:text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all flex flex-col items-center justify-center gap-1 md:gap-1.5 shadow-2xl shadow-blue-500/30 border border-blue-500/50"
+                      className="col-span-1 p-4 md:p-8 rounded-[2rem] md:rounded-[3rem] bg-white/5 border-2 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10 hover:text-white transition-all flex flex-col items-center justify-center gap-3 md:gap-5 active:scale-95 shadow-none"
                     >
-                      <PlusCircle size={14} className="md:w-[18px] md:h-[18px] group-hover:scale-110 transition-transform" /> 
-                      <span>Baru</span>
+                      <div className="w-12 h-12 md:w-20 md:h-20 bg-emerald-500/10 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-3xl md:text-5xl group-hover:scale-110 transition-transform">📈</div>
+                      <div className="text-center">
+                        <span className="block text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1">Visualisasi</span>
+                        <span className="block text-xs md:text-base font-black uppercase tracking-widest opacity-80">Grafik Warga</span>
+                      </div>
                     </button>
                   )}
-                </nav>
-
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-8 mb-4">
-                  <div className="flex items-center gap-6">
-                    <div className="w-2 h-16 bg-amber-500 rounded-full hidden md:block shadow-[0_0_15px_rgba(245,158,11,0.5)]"></div>
-                    <div>
-                      <h2 className="text-white font-black text-3xl md:text-4xl tracking-tighter leading-tight uppercase">Sensus Digital</h2>
-                      <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.3em] mt-2 flex items-center gap-3">
-                         <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Basis Data Terpadu
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative w-full lg:w-[450px] group">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={20} />
-                    <input 
-                      type="text" 
-                      placeholder="Cari Warga atau NIK..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-14 pr-8 py-4 rounded-2xl bg-slate-800/50 border-2 border-slate-700/50 backdrop-blur-xl text-white placeholder:text-slate-500 outline-none focus:border-blue-500 focus:bg-slate-800 transition-all shadow-2xl font-bold text-sm"
-                    />
-                  </div>
                 </div>
-              </div>
-            </div>
 
             <main className="p-4 md:p-8 container mx-auto">
         <div className="max-w-6xl mx-auto space-y-8">
@@ -870,152 +962,159 @@ function DashboardView({
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white p-8 sm:p-12 rounded-[3.5rem] shadow-[0_20px_80px_rgba(0,0,0,0.06)] border border-slate-200 relative overflow-hidden group mb-12"
+              className="bg-purple-950 rounded-[3.5rem] shadow-[0_20px_80px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden group mb-12 p-8 sm:p-12 text-white"
             >
               <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-[100px]"></div>
               
               <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                 <div className="relative shrink-0">
                   <div className="absolute inset-0 bg-blue-600/10 blur-3xl rounded-full scale-150"></div>
-                  <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-800 rounded-[2rem] flex items-center justify-center shadow-2xl relative z-10 border-[3px] border-white">
+                  <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-800 rounded-[2rem] flex items-center justify-center shadow-2xl relative z-10 border-[3px] border-white/10">
                     <UserIcon size={44} className="text-white drop-shadow-lg" />
                   </div>
                 </div>
                 <div className="text-center md:text-left flex-1">
-                  <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-blue-50 border border-blue-100 rounded-full text-[9px] font-black text-blue-600 uppercase tracking-widest mb-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-blue-500/20 border border-blue-400/30 rounded-full text-[9px] font-black text-blue-400 uppercase tracking-widest mb-3">
                     <Shield size={10} /> Otentikasi Berhasil
                   </div>
-                  <h3 className="text-3xl font-black text-slate-900 mb-3 tracking-tighter">Selamat Datang, {session.nama}</h3>
-                  <p className="text-slate-500 text-base leading-relaxed max-w-2xl font-medium">
+                  <h3 className="text-3xl font-black text-white mb-3 tracking-tighter">Selamat Datang, {session.nama}</h3>
+                  <p className="text-slate-300 text-base leading-relaxed max-w-2xl font-medium">
                     Akses portal digital kependudukan diaktifkan. Anda dapat memeriksa validitas data keluarga, mencetak simulasi Kartu Keluarga, dan mengajukan surat administrasi secara mandiri.
                   </p>
                 </div>
                 <div className="hidden xl:flex flex-col gap-3">
-                   <div className="px-6 py-4 bg-slate-50 rounded-2xl border border-slate-200">
+                   <div className="px-6 py-4 bg-white/5 rounded-2xl border border-white/10">
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status Kependudukan</p>
-                      <p className="font-black text-emerald-600 text-sm">Terdaftar Aktif</p>
+                      <p className="font-black text-emerald-400 text-sm">Terdaftar Aktif</p>
                    </div>
-                   <div className="px-6 py-4 bg-slate-50 rounded-2xl border border-slate-200">
+                   <div className="px-6 py-4 bg-white/5 rounded-2xl border border-white/10">
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Verifikasi System</p>
-                      <p className="font-black text-blue-600 text-sm">SIAK Terpadu</p>
+                      <p className="font-black text-blue-400 text-sm">SIAK Terpadu</p>
                    </div>
                 </div>
               </div>
             </motion.div>
           )}
 
-          <motion.div 
-            id="database-section" 
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="bg-white border-2 border-slate-200 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.08)] overflow-hidden scroll-mt-32 relative"
-          >
-            {/* Table Watermark Pattern */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg/800px-Garuda_Pancasila_Coat_of_Arms_of_Indonesia.svg.png')] bg-no-repeat bg-center bg-[length:600px]"></div>
+          </div>
+        </main>
 
-            <div className="p-8 border-b flex flex-col sm:flex-row items-center justify-between gap-6 bg-slate-50/50 backdrop-blur-xl relative z-10">
-              <div className="flex items-center gap-5">
-                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
-                  <Users size={24} />
-                </div>
-                <div>
-                  <h3 className="font-black text-2xl text-slate-900 tracking-tight">Registrasi Kependudukan</h3>
-                  <div className="flex items-center gap-2.5 mt-1.5">
-                    <span className="flex items-center gap-1 text-[9px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full uppercase tracking-widest border border-emerald-100">
-                      <Shield size={10} /> Data Terenkripsi
-                    </span>
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total: {families.length} Berkas</span>
+        <AnimatePresence>
+          {isDatabaseViewOpen && (
+            <div className="fixed inset-0 z-[120] flex items-center justify-center p-0 no-print">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl"
+                onClick={() => setIsDatabaseViewOpen(false)}
+              />
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                className="relative w-full h-full bg-slate-900 overflow-hidden flex flex-col"
+              >
+                <div className="bg-slate-950 px-5 py-6 border-b-2 border-blue-600 flex items-center justify-between sticky top-0 z-20 shadow-2xl">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-500 border border-blue-500/20">
+                      <Users size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-lg text-white tracking-tight uppercase leading-none">Database Warga</h3>
+                      <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mt-1.5">Total: {families.length} Records</p>
+                    </div>
                   </div>
+                  <button 
+                    onClick={() => setIsDatabaseViewOpen(false)}
+                    className="w-10 h-10 bg-white/5 text-white rounded-full flex items-center justify-center border border-white/10 active:scale-90 transition-all font-bold"
+                  >
+                    <X size={20} />
+                  </button>
                 </div>
-              </div>
-            </div>
-            
-            <div className="overflow-x-auto relative z-10 scrollbar-official">
-              <table className="w-full text-left border-collapse min-w-[700px] md:min-w-full">
-                  <thead className="bg-slate-50/80 border-b border-slate-100">
-                  <tr>
-                    <th className="px-3 md:px-6 py-3 md:py-4 text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Idx</th>
-                    <th className="px-3 md:px-6 py-3 md:py-4 text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Nomor KK</th>
-                    <th className="px-3 md:px-6 py-3 md:py-4 text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">NIK PJ</th>
-                    <th className="px-3 md:px-6 py-3 md:py-4 text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Kepala Keluarga</th>
-                    <th className="px-3 md:px-6 py-3 md:py-4 text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Wilayah</th>
-                    <th className="px-3 md:px-6 py-3 md:py-4 text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Status</th>
-                    <th className="px-3 md:px-6 py-3 md:py-4 text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-center">Tindakan</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {families.map((f, i) => {
-                    const kepalaObj = f.anggota.find(a => a.hubungan === 'Kepala Keluarga');
-                    const kepala = kepalaObj?.nama || '-';
-                    const nikKepala = kepalaObj?.nik || '-';
-                    return (
-                      <tr key={f.no_kk} className="hover:bg-blue-50/30 transition-all group">
-                        <td className="px-3 md:px-6 py-3 md:py-4 text-[10px] md:text-xs text-slate-300 font-black tracking-widest">{String(i + 1).padStart(2, '0')}</td>
-                        <td className="px-3 md:px-6 py-3 md:py-4">
-                           <div 
-                             className="inline-flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-white border border-slate-100 rounded-lg md:rounded-xl group-hover:border-blue-500/30 transition-all cursor-pointer shadow-sm group-hover:shadow-md"
-                             onClick={() => openPrintKK(f)}
-                           >
-                             <span className="text-blue-600 font-black text-[10px] md:text-xs tracking-widest">{f.no_kk}</span>
-                             <Printer size={10} className="text-slate-300 group-hover:text-blue-400" />
-                           </div>
-                        </td>
-                        <td className="px-3 md:px-6 py-3 md:py-4 text-[9px] md:text-[11px] font-mono font-bold text-slate-400 group-hover:text-slate-600 tracking-wider">
-                          {nikKepala}
-                        </td>
-                        <td className="px-3 md:px-6 py-3 md:py-4">
-                          <p className="font-black text-slate-800 text-[11px] md:text-[13px] uppercase tracking-tight group-hover:text-blue-900">{kepala}</p>
-                          <p className="text-[8px] text-slate-400 font-bold uppercase mt-0.5 md:mt-1 tracking-widest">Kepala Keluarga</p>
-                        </td>
-                        <td className="px-3 md:px-6 py-3 md:py-4">
-                          <div className="flex flex-col">
-                            <span className="text-[11px] md:text-[13px] font-black text-slate-700 leading-none">{f.alamat}</span>
-                            <span className="text-[8px] uppercase font-black text-slate-400 mt-1 md:mt-1.5 tracking-widest bg-slate-100 w-fit px-1 md:px-1.5 py-0.5 rounded border border-slate-200">RT {f.rt_rw}</span>
+
+                <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-none">
+                  <div className="relative group">
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                    <input 
+                      type="text" 
+                      placeholder="Cari Nama atau No. KK..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-12 pr-6 py-4 bg-white/5 border-2 border-white/10 rounded-2xl outline-none focus:border-blue-500 focus:bg-slate-800 transition-all font-bold text-white placeholder:text-slate-600 text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-4 pb-10">
+                    {families.map((f, i) => {
+                      const kepalaObj = f.anggota.find(a => a.hubungan === 'Kepala Keluarga');
+                      return (
+                        <div key={f.no_kk} className="bg-white/5 border border-white/10 rounded-3xl p-5 space-y-4 hover:border-blue-500/50 transition-all shadow-xl shadow-black/20">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-[8px] font-black text-blue-500 uppercase tracking-widest mb-1.5 leading-none">Kepala Keluarga</p>
+                              <h4 className="text-sm font-black text-white uppercase tracking-tight leading-tight">{kepalaObj?.nama || '-'}</h4>
+                            </div>
+                            <div className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[8px] font-mono text-slate-400">
+                              #{i + 1}
+                            </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.4)]"></span>
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Valid</span>
+                          
+                          <div className="grid grid-cols-2 gap-4 pt-2">
+                             <div>
+                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1 leading-none">No. KK</p>
+                                <p className="text-[10px] font-bold text-slate-300 tracking-wider">{f.no_kk}</p>
+                             </div>
+                             <div>
+                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1 leading-none">Wilayah</p>
+                                <p className="text-[10px] font-bold text-slate-300 truncate">{f.alamat} / RT {f.rt_rw}</p>
+                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex justify-center gap-2">
+
+                          <div className="flex gap-2 pt-2">
                             <button 
-                              onClick={() => openEditModal(allFamilies.findIndex(it => it.no_kk === f.no_kk))}
-                              className="w-9 h-9 bg-white border-2 border-slate-100 hover:border-blue-500 text-slate-400 hover:text-blue-600 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-110 active:scale-95 group/btn"
-                              title="Detail / Edit"
+                              onClick={() => {
+                                openEditModal(allFamilies.findIndex(it => it.no_kk === f.no_kk));
+                                setIsDatabaseViewOpen(false);
+                              }}
+                              className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-blue-900/40"
                             >
-                              {session.role === 'admin' ? <Edit size={16} className="group-hover/btn:scale-110 transition-transform" /> : <ChevronRight size={16} />}
+                              {session.role === 'admin' ? 'Kelola Data' : 'Detail'}
+                            </button>
+                            <button 
+                              onClick={() => { openPrintKK(f); setIsDatabaseViewOpen(false); }}
+                              className="w-12 h-11 bg-white/5 border border-white/10 text-white rounded-xl flex items-center justify-center active:scale-95 transition-all"
+                            >
+                              <Printer size={16} />
                             </button>
                             {session.role === 'admin' && (
                               <button 
                                 onClick={() => onDelete(allFamilies.findIndex(it => it.no_kk === f.no_kk))}
-                                className="w-9 h-9 bg-white border-2 border-slate-100 hover:border-rose-500 text-slate-400 hover:text-rose-500 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-110 active:scale-95 group/del"
-                                title="Hapus"
+                                className="w-12 h-11 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl flex items-center justify-center active:scale-95 transition-all"
                               >
-                                <Trash2 size={16} className="group-hover/del:scale-110 transition-transform" />
+                                <Trash2 size={16} />
                               </button>
                             )}
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
-        </div>
-      </main>
-
-      <footer className="bg-slate-900 text-slate-500 py-6 px-8 border-t border-slate-800 text-center text-xs font-medium no-print">
-        <p>Pemerintah Dusun Amaholu Losy © 2026 | SIAK Professional Kependudukan</p>
-      </footer>
-          </div>
-        </div>
+          )}
+        </AnimatePresence>
       </div>
+    </div>
+  </div>
+
+      <footer className="bg-slate-900 border-t border-white/5 py-8 md:py-12 px-8 text-center no-print shrink-0">
+        <p className="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.3em]">
+          Pemerintah Dusun Amaholu Losy © 2026 | SIAK MOBILE Kependudukan
+        </p>
+      </footer>
     </motion.div>
   );
 }
@@ -1064,7 +1163,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
       <motion.div 
         initial={{ scale: 0.9, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="relative w-full max-w-7xl h-[94vh] bg-white rounded-[3.5rem] shadow-[0_50px_150px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col border border-white/20"
+        className="relative w-full max-w-7xl h-[94vh] bg-purple-950 rounded-[3.5rem] shadow-[0_50px_150px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col border border-white/20"
       >
         <div className="bg-slate-900 px-6 py-4 flex items-center justify-between border-b-4 border-amber-500 relative overflow-hidden">
           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
@@ -1072,13 +1171,15 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
             <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-amber-500 border border-white/10 shadow-inner">
               <Users size={32} />
             </div>
-            <div>
-              <h3 className="text-white text-2xl font-black tracking-tighter uppercase">
-                {isReadOnly ? 'Detail Berkas Kependudukan' : (data.no_kk ? 'Mutasi Data Keluarga' : 'Registrasi Berkas Baru')}
+            <div className="text-center md:text-left">
+              <h3 className="text-white text-2xl font-black tracking-tighter uppercase leading-tight">
+                {isReadOnly ? 'Detail Berkas Kependudukan' : (data.no_kk ? 'Mutasi Data Keluarga' : (
+                  <div className="flex flex-col items-center md:items-start">
+                    <span>Registrasi Kartu</span>
+                    <span>Keluarga</span>
+                  </div>
+                ))}
               </h3>
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mt-1.5 flex items-center gap-2">
-                <Shield size={12} className="text-blue-500" /> Sertifikat Otoritas Sensus
-              </p>
             </div>
           </div>
           <button 
@@ -1106,7 +1207,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                 disabled={isReadOnly}
                 required
                 placeholder="KODE 16-DIGIT"
-                className="w-full px-5 md:px-7 py-3 md:py-5 bg-slate-50 border-2 border-slate-100 rounded-xl md:rounded-3xl font-black text-slate-800 placeholder:text-slate-300 outline-none focus:border-blue-600 focus:bg-white transition-all shadow-sm text-sm md:text-base"
+                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-3xl font-black text-white placeholder:text-slate-600 outline-none focus:border-blue-500 focus:bg-white/10 transition-all shadow-sm text-sm md:text-base"
               />
             </div>
             <div className="space-y-2 md:space-y-3">
@@ -1117,7 +1218,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                 disabled={isReadOnly}
                 required
                 placeholder="JALAN / DUSUN"
-                className="w-full px-5 md:px-7 py-3 md:py-5 bg-slate-50 border-2 border-slate-100 rounded-xl md:rounded-3xl font-black text-slate-800 placeholder:text-slate-300 outline-none focus:border-blue-600 focus:bg-white transition-all shadow-sm text-sm md:text-base"
+                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-3xl font-black text-white placeholder:text-slate-600 outline-none focus:border-blue-500 focus:bg-white/10 transition-all shadow-sm text-sm md:text-base"
               />
             </div>
             <div className="space-y-2 md:space-y-3">
@@ -1128,7 +1229,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                 disabled={isReadOnly}
                 required
                 placeholder="00"
-                className="w-full px-5 md:px-7 py-3 md:py-5 bg-slate-50 border-2 border-slate-100 rounded-xl md:rounded-3xl font-black text-slate-800 placeholder:text-slate-300 outline-none focus:border-blue-600 focus:bg-white transition-all shadow-sm text-center text-sm md:text-base"
+                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-3xl font-black text-white placeholder:text-slate-600 outline-none focus:border-blue-500 focus:bg-white/10 transition-all shadow-sm text-center text-sm md:text-base"
               />
             </div>
           </div>
@@ -1137,7 +1238,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-10">
               <div className="flex items-center gap-3 md:gap-4">
                  <div className="w-1.5 h-8 md:w-2.5 md:h-10 bg-blue-600 rounded-full"></div>
-                 <h4 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Anggota Keluarga</h4>
+                 <h4 className="text-xl md:text-2xl font-black text-white tracking-tight">Anggota Keluarga</h4>
               </div>
               {!isReadOnly && (
                 <button 
@@ -1156,7 +1257,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   key={i} 
-                  className="p-5 md:p-10 bg-slate-50/50 border-2 border-slate-100 rounded-2xl md:rounded-[3rem] relative group hover:border-blue-200 transition-all hover:bg-white hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)]"
+                  className="p-5 md:p-10 bg-white/5 border-2 border-white/10 rounded-2xl md:rounded-[3rem] relative group hover:border-blue-500/30 transition-all hover:bg-white/10 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
                 >
                   {!isReadOnly && (
                     <button 
@@ -1176,7 +1277,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         onChange={e => updateMember(i, 'nama', e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl font-black text-slate-800 text-xs md:text-sm focus:border-blue-600 focus:bg-white outline-none transition-all shadow-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none transition-all shadow-sm"
                       />
                     </div>
                     <div>
@@ -1187,7 +1288,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         disabled={isReadOnly}
                         required
                         maxLength={16}
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl font-mono font-bold text-slate-800 text-xs md:text-sm focus:border-blue-600 outline-none transition-all shadow-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-mono font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none transition-all shadow-sm"
                       />
                     </div>
                     <div>
@@ -1197,13 +1298,13 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         onChange={e => updateMember(i, 'hubungan', e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl font-black text-slate-800 text-xs md:text-sm focus:border-blue-600 outline-none transition-all shadow-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none transition-all shadow-sm"
                       >
-                        <option value="">Pilih</option>
-                        <option value="Kepala Keluarga">Kepala Keluarga</option>
-                        <option value="Istri">Istri</option>
-                        <option value="Anak">Anak</option>
-                        <option value="Lainnya">Lainnya</option>
+                        <option value="" className="bg-purple-950">Pilih</option>
+                        <option value="Kepala Keluarga" className="bg-purple-950">Kepala Keluarga</option>
+                        <option value="Istri" className="bg-purple-950">Istri</option>
+                        <option value="Anak" className="bg-purple-950">Anak</option>
+                        <option value="Lainnya" className="bg-purple-950">Lainnya</option>
                       </select>
                     </div>
                     <div>
@@ -1213,11 +1314,11 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         onChange={e => updateMember(i, 'jk', e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl font-black text-slate-800 text-xs md:text-sm focus:border-blue-600 outline-none transition-all shadow-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none transition-all shadow-sm"
                       >
-                        <option value="">Pilih</option>
-                        <option value="Laki-laki">Laki-laki</option>
-                        <option value="Perempuan">Perempuan</option>
+                        <option value="" className="bg-purple-950">Pilih</option>
+                        <option value="Laki-laki" className="bg-purple-950">Laki-laki</option>
+                        <option value="Perempuan" className="bg-purple-950">Perempuan</option>
                       </select>
                     </div>
                     
@@ -1228,7 +1329,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         onChange={e => updateMember(i, 'tempat_lahir', e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl font-bold text-slate-800 text-xs md:text-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
                       />
                     </div>
                     <div>
@@ -1239,7 +1340,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         onChange={e => updateMember(i, 'tgl', e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl font-bold text-slate-800 text-xs md:text-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
                       />
                     </div>
                     <div>
@@ -1249,7 +1350,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         onChange={e => updateMember(i, 'pendidikan', e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl font-bold text-slate-800 text-xs md:text-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
                       />
                     </div>
                     <div>
@@ -1259,7 +1360,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         onChange={e => updateMember(i, 'pekerjaan', e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl font-bold text-slate-800 text-xs md:text-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
                       />
                     </div>
 
@@ -1270,14 +1371,14 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         onChange={e => updateMember(i, 'agama', e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl font-black text-slate-800 text-xs md:text-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
                       >
-                        <option value="">Pilih</option>
-                        <option value="Islam">Islam</option>
-                        <option value="Kristen">Kristen</option>
-                        <option value="Katolik">Katolik</option>
-                        <option value="Hindu">Hindu</option>
-                        <option value="Budha">Budha</option>
+                        <option value="" className="bg-purple-950">Pilih</option>
+                        <option value="Islam" className="bg-purple-950">Islam</option>
+                        <option value="Kristen" className="bg-purple-950">Kristen</option>
+                        <option value="Katolik" className="bg-purple-950">Katolik</option>
+                        <option value="Hindu" className="bg-purple-950">Hindu</option>
+                        <option value="Budha" className="bg-purple-950">Budha</option>
                       </select>
                     </div>
                     <div>
@@ -1286,13 +1387,13 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                         value={ag.bansos} 
                         onChange={e => updateMember(i, 'bansos', e.target.value)}
                         disabled={isReadOnly}
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-blue-50 border-2 border-blue-100 rounded-xl md:rounded-2xl font-black text-blue-700 text-xs md:text-sm focus:border-blue-600 outline-none transition-all shadow-inner"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-blue-500/10 border-2 border-blue-500/20 rounded-xl md:rounded-2xl font-black text-blue-400 text-xs md:text-sm focus:border-blue-600 outline-none transition-all shadow-inner"
                       >
-                        <option value="">Tidak Ada</option>
-                        <option value="PKH">PKH</option>
-                        <option value="BPNT">BPNT</option>
-                        <option value="BLT">BLT</option>
-                        <option value="BPJS">BPJS</option>
+                        <option value="" className="bg-purple-950">Tidak Ada</option>
+                        <option value="PKH" className="bg-purple-950">PKH</option>
+                        <option value="BPNT" className="bg-purple-950">BPNT</option>
+                        <option value="BLT" className="bg-purple-950">BLT</option>
+                        <option value="BPJS" className="bg-purple-950">BPJS</option>
                       </select>
                     </div>
                   </div>
@@ -1302,9 +1403,9 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
           </div>
         </form>
 
-        <div className="bg-slate-50 px-6 py-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-slate-900 px-6 py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-             <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border-2 border-blue-100">
+             <div className="w-10 h-10 bg-white/10 text-blue-400 rounded-full flex items-center justify-center border border-white/10 shadow-inner">
                 <Info size={18} />
              </div>
              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-loose max-w-[300px]">
@@ -1315,7 +1416,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
             <button 
               type="button"
               onClick={onClose} 
-              className="flex-1 sm:flex-none px-8 py-3 bg-white border-2 border-slate-200 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all font-sans"
+              className="flex-1 sm:flex-none px-8 py-3 bg-white/5 border border-white/10 text-slate-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all font-sans"
             >
               Batalkan
             </button>
@@ -1373,118 +1474,101 @@ function StatsModal({ db, onClose }: { db: Family[], onClose: () => void }) {
       />
       
       <motion.div 
-        initial={{ scale: 0.9, opacity: 0, y: 30 }}
+        initial={{ scale: 0.95, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="relative w-full max-w-6xl h-[94vh] bg-white rounded-3xl md:rounded-[3.5rem] shadow-[0_50px_150px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col border border-white/20"
+        className="relative w-full max-w-xl h-[92vh] bg-white rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col border border-white/20"
       >
-        <div className="bg-slate-900 px-5 md:px-6 py-3 md:py-4 flex items-center justify-between border-b-4 border-blue-600 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-          <div className="flex items-center gap-3 md:gap-4 relative z-10 overflow-hidden">
-            <div className="w-9 h-9 md:w-11 md:h-11 bg-white/10 rounded-xl flex items-center justify-center text-blue-500 border border-white/10 shadow-inner shrink-0">
-              <BarChart3 size={20} className="md:w-6 md:h-6" />
+        <div className="bg-slate-900 border-b-4 border-blue-600 px-6 py-6 flex items-center justify-between relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center text-blue-500 border border-blue-500/20 shadow-inner">
+              <BarChart3 size={24} />
             </div>
-            <div className="flex-1 overflow-hidden">
-              <h3 className="text-white text-base md:text-lg font-black tracking-tighter uppercase whitespace-nowrap">Statistik</h3>
-              <p className="text-slate-400 text-[7px] md:text-[8px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mt-0.5 flex items-center gap-2">
-                <Shield size={8} className="md:w-2.5 md:h-2.5" /> Dasbor Ringkasan Eksekutif v2.0
+            <div>
+              <h3 className="text-white text-xl font-black tracking-tighter uppercase leading-none">Statistik</h3>
+              <p className="text-slate-400 text-[8px] font-black uppercase tracking-[0.3em] mt-1.5 flex items-center gap-2">
+                <Shield size={10} /> Dasbor Ringkasan Eksekutif v2.0
               </p>
             </div>
           </div>
           <button 
             onClick={onClose} 
-            className="w-10 h-10 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all border border-white/10"
+            className="w-11 h-11 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all border border-white/10 active:scale-90"
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5 md:p-10 space-y-6 md:space-y-8 scrollbar-official">
-          {/* Executive Overview */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-10 scrollbar-none bg-white">
+          {/* Executive Overview - Image Match */}
+          <div className="grid grid-cols-2 gap-4">
             {[
-              { label: "Penduduk", value: stats.totalResidents, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-              { label: "Keluarga", value: stats.totalFamilies, icon: Shield, color: "text-emerald-600", bg: "bg-emerald-50" },
-              { label: "Pria", value: stats.genderMale, icon: UserIcon, color: "text-amber-600", bg: "bg-amber-50" },
-              { label: "Wanita", value: stats.genderFemale, icon: UserIcon, color: "text-rose-600", bg: "bg-rose-50" }
+              { label: "Penduduk", value: stats.totalResidents, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
+              { label: "Keluarga", value: stats.totalFamilies, icon: Shield, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+              { label: "Pria", value: stats.genderMale, icon: UserIcon, color: "text-amber-500", bg: "bg-amber-500/10" },
+              { label: "Wanita", value: stats.genderFemale, icon: UserIcon, color: "text-rose-500", bg: "bg-rose-500/10" }
             ].map((item, idx) => (
               <motion.div 
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="p-4 md:p-5 rounded-2xl md:rounded-[2rem] bg-white border-2 border-slate-100 shadow-sm hover:shadow-xl transition-all group"
+                className="p-6 rounded-[2.5rem] bg-[#d4cfe4] border border-slate-200/50 flex flex-col items-start shadow-sm"
               >
-                <div className={`w-8 h-8 md:w-11 md:h-11 ${item.bg} ${item.color} rounded-lg md:rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform shrink-0`}>
-                  <item.icon size={16} className="md:w-5 md:h-5" />
+                <div className={`mb-6 text-2xl`}>
+                  <item.icon size={20} className="text-slate-600 opacity-80" />
                 </div>
-                <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 md:mb-1.5 leading-none">{item.label}</p>
-                <h4 className="text-lg md:text-2xl font-black text-slate-900 tracking-tighter truncate">{item.value} <span className="text-[10px] md:text-sm text-slate-300 ml-0.5">Jiwa</span></h4>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 leading-none opacity-60">{item.label}</p>
+                <h4 className="text-3xl font-black text-slate-900 tracking-tighter flex items-center gap-2">
+                  {item.value} 
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Jiwa</span>
+                </h4>
               </motion.div>
             ))}
           </div>
 
-          <div className="h-px bg-slate-100 w-full"></div>
+          <div className="h-px bg-slate-100 w-full opacity-50"></div>
 
-          {/* Detailed Analytics Area */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-            <div className="space-y-3 md:space-y-4">
-              <div className="flex items-center gap-2 md:gap-3 mb-1">
-                 <div className="w-1 h-4 md:h-5 bg-emerald-500 rounded-full"></div>
-                 <h4 className="text-sm md:text-base font-black text-slate-900 tracking-tight">Identitas Gender</h4>
-              </div>
-              <div className="bg-slate-50/50 p-4 md:p-6 rounded-2xl md:rounded-[2rem] border-2 border-slate-100 space-y-4 md:space-y-6">
-                 <div className="space-y-2">
+          {/* Gender Indicator - Image Match style */}
+          <div className="space-y-6">
+             <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
+             
+             <div className="space-y-8 px-2">
+                <div className="space-y-3">
                    <div className="flex justify-between items-end">
-                      <span className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest">Pria</span>
-                      <span className="text-[11px] md:text-xs font-black text-slate-900">{stats.genderMale}</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Pria</span>
+                      <span className="text-xs font-black text-slate-900">{stats.genderMale} Jiwa</span>
                    </div>
-                   <div className="h-2.5 md:h-3 bg-slate-200 rounded-full overflow-hidden flex">
+                   <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${(stats.genderMale / (stats.totalResidents || 1)) * 100}%` }}
-                        className="h-full bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                        className="h-full bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.3)]"
                       />
                    </div>
-                 </div>
-                 <div className="space-y-2">
+                </div>
+
+                <div className="space-y-3">
                    <div className="flex justify-between items-end">
-                      <span className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest">Wanita</span>
-                      <span className="text-[11px] md:text-xs font-black text-slate-900">{stats.genderFemale}</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Wanita</span>
+                      <span className="text-xs font-black text-slate-900">{stats.genderFemale} Jiwa</span>
                    </div>
-                   <div className="h-2.5 md:h-3 bg-slate-200 rounded-full overflow-hidden">
+                   <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${(stats.genderFemale / (stats.totalResidents || 1)) * 100}%` }}
-                        className="h-full bg-rose-600 rounded-full shadow-[0_0_15px_rgba(225,29,72,0.4)]"
+                        className="h-full bg-rose-500 rounded-full shadow-[0_0_20px_rgba(244,63,94,0.3)]"
                       />
                    </div>
-                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-3 md:space-y-4">
-              <div className="flex items-center gap-2 md:gap-3 mb-1">
-                 <div className="w-1 h-4 md:h-5 bg-amber-500 rounded-full"></div>
-                 <h4 className="text-sm md:text-base font-black text-slate-900 tracking-tight">Wilayah</h4>
-              </div>
-              <div className="bg-slate-50/50 p-4 md:p-6 rounded-2xl md:rounded-[2rem] border-2 border-slate-100 max-h-[200px] md:max-h-[250px] overflow-y-auto scrollbar-official space-y-2 md:space-y-3">
-                {Object.entries(stats.distribusiAlamat).map(([alamat, count], idx) => (
-                  <div key={alamat} className="flex items-center justify-between p-2.5 md:p-3 bg-white rounded-lg md:rounded-xl border border-slate-100 group hover:border-blue-200 transition-all shadow-sm">
-                    <div className="flex items-center gap-2 md:gap-3 overflow-hidden">
-                       <span className="w-6 h-6 md:w-7 md:h-7 bg-slate-100 rounded md:rounded-lg flex items-center justify-center text-[8px] md:text-[9px] font-black text-slate-400 shrink-0">{idx + 1}</span>
-                       <span className="text-[11px] md:text-xs font-black text-slate-800 uppercase tracking-tight truncate">{alamat}</span>
-                    </div>
-                    <span className="px-2 md:px-3 py-0.5 md:py-1 bg-blue-50 text-blue-600 rounded-full font-black text-[8px] md:text-[9px] uppercase tracking-widest shrink-0">{count} KK</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                </div>
+             </div>
           </div>
         </div>
 
-        <div className="bg-slate-50 px-6 py-6 border-t border-slate-200 text-center">
-           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-loose">
-              Data terhitung secara real-time berdasarkan basis data kependudukan terbaru.
+        <div className="bg-slate-900 p-8 text-center border-t border-white/5 relative overflow-hidden">
+           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+           <p className="text-blue-400 text-[8px] font-black uppercase tracking-[0.4em] leading-relaxed relative z-10 max-w-xs mx-auto">
+             Data terhitung secara real-time berdasarkan pembaruan data kependudukan terbaru.
            </p>
         </div>
       </motion.div>
@@ -1518,76 +1602,97 @@ function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterTy
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }} 
         animate={{ opacity: 1, scale: 1, y: 0 }} 
-        className="w-full max-w-xl bg-white rounded-[2.5rem] p-8 sm:p-12 shadow-[0_30px_100px_rgba(0,0,0,0.3)] relative max-h-[95vh] overflow-y-auto border border-slate-200"
+        className="w-full max-w-xl bg-white rounded-[2.5rem] shadow-[0_50px_150px_rgba(0,0,0,0.5)] relative max-h-[95vh] overflow-hidden border border-white/20 flex flex-col"
       >
-        <button onClick={onClose} className="absolute right-6 top-6 p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 hover:text-slate-900 active:scale-90">
-          <X size={24} />
-        </button>
-        
-        <div className="flex items-center gap-4 mb-2">
-           <div className="w-1.5 h-8 bg-blue-600 rounded-full"></div>
-           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">Drafting Dokumen</h2>
+        {/* Header */}
+        <div className="bg-slate-900 px-6 py-6 border-b-4 border-blue-600 flex items-center justify-between sticky top-0 z-20">
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner">
+               <FileText className="text-blue-500" size={24} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-white tracking-tighter leading-none mb-1 uppercase">Drafting Surat</h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Administrasi Digital</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-11 h-11 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-all active:scale-95">
+            <X size={20} />
+          </button>
         </div>
-        <p className="text-slate-400 text-xs sm:text-sm mb-10 font-black uppercase tracking-widest leading-none">Generate {type}</p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilih Target Warga</label>
-            <div className="relative group">
-              <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={18} />
-              <input 
-                list="wargaList"
-                value={targetName}
-                onChange={(e) => setTargetName(e.target.value)}
-                className="w-full pl-12 pr-6 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-blue-500 focus:bg-white font-black text-slate-700 text-sm transition-all shadow-sm"
-                placeholder="Mulai ketik nama..."
-                required
-              />
-              <datalist id="wargaList">
-                {residentOptions.map((r, i) => <option key={i} value={r.nama} />)}
-              </datalist>
-            </div>
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-8 sm:p-10 space-y-8 bg-white">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full">
+            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></div>
+            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none">Generate {type}</span>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Identifikasi Berkas</label>
-            <div className="relative group">
-              <FileText className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={18} />
-              <input 
-                value={nomorSurat}
-                onChange={(e) => setNomorSurat(e.target.value)}
-                className="w-full pl-12 pr-6 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-blue-500 focus:bg-white font-bold text-slate-600 text-sm transition-all shadow-sm"
-                required
-              />
-            </div>
-          </div>
-
-          {type === 'Surat Keterangan Usaha' && (
+          <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-2">
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Objek Usaha / Niaga</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Pilih Target Warga</label>
               <div className="relative group">
-                <Shield className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={18} />
                 <input 
-                  value={usaha}
-                  onChange={(e) => setUsaha(e.target.value)}
-                  placeholder="e.g. Toko Kelontong, UMKM"
-                  className="w-full pl-12 pr-6 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-blue-500 focus:bg-white font-black text-slate-700 text-sm transition-all shadow-sm"
+                  list="wargaList"
+                  value={targetName}
+                  onChange={(e) => setTargetName(e.target.value)}
+                  className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white font-black text-slate-900 text-sm transition-all shadow-sm"
+                  placeholder="Mulai ketik nama..."
+                  required
+                />
+                <datalist id="wargaList">
+                  {residentOptions.map((r, i) => <option key={i} value={r.nama} />)}
+                </datalist>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Identifikasi Berkas</label>
+              <div className="relative group">
+                <FileText className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                <input 
+                  value={nomorSurat}
+                  onChange={(e) => setNomorSurat(e.target.value)}
+                  className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white font-bold text-slate-600 text-sm transition-all shadow-sm"
                   required
                 />
               </div>
             </div>
-          )}
 
-          <div className="pt-4">
-             <button type="submit" className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-black uppercase tracking-[0.2em] rounded-xl shadow-2xl shadow-blue-500/30 hover:to-blue-800 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2.5 text-xs">
-              <Printer size={18} /> Pratinjau Dokumen
-            </button>
-          </div>
-        </form>
+            {type === 'Surat Keterangan Usaha' && (
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Objek Usaha / Niaga</label>
+                <div className="relative group">
+                  <Shield className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                  <input 
+                    value={usaha}
+                    onChange={(e) => setUsaha(e.target.value)}
+                    placeholder="e.g. Toko Kelontong, UMKM"
+                    className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white font-black text-slate-900 text-sm transition-all shadow-sm placeholder:text-slate-400"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="pt-4">
+              <button type="submit" className="w-full py-5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 text-xs">
+                <Printer size={20} /> Cetak & Pratinjau
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="bg-slate-900 px-6 py-6 border-t border-white/10 text-center">
+           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-loose">
+              Data terhitung secara real-time berdasarkan basis data kependudukan terbaru.
+           </p>
+        </div>
       </motion.div>
     </div>
   );
