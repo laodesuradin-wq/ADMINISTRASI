@@ -38,4 +38,5 @@ export type LetterType =
   | "Surat Keterangan Usaha" 
   | "Surat Keterangan Tidak Mampu" 
   | "Surat Keterangan Kematian" 
+  | "Surat Keterangan Pendidikan"
   | "Surat Keterangan Domisili";

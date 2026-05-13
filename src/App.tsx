@@ -40,6 +40,7 @@ import {
   ADMIN_PASSWORD, 
   formatTanggalIndonesia, 
   hitungUmur, 
+  generateNomorSurat, 
   isValidNIK, 
   isValidKK, 
   isValidName,
@@ -66,6 +67,7 @@ export default function App() {
   ]);
 
   const [isMobile, setIsMobile] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Check for mobile device/screen
   useEffect(() => {
@@ -81,7 +83,14 @@ export default function App() {
   // Load Initial Data
   useEffect(() => {
     const savedDb = localStorage.getItem(STORAGE_KEY);
-    if (savedDb) setDb(JSON.parse(savedDb));
+    if (savedDb) {
+      try {
+        setDb(JSON.parse(savedDb));
+      } catch (e) {
+        console.error("Parse error", e);
+      }
+    }
+    setIsInitialized(true);
 
     const savedSession = sessionStorage.getItem(SESSION_KEY);
     if (savedSession) {
@@ -91,10 +100,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (db.length > 0) {
+    if (isInitialized) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
     }
-  }, [db]);
+  }, [db, isInitialized]);
 
   const handleLogin = (user: AuthSession) => {
     setSession(user);
@@ -169,14 +178,22 @@ export default function App() {
       no_kk: family.no_kk.trim(),
       alamat: family.alamat.trim(),
       rt_rw: family.rt_rw.trim(),
+      Desa: family.Desa.trim(),
+      Kecamatan: family.Kecamatan.trim(),
+      Kabupaten: family.Kabupaten.trim(),
+      Provinsi: family.Provinsi.trim(),
       anggota: family.anggota.map(a => ({
         ...a,
         nama: a.nama.trim(),
         nik: a.nik.trim(),
         tempat_lahir: a.tempat_lahir.trim(),
         pendidikan: a.pendidikan.trim(),
-        pekerjaan: a.pekerjaan.trim()
-      }))
+        pekerjaan: a.pekerjaan.trim(),
+        agama: a.agama.trim() as Resident['agama'],
+        jk: a.jk.trim() as Resident['jk'],
+        hubungan: a.hubungan.trim() as Resident['hubungan'],
+        bansos: a.bansos.trim()
+      })) as Resident[]
     };
 
     if (editingIndex !== null) {
@@ -217,7 +234,7 @@ export default function App() {
       // Initialize chat session if it doesn't exist
       if (!chatSessionRef.current) {
         chatSessionRef.current = ai.chats.create({
-          model: "gemini-3-flash-preview",
+          model: "gemini-1.5-flash",
           config: {
             systemInstruction: `Anda adalah asisten AI resmi bernama 'Asisten SIAK' untuk Dusun Amaholu Losy, Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku. Dusun ini dipimpin oleh Kepala Dusun Fauji Ali. 
             
@@ -258,21 +275,28 @@ export default function App() {
         setChatMessages(prev => {
           const updated = [...prev];
           if (updated.length > 0 && updated[updated.length - 1].type === 'ai') {
-            updated[updated.length - 1] = { text: fullText, type: 'ai' as const };
+            updated[updated.length - 1] = { text: fullText.trim(), type: 'ai' as const };
           }
           return updated;
         });
       }
 
-    } catch (error: any) {
+      } catch (error: any) {
       console.error("AI Error Details:", error);
       
-      let errorMessage = "Maaf, terjadi kesalahan teknis pada sistem asisten digital. Silakan coba beberapa saat lagi.";
+      // Reset session to allow retry on next message
+      chatSessionRef.current = null;
+      
+      let errorMessage = "Maaf, terjadi kesalahan teknis (Model/API). Silakan coba lagi.";
       
       if (error?.message?.includes("API_KEY_MISSING")) {
         errorMessage = "Akses AI belum dikonfigurasi. Mohon periksa pengaturan API Key di panel Secrets.";
+      } else if (error?.message?.includes("PERMISSION_DENIED") || error?.code === 403) {
+        errorMessage = "Akses AI ditolak (403). Silakan periksa kunci API Anda di Settings > Secrets atau pastikan model ini didukung.";
       } else if (error?.message?.includes("429") || error?.message?.includes("quota")) {
         errorMessage = "Kuota layanan harian telah habis atau terlalu banyak permintaan. Silakan coba lagi nanti.";
+      } else if (error?.message) {
+        errorMessage = `Kesalahan: ${error.message.substring(0, 100)}`;
       }
 
       setChatMessages(prev => {
@@ -367,9 +391,10 @@ export default function App() {
 
       {/* MODALS */}
         <div className={activeModal ? "print-root" : ""}>
-          {activeModal === 'family' && currentFamily && (
+          {activeModal === 'family' && currentFamily && session && (
             <FamilyModal 
               family={currentFamily} 
+              session={session}
               onSave={saveFamily} 
               onClose={() => setActiveModal(null)} 
             />
@@ -475,12 +500,12 @@ export default function App() {
                   key={i} 
                   className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-[88%] px-5 py-4 rounded-[1.5rem] text-[13px] leading-relaxed relative ${
+                  <div className={`max-w-[88%] px-5 py-4 rounded-[1.5rem] text-[13px] leading-relaxed relative whitespace-pre-wrap ${
                     msg.type === 'user' 
                       ? 'bg-blue-600 text-white rounded-br-none shadow-xl shadow-blue-500/20 font-medium' 
                       : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none shadow-sm font-semibold'
                   }`}>
-                    {msg.text}
+                    {msg.text || (msg.type === 'ai' ? '...' : '')}
                     <div className={`absolute bottom-[-4px] ${msg.type === 'user' ? 'right-0 border-t-[8px] border-t-blue-600 border-l-[8px] border-l-transparent' : 'left-0 border-t-[8px] border-t-white border-r-[8px] border-r-transparent'}`}></div>
                   </div>
                 </motion.div>
@@ -948,12 +973,13 @@ function DashboardView({
 
                               <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-none bg-white">
                                 <div className="grid grid-cols-2 gap-2">
-                                  {[
-                                    { name: "Surat Keterangan Usaha", label: "SK USAHA", sub: "Layanan Usaha", icon: "💼" },
-                                    { name: "Surat Keterangan Tidak Mampu", label: "SKTM", sub: "Bantuan Sosial", icon: "🤝" },
-                                    { name: "Surat Keterangan Kematian", label: "AKTA MATI", sub: "Saksi Kematian", icon: "🕊️" },
-                                    { name: "Surat Keterangan Domisili", label: "DOMISILI", sub: "Bukti Tinggal", icon: "🏠" }
-                                  ].map((item) => (
+                                    {[
+                                      { name: "Surat Keterangan Usaha", label: "SK USAHA", sub: "Layanan Usaha", icon: "💼" },
+                                      { name: "Surat Keterangan Tidak Mampu", label: "SKTM", sub: "Bantuan Sosial", icon: "🤝" },
+                                      { name: "Surat Keterangan Pendidikan", label: "SK PENDIDIKAN", sub: "Layanan Siswa", icon: "🎓" },
+                                      { name: "Surat Keterangan Kematian", label: "AKTA MATI", sub: "Saksi Kematian", icon: "🕊️" },
+                                      { name: "Surat Keterangan Domisili", label: "DOMISILI", sub: "Bukti Tinggal", icon: "🏠" }
+                                    ].map((item) => (
                                     <button 
                                       key={item.name}
                                       onClick={() => { openLetter(item.name as LetterType); setAdminMenuOpen(false); }}
@@ -1051,8 +1077,8 @@ function DashboardView({
                               action: () => setIsDatabaseViewOpen(true) 
                             },
                             { 
-                              label: session.role === 'admin' ? "TAMBAH KK" : "FORMULIR BARU", 
-                              sub: session.role === 'admin' ? "OPERASI DATA" : "INPUT DATA", 
+                              label: "TAMBAH KK", 
+                              sub: "OPERASI DATA", 
                               icon: "📝", 
                               action: () => openNewFamilyModal() 
                             },
@@ -1213,7 +1239,7 @@ function DashboardView({
 
 // --- MODALS ---
 
-function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: Family) => void, onClose: () => void }) {
+function FamilyModal({ family, session, onSave, onClose }: { family: Family, session: AuthSession, onSave: (f: Family) => void, onClose: () => void }) {
   const [data, setData] = useState<Family>(JSON.parse(JSON.stringify(family)));
 
   const addMember = () => {
@@ -1234,7 +1260,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
     setData({ ...data, anggota: newMembers });
   };
 
-  const handleSumbit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidKK(data.no_kk)) return alert("Data Gagal Simpan: Nomor KK harus tepat 16 digit angka.");
     if (data.anggota.length === 0) return alert("Minimal harus ada 1 anggota keluarga yang terdaftar.");
@@ -1256,8 +1282,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
     onSave(data);
   };
 
-  const currentRole = JSON.parse(sessionStorage.getItem('auth') || '{}').role;
-  const isReadOnly = currentRole === 'warga';
+  const isReadOnly = session.role === 'warga' && family.no_kk !== '';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 no-print">
@@ -1280,7 +1305,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
             </div>
             <div className="text-center md:text-left">
               <h3 className="text-white text-2xl font-black tracking-tighter uppercase leading-tight">
-                {isReadOnly ? 'Detail Berkas Kependudukan' : (data.no_kk ? 'Mutasi Data Keluarga' : (
+                {isReadOnly ? 'Detail Berkas Kependudukan' : (data.no_kk ? 'Form Kartu Keluarga' : (
                   <div className="flex flex-col items-center md:items-start">
                     <span>Registrasi Kartu</span>
                     <span>Keluarga</span>
@@ -1303,7 +1328,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
           </button>
         </div>
 
-        <form onSubmit={handleSumbit} className="flex-1 overflow-y-auto p-5 md:p-14 space-y-8 md:space-y-12 scrollbar-official">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 md:p-14 space-y-8 md:space-y-12 scrollbar-official">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             <div className="space-y-2 md:space-y-3">
                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">ID Resmi (KK)</label>
@@ -1452,13 +1477,24 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
                     </div>
                     <div>
                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Pendidikan</label>
-                       <input 
+                       <select 
                         value={ag.pendidikan} 
                         onChange={e => updateMember(i, 'pendidikan', e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
-                      />
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
+                      >
+                        <option value="" className="bg-purple-950">Pilih</option>
+                        <option value="Tidak/Belum Sekolah" className="bg-purple-950">Tidak/Belum Sekolah</option>
+                        <option value="SD / Sederajat" className="bg-purple-950">SD / Sederajat</option>
+                        <option value="SMP / Sederajat" className="bg-purple-950">SMP / Sederajat</option>
+                        <option value="SMA / Sederajat" className="bg-purple-950">SMA / Sederajat</option>
+                        <option value="Diploma I / II" className="bg-purple-950">Diploma I / II</option>
+                        <option value="Akademi / Diploma III" className="bg-purple-950">Akademi / Diploma III</option>
+                        <option value="Diploma IV / Strata I" className="bg-purple-950">Diploma IV / Strata I</option>
+                        <option value="Strata II" className="bg-purple-950">Strata II</option>
+                        <option value="Strata III" className="bg-purple-950">Strata III</option>
+                      </select>
                     </div>
                     <div>
                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Pekerjaan</label>
@@ -1530,7 +1566,7 @@ function FamilyModal({ family, onSave, onClose }: { family: Family, onSave: (f: 
             {!isReadOnly && (
               <button 
                 type="submit"
-                onClick={handleSumbit} 
+                onClick={handleSubmit} 
                 className="flex-1 sm:flex-none px-10 py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-[0_20px_50px_rgba(37,99,235,0.3)] active:scale-95 flex items-center justify-center gap-2"
               >
                 <Save size={16} /> Simpan Berkas
@@ -1547,6 +1583,7 @@ function StatsModal({ db, onClose }: { db: Family[], onClose: () => void }) {
   const stats = useMemo(() => {
     let totalJiwa = 0, l = 0, p = 0, bansos = 0, balita = 0, lansia = 0;
     const distribusiAlamat: Record<string, number> = {};
+    const distribusiPendidikan: Record<string, number> = {};
     
     db.forEach(f => {
       totalJiwa += f.anggota.length;
@@ -1555,6 +1592,9 @@ function StatsModal({ db, onClose }: { db: Family[], onClose: () => void }) {
         if (a.jk === 'Laki-laki') l++;
         if (a.jk === 'Perempuan') p++;
         if (a.bansos) bansos++;
+        if (a.pendidikan) {
+          distribusiPendidikan[a.pendidikan] = (distribusiPendidikan[a.pendidikan] || 0) + 1;
+        }
         const age = hitungUmur(a.tgl);
         if (age <= 5) balita++;
         if (age >= 60) lansia++;
@@ -1568,7 +1608,8 @@ function StatsModal({ db, onClose }: { db: Family[], onClose: () => void }) {
       bansos, 
       children: balita, 
       elders: lansia,
-      distribusiAlamat 
+      distribusiAlamat,
+      distribusiPendidikan
     };
   }, [db]);
 
@@ -1668,6 +1709,38 @@ function StatsModal({ db, onClose }: { db: Family[], onClose: () => void }) {
                       />
                    </div>
                 </div>
+             </div>
+          </div>
+
+          <div className="h-px bg-slate-100 w-full opacity-50"></div>
+
+          {/* Education Stats */}
+          <div className="space-y-6">
+             <div className="flex items-center gap-3">
+               <div className="w-1.5 h-6 bg-blue-600 rounded-full"></div>
+               <h4 className="text-[12px] font-black text-slate-900 uppercase tracking-tight">SDM & Pendidikan</h4>
+             </div>
+             
+             <div className="grid grid-cols-1 gap-3 px-2">
+               {Object.entries(stats.distribusiPendidikan)
+                 .sort((a, b) => (b[1] as number) - (a[1] as number))
+                 .map(([level, count], idx) => (
+                 <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-blue-200 transition-all">
+                   <div className="flex items-center gap-3">
+                     <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-blue-500 shadow-sm border border-slate-100 font-bold text-xs">
+                       {idx + 1}
+                     </div>
+                     <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider">{level}</span>
+                   </div>
+                   <div className="flex items-center gap-2">
+                     <span className="text-sm font-black text-slate-900">{count}</span>
+                     <span className="text-[8px] font-bold text-slate-400 uppercase">Jiwa</span>
+                   </div>
+                 </div>
+               ))}
+               {Object.keys(stats.distribusiPendidikan).length === 0 && (
+                 <p className="text-center text-[10px] font-bold text-slate-400 uppercase py-4">Belum ada data kependidikan terdaftar</p>
+               )}
              </div>
           </div>
         </div>
@@ -1954,6 +2027,10 @@ function PreviewModal({ data, onClose }: { data: any, onClose: () => void }) {
 
               {data.type === 'Surat Keterangan Kematian' && (
                 <p>Adalah benar almarhum/almarhumah tercatat sebagai warga masyarakat Dusun Amaholu Losy yang telah dinyatakan meninggal dunia.</p>
+              )}
+
+              {data.type === 'Surat Keterangan Pendidikan' && (
+                <p>Adalah benar yang bersangkutan adalah warga masyarakat Dusun Amaholu Losy yang saat ini sedang menempuh pendidikan dengan jenjang <b>{data.resident.pendidikan}</b>. Surat ini diberikan untuk keperluan administrasi pendidikan yang bersangkutan.</p>
               )}
 
               <p className="mt-4">Demikian surat keterangan ini kami berikan kepada yang bersangkutan untuk dapat dipergunakan sebagaimana mestinya.</p>

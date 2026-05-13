@@ -37,7 +37,8 @@ export function hitungUmur(tglLahir: string): number {
 
 export function generateNomorSurat(): string {
   const year = new Date().getFullYear();
-  return `      /KD/DAL/${year}`;
+  const rand = Math.floor(Math.random() * 900) + 100;
+  return `${rand}/KD/DAL/${year}`;
 }
 
 export const VALIDATION = {
