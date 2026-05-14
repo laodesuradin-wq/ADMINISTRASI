@@ -890,42 +890,34 @@ function DashboardView({
                   {/* Administrasi Digital Surat & Artikel Section */}
                   {session.role === 'admin' && (
                     <>
-                      <div className="col-span-1 bg-[#1b1e28] border-2 border-[#2a2e3d] rounded-2xl overflow-hidden transition-all duration-300 shadow-xl shadow-black/20 flex flex-col">
+                      <div className={`${adminMenuOpen ? 'col-span-full' : 'col-span-1'} relative group`}>
                         <button 
                           onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                          className="w-full flex-1 p-3 md:p-4 flex items-center justify-between text-slate-300 hover:bg-[#232734] hover:text-white transition-all active:scale-95"
+                          className={`w-full p-2 md:p-3.5 rounded-xl md:rounded-2xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 border-2 bg-[#1b1e28] border-[#2a2e3d] text-slate-300 hover:bg-[#232734] hover:border-[#35394a] hover:text-white shadow-none active:scale-95`}
                         >
-                           <div className="flex items-center gap-3">
-                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all ${adminMenuOpen ? 'bg-white/20 scale-110' : 'bg-white/5'}`}>📄</div>
-                             <div className="text-left">
-                               <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-wider mb-1 leading-none opacity-70">Administrasi</span>
-                               <span className="block text-xs md:text-sm font-black uppercase tracking-tight leading-tight">Digital Surat</span>
-                             </div>
-                           </div>
-                           <div className="flex items-center gap-1 md:gap-3">
-                             <Shield className="w-4 h-4 opacity-30 hidden md:block" />
-                             <ChevronDown size={16} className={`transition-transform duration-500 ${adminMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
-                           </div>
+                          <div className="absolute top-2 right-2">
+                             <ChevronDown size={14} className={`transition-transform duration-500 ${adminMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
+                          </div>
+                          <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl transition-transform ${adminMenuOpen ? 'bg-white/20 scale-110' : 'bg-white/5'}`}>📄</div>
+                          <div className="text-center">
+                            <span className="block text-[10px] md:text-[12px] font-black uppercase tracking-tight opacity-90 leading-tight">Digital Surat</span>
+                          </div>
                         </button>
                       </div>
 
-                      <div className="col-span-1 bg-[#1b1e28] border-2 border-[#2a2e3d] rounded-2xl overflow-hidden transition-all duration-300 shadow-xl shadow-black/20 flex flex-col">
-                        <button 
-                          onClick={openArticles}
-                          className="w-full flex-1 p-3 md:p-4 flex items-center justify-between text-slate-300 hover:bg-[#232734] hover:text-white transition-all active:scale-95 group"
-                        >
-                           <div className="flex items-center gap-3">
-                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all bg-white/5`}>📰</div>
-                             <div className="text-left">
-                               <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-wider mb-1 leading-none opacity-70">Lending Page</span>
-                               <span className="block text-xs md:text-sm font-black uppercase tracking-tight leading-tight">Kegiatan</span>
-                             </div>
-                           </div>
-                           <div className="flex items-center gap-1 md:gap-3">
-                             <ChevronRight size={16} className="opacity-30 group-hover:opacity-100 transition-opacity" />
-                           </div>
-                        </button>
-                      </div>
+                      {!adminMenuOpen && (
+                        <div className="col-span-1 relative group">
+                          <button 
+                            onClick={openArticles}
+                            className={`w-full p-2 md:p-3.5 rounded-xl md:rounded-2xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 border-2 bg-[#1b1e28] border-[#2a2e3d] text-slate-300 hover:bg-[#232734] hover:border-[#35394a] hover:text-white shadow-none active:scale-95 group`}
+                          >
+                            <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl transition-transform bg-white/5`}>📰</div>
+                            <div className="text-center">
+                              <span className="block text-[10px] md:text-[12px] font-black uppercase tracking-tight opacity-90 leading-tight">Kegiatan</span>
+                            </div>
+                          </button>
+                        </div>
+                      )}
 
                       <AnimatePresence>
                         {adminMenuOpen && (
