@@ -27,7 +27,8 @@ import {
   Info,
   Loader2,
   Download,
-  Baby
+  Baby,
+  Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
@@ -327,6 +328,7 @@ export default function App() {
             openEditModal={openEditModal}
             openNewFamilyModal={openNewFamilyModal}
             openStats={() => setActiveModal('stats')}
+            openArticles={() => setActiveModal('articles')}
             openLetter={(type) => { setActiveLetter(type); setActiveModal('letter'); }}
             openPrintKK={(f) => { setPrintKKData(f); setActiveModal('print-kk'); }}
             onDelete={(index) => {
@@ -374,6 +376,10 @@ export default function App() {
                 setActiveModal('preview');
               }}
             />
+          )}
+
+          {activeModal === 'articles' && (
+            <ArticleModal onClose={() => setActiveModal(null)} />
           )}
 
           {activeModal === 'preview' && letterData && (
@@ -743,6 +749,7 @@ function DashboardView({
   openEditModal,
   openNewFamilyModal,
   openStats,
+  openArticles,
   openLetter,
   openPrintKK,
   onDelete,
@@ -757,6 +764,7 @@ function DashboardView({
   openEditModal: (i: number) => void;
   openNewFamilyModal: () => void;
   openStats: () => void;
+  openArticles: () => void;
   openLetter: (t: LetterType) => void;
   openPrintKK: (f: Family) => void;
   onDelete: (i: number) => void;
@@ -879,25 +887,45 @@ function DashboardView({
                     );
                   })}
 
-                  {/* Administrasi Digital Surat Section */}
+                  {/* Administrasi Digital Surat & Artikel Section */}
                   {session.role === 'admin' && (
-                    <div className="col-span-full bg-[#1b1e28] border-2 border-[#2a2e3d] rounded-2xl overflow-hidden transition-all duration-300 shadow-xl shadow-black/20">
-                      <button 
-                        onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                        className="w-full p-3 md:p-4 flex items-center justify-between text-slate-300 hover:bg-[#232734] hover:text-white transition-all active:scale-95"
-                      >
-                         <div className="flex items-center gap-3">
-                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all ${adminMenuOpen ? 'bg-white/20 scale-110' : 'bg-white/5'}`}>📄</div>
-                           <div className="text-left">
-                             <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-wider mb-1 leading-none opacity-70">Administrasi</span>
-                             <span className="block text-xs md:text-sm font-black uppercase tracking-tight leading-tight">Digital Surat</span>
+                    <>
+                      <div className="col-span-1 bg-[#1b1e28] border-2 border-[#2a2e3d] rounded-2xl overflow-hidden transition-all duration-300 shadow-xl shadow-black/20 flex flex-col">
+                        <button 
+                          onClick={() => setAdminMenuOpen(!adminMenuOpen)}
+                          className="w-full flex-1 p-3 md:p-4 flex items-center justify-between text-slate-300 hover:bg-[#232734] hover:text-white transition-all active:scale-95"
+                        >
+                           <div className="flex items-center gap-3">
+                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all ${adminMenuOpen ? 'bg-white/20 scale-110' : 'bg-white/5'}`}>📄</div>
+                             <div className="text-left">
+                               <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-wider mb-1 leading-none opacity-70">Administrasi</span>
+                               <span className="block text-xs md:text-sm font-black uppercase tracking-tight leading-tight">Digital Surat</span>
+                             </div>
                            </div>
-                         </div>
-                         <div className="flex items-center gap-3">
-                           <Shield className="w-4 h-4 opacity-30" />
-                           <ChevronDown size={16} className={`transition-transform duration-500 ${adminMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
-                         </div>
-                      </button>
+                           <div className="flex items-center gap-1 md:gap-3">
+                             <Shield className="w-4 h-4 opacity-30 hidden md:block" />
+                             <ChevronDown size={16} className={`transition-transform duration-500 ${adminMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
+                           </div>
+                        </button>
+                      </div>
+
+                      <div className="col-span-1 bg-[#1b1e28] border-2 border-[#2a2e3d] rounded-2xl overflow-hidden transition-all duration-300 shadow-xl shadow-black/20 flex flex-col">
+                        <button 
+                          onClick={openArticles}
+                          className="w-full flex-1 p-3 md:p-4 flex items-center justify-between text-slate-300 hover:bg-[#232734] hover:text-white transition-all active:scale-95 group"
+                        >
+                           <div className="flex items-center gap-3">
+                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all bg-white/5`}>📰</div>
+                             <div className="text-left">
+                               <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-wider mb-1 leading-none opacity-70">Lending Page</span>
+                               <span className="block text-xs md:text-sm font-black uppercase tracking-tight leading-tight">Kegiatan</span>
+                             </div>
+                           </div>
+                           <div className="flex items-center gap-1 md:gap-3">
+                             <ChevronRight size={16} className="opacity-30 group-hover:opacity-100 transition-opacity" />
+                           </div>
+                        </button>
+                      </div>
 
                       <AnimatePresence>
                         {adminMenuOpen && (
@@ -905,7 +933,7 @@ function DashboardView({
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            className="bg-slate-900 border-t-2 border-[#2a2e3d]"
+                            className="col-span-full bg-slate-900 border-2 border-[#2a2e3d] rounded-2xl overflow-hidden shadow-inner mt-2"
                           >
                             <div className="p-3 md:p-4 grid grid-cols-2 gap-2 md:gap-3">
                                 {[
@@ -934,7 +962,7 @@ function DashboardView({
                           </motion.div>
                         )}
                       </AnimatePresence>
-                    </div>
+                    </>
                   )}
 
                   </div>
@@ -1390,6 +1418,121 @@ function FamilyModal({ family, session, onSave, onClose }: { family: Family, ses
               </button>
             )}
           </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function ArticleModal({ onClose }: { onClose: () => void }) {
+  const [activeArticle, setActiveArticle] = useState<any>(null);
+
+  const articles = [
+    {
+      title: 'Semarak Kegiatan Masyarakat Dusun Amaholu Losy',
+      date: '14 Mei 2026',
+      category: 'Dokumentasi',
+      image: 'https://images.unsplash.com/photo-1593113560640-621aa12217c9?auto=format&fit=crop&q=80',
+      desc: 'Dokumentasi berbagai kegiatan dan kebersamaan warga masyarakat di Dusun Amaholu Losy.',
+      content: 'Warga Dusun Amaholu Losy selalu antusias dalam mengikuti berbagai kegiatan kemasyarakatan yang diadakan. Semangat gotong royong dan kebersamaan menjadi ciri khas yang lekat dengan kehidupan sehari-hari warga di dusun ini.\n\nKebersamaan tersebut tidak hanya terlihat dalam kegiatan formal, namun juga dalam momen-momen santai antar warga. Partisipasi aktif dari berbagai elemen masyarakat, mulai dari anak-anak, pemuda, hingga para tetua adat dan perangkat dusun, membuat setiap kegiatan terasa lebih bermakna dan meriah.\n\nMelalui dokumentasi video ini, kita dapat melihat secara langsung bagaimana masyarakat Dusun Amaholu Losy saling bersinergi, menjaga tradisi, dan membangun keharmonisan dalam kehidupan bermasyarakat. Tentu diharapkan segala kebaikan ini terus berlanjut di masa depan.',
+      videoId: '2simRC7OgjE'
+    }
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+        animate={{ opacity: 1, scale: 1, y: 0 }} 
+        className="relative w-full max-w-5xl max-h-[95vh] bg-[#0f1423] rounded-2xl md:rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border border-white/10"
+      >
+        {/* Header */}
+        <div className="bg-[#1b1e28] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 border-purple-600 relative overflow-hidden shrink-0">
+          <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+          <div className="flex items-center gap-3 md:gap-6 relative z-10">
+            {activeArticle ? (
+              <button onClick={() => setActiveArticle(null)} className="w-10 h-10 md:w-14 md:h-14 bg-white/5 hover:bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-white transition-all border border-white/10 shrink-0">
+                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6 rotate-180" />
+              </button>
+            ) : (
+              <div className="w-10 h-10 md:w-14 md:h-14 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-purple-500 border border-white/10 shadow-inner shrink-0">
+                 <span className="text-xl md:text-3xl">📰</span>
+              </div>
+            )}
+            <div className="text-left">
+              <h2 className="text-white text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight mb-0.5 md:mb-1">{activeArticle ? 'Detail Berita' : 'Kegiatan Dusun'}</h2>
+              <p className="text-slate-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]">Portal Berita Desa</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 md:w-10 md:h-10 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all border border-white/10 hover:rotate-90 shrink-0">
+            <X className="w-4 h-4 md:w-5 md:h-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 scrollbar-none bg-[#0f1423]">
+          
+          {activeArticle ? (
+            <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
+              <div>
+                <div className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-3 flex items-center gap-3">
+                  <span className="bg-purple-500/20 px-3 py-1 rounded-full">{activeArticle.category}</span>
+                  <span className="flex items-center gap-1.5 opacity-70"><Calendar size={12} /> {activeArticle.date}</span>
+                </div>
+                <h1 className="text-2xl md:text-4xl font-black text-white leading-tight mb-6">{activeArticle.title}</h1>
+              </div>
+
+              {activeArticle.videoId ? (
+                <div className="aspect-video w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black relative shadow-purple-900/20">
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src={`https://www.youtube.com/embed/${activeArticle.videoId}?autoplay=1&mute=1`}
+                    title="YouTube video player" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    referrerPolicy="strict-origin-when-cross-origin" 
+                    allowFullScreen
+                    className="absolute inset-0 object-cover"
+                  ></iframe>
+                </div>
+              ) : (
+                <div className="aspect-video w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl relative shadow-purple-900/20">
+                  <img src={activeArticle.image} alt={activeArticle.title} className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              <div className="prose prose-invert prose-slate prose-lg md:prose-xl max-w-none pb-6">
+                {activeArticle.content.split('\n\n').map((paragraph: string, idx: number) => (
+                  <p key={idx} className="text-slate-300 leading-relaxed tracking-wide text-sm md:text-base">{paragraph}</p>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {articles.map((article, idx) => (
+                <button key={idx} onClick={() => setActiveArticle(article)} className="text-left bg-[#1b1e28] border border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden group hover:border-purple-500/30 transition-all flex flex-col shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50">
+                   <div className="h-40 md:h-56 overflow-hidden relative w-full">
+                     <div className="absolute top-4 left-4 z-10 bg-purple-600 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">
+                        {article.category}
+                     </div>
+                     <img src={article.image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                     <div className="absolute inset-0 bg-gradient-to-t from-[#1b1e28] via-[#1b1e28]/20 to-transparent z-0"></div>
+                   </div>
+                   <div className="p-5 md:p-6 flex-1 flex flex-col relative z-20 -mt-8 md:-mt-10 w-full">
+                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                       <Calendar size={12} /> {article.date}
+                     </div>
+                     <h3 className="text-sm md:text-lg font-black text-white leading-tight mb-3 line-clamp-2 drop-shadow-md group-hover:text-purple-300 transition-colors">{article.title}</h3>
+                     <p className="text-xs text-slate-400/80 leading-relaxed mb-4 flex-1 line-clamp-3 md:line-clamp-none">{article.desc}</p>
+                     <div className="text-left text-[10px] font-black uppercase tracking-widest text-purple-400 group-hover:text-purple-300 transition-colors flex items-center gap-2">
+                       Baca Selengkapnya <ChevronRight size={14} />
+                     </div>
+                   </div>
+                </button>
+              ))}
+            </div>
+          )}
+
         </div>
       </motion.div>
     </div>
