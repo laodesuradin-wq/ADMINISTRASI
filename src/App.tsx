@@ -1377,6 +1377,15 @@ function ArticleModal({ onClose }: { onClose: () => void }) {
 
   const articles = [
     {
+      title: 'Aktivitas Keseharian Warga Masyarakat Amaholu Losy',
+      date: '14 Mei 2026',
+      category: 'Dokumentasi',
+      image: 'https://images.unsplash.com/photo-1593113560640-621aa12217c9?auto=format&fit=crop&q=80',
+      desc: 'Melihat lebih dekat keseharian dan kehangatan warga masyarakat di Dusun Amaholu Losy.',
+      content: 'Keseharian warga masyarakat Dusun Amaholu Losy selalu diwarnai dengan semangat kebersamaan dan kerja keras. Dalam video ini, terekam berbagai aktivitas rutin warga yang penuh makna dan kesederhanaan.\n\nMulai dari kegiatan gotong royong, berkumpul bersama keluarga, hingga interaksi hangat sesama warga dalam kegiatan sosial maupun rutinitas sehari-hari, memberikan cerminan budaya yang melekat kuat di tengah kemajuan zaman.\n\nKerukunan dan semangat kolaborasi yang ada menjadi dasar kekuatan Dusun Amaholu Losy untuk terus maju, serta menjaga adat dan keharmonisan lingkungan sekitar.',
+      videoId: 'QVWtQvqMHLk'
+    },
+    {
       title: 'Semarak Kegiatan Masyarakat Dusun Amaholu Losy',
       date: '14 Mei 2026',
       category: 'Dokumentasi',
