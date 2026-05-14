@@ -1377,6 +1377,15 @@ function ArticleModal({ onClose }: { onClose: () => void }) {
 
   const articles = [
     {
+      title: 'Aktivitas dan Dukungan Masyarakat Dusun Amaholu',
+      date: '14 Mei 2026',
+      category: 'Dokumentasi',
+      image: 'https://images.unsplash.com/photo-1593113560640-621aa12217c9?auto=format&fit=crop&q=80',
+      desc: 'Momen kebersamaan, aktivitas, dan gotong royong warga masyarakat di Dusun Amaholu Losy.',
+      content: 'Masyarakat Dusun Amaholu Losy senantiasa menunjukkan kebersamaan yang luar biasa dalam setiap aktivitas kemasyarakatan. Semangat gotong royong, keakraban sesama warga, dan partisipasi aktif lintas generasi menjadi corak kehidupan yang terus dijaga.\n\nDalam video dokumentasi ini, kita dapat melihat berbagai potret aktivitas masyarakat Amaholu. Dari kerja sama bahu-membahu dalam kegiatan lingkungan hingga interaksi sosial keseharian yang terekam dengan penuh kehangatan.\n\nKekompakan ini bukan sekadar tradisi, melainkan fondasi keharmonisan masyarakat Dusun Amaholu Losy yang selalu kuat dan tak lekang oleh waktu.',
+      videoId: 'u1EhZBE_OAo'
+    },
+    {
       title: 'Aktivitas Keseharian Warga Masyarakat Amaholu Losy',
       date: '14 Mei 2026',
       category: 'Dokumentasi',
