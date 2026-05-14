@@ -1610,41 +1610,42 @@ function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterTy
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }} 
         animate={{ opacity: 1, scale: 1, y: 0 }} 
-        className="w-full max-w-xl bg-white rounded-[2.5rem] shadow-[0_50px_150px_rgba(0,0,0,0.5)] relative max-h-[95vh] overflow-hidden border border-white/20 flex flex-col"
+        className="relative w-full max-w-5xl max-h-[95vh] bg-[#0f1423] rounded-2xl md:rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border border-white/10"
       >
         {/* Header */}
-        <div className="bg-slate-900 px-6 py-6 border-b-4 border-blue-600 flex items-center justify-between sticky top-0 z-20">
-          <div className="flex items-center gap-5">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner">
-               <FileText className="text-blue-500" size={24} />
+        <div className="bg-[#1b1e28] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 border-blue-600 relative overflow-hidden shrink-0">
+          <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+          <div className="flex items-center gap-3 md:gap-6 relative z-10">
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-blue-500 border border-white/10 shadow-inner shrink-0">
+               <FileText className="w-6 h-6 md:w-8 md:h-8" />
             </div>
-            <div>
-              <h2 className="text-2xl font-black text-white tracking-tighter leading-none mb-1 uppercase">Drafting Surat</h2>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Administrasi Digital</p>
+            <div className="text-left">
+              <h2 className="text-white text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight mb-0.5 md:mb-1">Drafting Surat</h2>
+              <p className="text-slate-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]">Administrasi Digital</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-11 h-11 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-all active:scale-95">
-            <X size={20} />
+          <button onClick={onClose} className="w-8 h-8 md:w-10 md:h-10 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all border border-white/10 hover:rotate-90 shrink-0">
+            <X className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-8 sm:p-10 space-y-8 bg-white">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full">
-            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></div>
-            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none">Generate {type}</span>
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 bg-[#0f1423]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
+            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none">Generate {type}</span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Pilih Target Warga</label>
               <div className="relative group">
-                <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
                 <input 
                   list="wargaList"
                   value={targetName}
                   onChange={(e) => setTargetName(e.target.value)}
-                  className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white font-black text-slate-900 text-sm transition-all shadow-sm"
+                  className="w-full pl-12 pr-6 py-4 bg-[#1b1e28] border-2 border-white/10 rounded-2xl outline-none focus:border-blue-500 focus:bg-white/5 font-black text-white text-sm transition-all shadow-sm placeholder:text-slate-600"
                   placeholder="Mulai ketik nama..."
                   required
                 />
@@ -1657,11 +1658,11 @@ function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterTy
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Identifikasi Berkas</label>
               <div className="relative group">
-                <FileText className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                <FileText className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
                 <input 
                   value={nomorSurat}
                   onChange={(e) => setNomorSurat(e.target.value)}
-                  className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white font-bold text-slate-600 text-sm transition-all shadow-sm"
+                  className="w-full pl-12 pr-6 py-4 bg-[#1b1e28] border-2 border-white/10 rounded-2xl outline-none focus:border-blue-500 focus:bg-white/5 font-bold text-white text-sm transition-all shadow-sm"
                   required
                 />
               </div>
@@ -1671,20 +1672,20 @@ function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterTy
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Objek Usaha / Niaga</label>
                 <div className="relative group">
-                  <Shield className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                  <Shield className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
                   <input 
                     value={usaha}
                     onChange={(e) => setUsaha(e.target.value)}
                     placeholder="e.g. Toko Kelontong, UMKM"
-                    className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white font-black text-slate-900 text-sm transition-all shadow-sm placeholder:text-slate-400"
+                    className="w-full pl-12 pr-6 py-4 bg-[#1b1e28] border-2 border-white/10 rounded-2xl outline-none focus:border-blue-500 focus:bg-white/5 font-black text-white text-sm transition-all shadow-sm placeholder:text-slate-600"
                     required
                   />
                 </div>
               </div>
             )}
 
-            <div className="pt-4">
-              <button type="submit" className="w-full py-5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 text-xs">
+            <div className="pt-4 max-w-sm ml-auto">
+              <button type="submit" className="w-full py-4 md:py-5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 text-xs">
                 <Printer size={20} /> Cetak & Pratinjau
               </button>
             </div>
@@ -1692,8 +1693,9 @@ function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterTy
         </div>
 
         {/* Footer */}
-        <div className="bg-slate-900 px-6 py-6 border-t border-white/10 text-center">
-           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-loose">
+        <div className="bg-[#1b1e28] p-6 text-center border-t-4 border-amber-500/20 relative overflow-hidden shrink-0">
+           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+           <p className="text-blue-400 text-[8px] font-black uppercase tracking-[0.4em] leading-relaxed relative z-10 max-w-xs mx-auto">
               Data terhitung secara real-time berdasarkan basis data kependudukan terbaru.
            </p>
         </div>
