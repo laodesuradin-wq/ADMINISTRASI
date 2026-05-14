@@ -1,12 +1,10 @@
+import { config } from "dotenv";
+config();
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { streamText } from 'ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY || '',
-});
 
 async function startServer() {
   const app = express();
@@ -17,10 +15,18 @@ async function startServer() {
   // API Route for chat using Vercel AI SDK
   app.post("/api/chat", async (req, res) => {
     try {
+      const apiKey = process.env.GEMINI_API_KEY?.trim() || '';
+      if (!apiKey) {
+        console.error("API Key missing at request time");
+        res.status(500).json({ error: "API_KEY_MISSING", message: "API key is missing in environment variables." });
+        return;
+      }
+      const googleProvider = createGoogleGenerativeAI({ apiKey });
+
       const { messages } = req.body;
       
       const result = streamText({
-        model: google('gemini-1.5-flash'),
+        model: googleProvider('gemini-1.5-flash'),
         system: `Anda adalah asisten AI resmi bernama 'Sandra' (Asisten SIAK MOBILE) untuk Dusun Amaholu Losy, Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku. Dusun ini dipimpin oleh Kepala Dusun Fauji Ali. 
             
 Tugas utama Anda:
@@ -41,9 +47,10 @@ Operator Dusun (WA): 0821-4636-2670.`,
       });
 
       result.pipeTextStreamToResponse(res);
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI Error:", error);
-      res.status(500).json({ error: "Failed to process chat." });
+      const isApiKeyError = error?.message?.includes("API key not valid") || error?.message?.includes("API_KEY");
+      res.status(500).json({ error: "Failed to process chat.", message: isApiKeyError ? "Kunci API Gemini tidak valid. Harap periksa pengaturan di Settings > Secrets." : "Kesalahan internal pada AI." });
     }
   });
 

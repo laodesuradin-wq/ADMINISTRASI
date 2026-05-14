@@ -232,7 +232,10 @@ export default function App() {
         body: JSON.stringify({ messages: newMessages })
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Gagal terhubung ke layanan AI.');
+      }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -255,9 +258,9 @@ export default function App() {
           });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      setMessages(prev => [...prev, { id: Date.now().toString() + 'err', role: 'assistant', content: 'Maaf, terjadi kesalahan teknis. Silakan coba lagi.' }]);
+      setMessages(prev => [...prev, { id: Date.now().toString() + 'err', role: 'assistant', content: `Maaf, terjadi kesalahan: ${error.message || 'Kesalahan teknis'}. Silakan coba lagi.` }]);
     } finally {
       setIsTyping(false);
     }
