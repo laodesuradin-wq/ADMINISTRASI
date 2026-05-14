@@ -31,7 +31,6 @@ import {
   Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI } from "@google/genai";
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
 import { Family, AuthSession, LetterType, Resident } from './types';
@@ -64,9 +63,10 @@ export default function App() {
   const [printKKData, setPrintKKData] = useState<Family | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [chatMessages, setChatMessages] = useState<{text: string, type: 'user' | 'ai'}[]>([
-    { text: "Assalamu'alaikum/Selamat Sejahtera, warga Amaholu Losy! Saya adalah Asisten Digital Dusun. Dengan senang hati saya siap melayani keperluan administrasi Anda. Apa yang bisa saya bantu hari ini?", type: 'ai' }
+  const [messages, setMessages] = useState<{ id: string, role: string, content: string }[]>([
+    { id: '1', role: 'assistant', content: "Assalamu'alaikum/Selamat Sejahtera, warga Amaholu Losy! Saya adalah Asisten Digital Dusun. Dengan senang hati saya siap melayani keperluan administrasi Anda. Apa yang bisa saya bantu hari ini?" }
   ]);
+  const [input, setInput] = useState('');
 
   const [isMobile, setIsMobile] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -208,104 +208,56 @@ export default function App() {
     setActiveModal(null);
   };
 
-  const chatSessionRef = useRef<any>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [chatMessages, isTyping]);
+  }, [messages, isTyping]);
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || isTyping) return;
     
-    // Add user message
-    const userMsg = { text, type: 'user' as const };
-    setChatMessages(prev => [...prev, userMsg]);
+    const userMsg = { id: Date.now().toString(), role: 'user', content: text };
+    const newMessages = [...messages, userMsg];
+    setMessages(prev => [...prev, userMsg]);
     setIsTyping(true);
+    setInput('');
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("API_KEY_MISSING: Silakan hubungi administrator untuk konfigurasi kunci API Gemini di Settings > Secrets.");
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
-      
-      // Initialize chat session if it doesn't exist
-      if (!chatSessionRef.current) {
-        chatSessionRef.current = ai.chats.create({
-          model: "gemini-3-flash-preview",
-          config: {
-            systemInstruction: `Anda adalah asisten AI resmi bernama 'Sandra' (Asisten SIAK MOBILE) untuk Dusun Amaholu Losy, Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku. Dusun ini dipimpin oleh Kepala Dusun Fauji Ali. 
-            
-            Tugas utama Anda:
-            1. Memberikan layanan informasi publik yang ramah, sopan, dan sangat membantu warga Dusun Amaholu Losy.
-            2. Menjelaskan persyaratan dan prosedur pembuatan surat (Domisili, Usaha, Tidak Mampu, Kematian).
-            3. Memandu cara login ke aplikasi SIAK Mobile (Nomor KK dan NIK Kepala Keluarga).
-            4. Menghubungkan warga dengan operator dusun jika ada masalah teknis yang tidak dapat diselesaikan AI.
-            
-            Konteks Dusun:
-            - Dusun: Amaholu Losy
-            - Negeri: Luhu
-            - Kabupaten: Seram Bagian Barat
-            - Kepala Dusun: Bapak Fauji Ali
-            
-            Gaya Komunikasi:
-            - Sapaan Wajib: Selalu awali percakapan baru dengan menyapa: "Halo, beta Sandra asisten SIAK MOBILE yang siap membantu bapak ibu dalam pengurusan administrasi, ada yang bisa beta bantu?".
-            - Gunakan bahasa yang santun khas masyarakat Maluku yang ramah.
-            - Pastikan warga merasa terbantu dan dihargai.
-            - Gunakan kata ganti "beta" untuk menyebut diri sendiri (Sandra).
-            
-            Keamanan:
-            - Jangan meminta data sensitif seperti NIK atau Nomor KK secara langsung dalam chat.
-            
-            Kontak Penting:
-            Operator Dusun (WA): 0821-4636-2670.`,
-          },
-        });
-      }
-
-      // Add placeholder for AI response
-      setChatMessages(prev => [...prev, { text: '', type: 'ai' as const }]);
-      
-      const streamResponse = await chatSessionRef.current.sendMessageStream({ message: text });
-      let fullText = "";
-
-      for await (const chunk of streamResponse) {
-        fullText += (chunk as any).text || "";
-        setChatMessages(prev => {
-          const updated = [...prev];
-          if (updated.length > 0 && updated[updated.length - 1].type === 'ai') {
-            updated[updated.length - 1] = { text: fullText.trim(), type: 'ai' as const };
-          }
-          return updated;
-        });
-      }
-
-    } catch (error: any) {
-      console.error("AI Error Details:", error);
-      
-      // Reset session to allow retry on next message
-      chatSessionRef.current = null;
-      
-      let errorMessage = "Maaf, terjadi kesalahan teknis (Model/API). Silakan coba lagi.";
-      
-      if (error?.message?.includes("API_KEY_MISSING")) {
-        errorMessage = "Akses AI belum dikonfigurasi. Mohon periksa pengaturan API Key di panel Settings > Secrets.";
-      } else if (error?.message?.includes("PERMISSION_DENIED") || error?.code === 403 || error?.status === "PERMISSION_DENIED") {
-        errorMessage = "Akses AI ditolak (403). Silakan periksa apakah API Key Anda valid dan memiliki akses ke model 'gemini-3-flash-preview' di Settings > Secrets.";
-      } else if (error?.message?.includes("429") || error?.message?.includes("quota") || error?.status === "RESOURCE_EXHAUSTED") {
-        errorMessage = "Kuota layanan harian telah habis. Silakan coba lagi nanti atau hubungi operator.";
-      } else if (error?.message) {
-        errorMessage = `Kesalahan: ${error.message.substring(0, 100)}`;
-      }
-
-      setChatMessages(prev => {
-        const filtered = prev.filter(m => m.text !== ''); // Remove placeholder if it exists
-        return [...filtered, { text: errorMessage, type: 'ai' as const }];
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages })
       });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      
+      setMessages(prev => [...prev, { id: Date.now().toString() + 'ai', role: 'assistant', content: '' }]);
+
+      let assistantMessage = '';
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          assistantMessage += decoder.decode(value, { stream: true });
+          
+          setMessages(prev => {
+            const updated = [...prev];
+            if (updated.length > 0 && updated[updated.length - 1].role === 'assistant') {
+              updated[updated.length - 1].content = assistantMessage;
+            }
+            return updated;
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      setMessages(prev => [...prev, { id: Date.now().toString() + 'err', role: 'assistant', content: 'Maaf, terjadi kesalahan teknis. Silakan coba lagi.' }]);
     } finally {
       setIsTyping(false);
     }
@@ -440,7 +392,7 @@ export default function App() {
                 ref={chatContainerRef}
                 className="flex-1 p-6 overflow-y-auto bg-slate-50/50 space-y-6 scroll-smooth"
               >
-              {chatMessages.length === 1 && (
+              {messages.length === 1 && (
                 <div className="grid grid-cols-1 gap-2 mb-4">
                   {[
                     "Bagaimana cara buat SKTM?",
@@ -450,7 +402,9 @@ export default function App() {
                   ].map(q => (
                     <button 
                       key={q}
-                      onClick={() => handleSendMessage(q)}
+                      onClick={() => {
+                        setInput(q);
+                      }}
                       className="px-4 py-2 bg-white border border-blue-100 rounded-xl text-[10px] font-bold text-blue-600 text-left hover:bg-blue-50 transition-colors shadow-sm"
                     >
                       {q}
@@ -458,20 +412,20 @@ export default function App() {
                   ))}
                 </div>
               )}
-              {chatMessages.map((msg, i) => (
+              {messages.map((msg) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  key={i} 
-                  className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  key={msg.id} 
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div className={`max-w-[88%] px-5 py-4 rounded-[1.5rem] text-[13px] leading-relaxed relative whitespace-pre-wrap ${
-                    msg.type === 'user' 
+                    msg.role === 'user' 
                       ? 'bg-blue-600 text-white rounded-br-none shadow-xl shadow-blue-500/20 font-medium' 
                       : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none shadow-sm font-semibold'
                   }`}>
-                    {msg.text || (msg.type === 'ai' ? '...' : '')}
-                    <div className={`absolute bottom-[-4px] ${msg.type === 'user' ? 'right-0 border-t-[8px] border-t-blue-600 border-l-[8px] border-l-transparent' : 'left-0 border-t-[8px] border-t-white border-r-[8px] border-r-transparent'}`}></div>
+                    {msg.content || (msg.role === 'assistant' ? '...' : '')}
+                    <div className={`absolute bottom-[-4px] ${msg.role === 'user' ? 'right-0 border-t-[8px] border-t-blue-600 border-l-[8px] border-l-transparent' : 'left-0 border-t-[8px] border-t-white border-r-[8px] border-r-transparent'}`}></div>
                   </div>
                 </motion.div>
               ))}
@@ -491,17 +445,16 @@ export default function App() {
                 className="flex gap-3"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  const input = (e.target as any).message;
-                  const text = input.value;
-                  if (text) {
-                    handleSendMessage(text);
-                    input.value = '';
+                  if (input) {
+                    handleSendMessage(input);
                   }
                 }}
               >
                 <input 
                   autoComplete="off"
                   name="message"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
                   type="text" 
                   placeholder="Tanyakan sesuatu..."
                   className="flex-1 bg-slate-100/80 rounded-2xl px-6 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-blue-500/5 focus:bg-white focus:border-blue-500/20 transition-all border-2 border-transparent"
@@ -509,7 +462,7 @@ export default function App() {
                 />
                 <button 
                   type="submit"
-                  disabled={isTyping}
+                  disabled={!input.trim() || isTyping}
                   className="bg-gradient-to-br from-blue-600 to-blue-800 text-white w-14 h-14 rounded-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/30 flex items-center justify-center p-0"
                 >
                   <Send size={22} className="relative left-0.5" />
