@@ -234,9 +234,9 @@ export default function App() {
       // Initialize chat session if it doesn't exist
       if (!chatSessionRef.current) {
         chatSessionRef.current = ai.chats.create({
-          model: "gemini-1.5-flash",
+          model: "gemini-3-flash-preview",
           config: {
-            systemInstruction: `Anda adalah asisten AI resmi bernama 'Asisten SIAK' untuk Dusun Amaholu Losy, Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku. Dusun ini dipimpin oleh Kepala Dusun Fauji Ali. 
+            systemInstruction: `Anda adalah asisten AI resmi bernama 'Sandra' (Asisten SIAK MOBILE) untuk Dusun Amaholu Losy, Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku. Dusun ini dipimpin oleh Kepala Dusun Fauji Ali. 
             
             Tugas utama Anda:
             1. Memberikan layanan informasi publik yang ramah, sopan, dan sangat membantu warga Dusun Amaholu Losy.
@@ -251,9 +251,10 @@ export default function App() {
             - Kepala Dusun: Bapak Fauji Ali
             
             Gaya Komunikasi:
-            - Mulailah dengan sapaan yang hangat.
+            - Sapaan Wajib: Selalu awali percakapan baru dengan menyapa: "Halo, beta Sandra asisten SIAK MOBILE yang siap membantu bapak ibu dalam pengurusan administrasi, ada yang bisa beta bantu?".
             - Gunakan bahasa yang santun khas masyarakat Maluku yang ramah.
             - Pastikan warga merasa terbantu dan dihargai.
+            - Gunakan kata ganti "beta" untuk menyebut diri sendiri (Sandra).
             
             Keamanan:
             - Jangan meminta data sensitif seperti NIK atau Nomor KK secara langsung dalam chat.
@@ -271,7 +272,7 @@ export default function App() {
       let fullText = "";
 
       for await (const chunk of streamResponse) {
-        fullText += chunk.text;
+        fullText += (chunk as any).text || "";
         setChatMessages(prev => {
           const updated = [...prev];
           if (updated.length > 0 && updated[updated.length - 1].type === 'ai') {
@@ -281,7 +282,7 @@ export default function App() {
         });
       }
 
-      } catch (error: any) {
+    } catch (error: any) {
       console.error("AI Error Details:", error);
       
       // Reset session to allow retry on next message
@@ -290,11 +291,11 @@ export default function App() {
       let errorMessage = "Maaf, terjadi kesalahan teknis (Model/API). Silakan coba lagi.";
       
       if (error?.message?.includes("API_KEY_MISSING")) {
-        errorMessage = "Akses AI belum dikonfigurasi. Mohon periksa pengaturan API Key di panel Secrets.";
-      } else if (error?.message?.includes("PERMISSION_DENIED") || error?.code === 403) {
-        errorMessage = "Akses AI ditolak (403). Silakan periksa kunci API Anda di Settings > Secrets atau pastikan model ini didukung.";
-      } else if (error?.message?.includes("429") || error?.message?.includes("quota")) {
-        errorMessage = "Kuota layanan harian telah habis atau terlalu banyak permintaan. Silakan coba lagi nanti.";
+        errorMessage = "Akses AI belum dikonfigurasi. Mohon periksa pengaturan API Key di panel Settings > Secrets.";
+      } else if (error?.message?.includes("PERMISSION_DENIED") || error?.code === 403 || error?.status === "PERMISSION_DENIED") {
+        errorMessage = "Akses AI ditolak (403). Silakan periksa apakah API Key Anda valid dan memiliki akses ke model 'gemini-3-flash-preview' di Settings > Secrets.";
+      } else if (error?.message?.includes("429") || error?.message?.includes("quota") || error?.status === "RESOURCE_EXHAUSTED") {
+        errorMessage = "Kuota layanan harian telah habis. Silakan coba lagi nanti atau hubungi operator.";
       } else if (error?.message) {
         errorMessage = `Kesalahan: ${error.message.substring(0, 100)}`;
       }
