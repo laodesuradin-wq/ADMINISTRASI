@@ -819,7 +819,7 @@ function DashboardView({
               <h1 className="font-black text-lg text-white leading-none tracking-tighter uppercase">SIAK <span className="text-blue-500">MOBILE</span></h1>
             </div>
             <div className="inline-block mt-1">
-              <span className="text-[8px] bg-amber-500 text-slate-900 px-2 py-0.5 rounded-full font-black uppercase tracking-widest leading-none">AMAHOLU</span>
+              <span className="text-[8px] bg-amber-500 text-slate-900 px-2 py-0.5 rounded-full font-black uppercase tracking-widest leading-none">AMAHOLU LOSY</span>
             </div>
           </div>
         </div>
@@ -871,8 +871,8 @@ function DashboardView({
                         >
                           <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl transition-transform bg-white/5`}>{item.icon}</div>
                           <div className="text-center">
-                            <span className="block text-[6px] md:text-[8px] font-black uppercase tracking-wider mb-0.5 leading-none">{item.sub}</span>
-                            <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-tight opacity-90 leading-tight">{item.label}</span>
+                            <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-wider mb-0.5 leading-none">{item.sub}</span>
+                            <span className="block text-[10px] md:text-[12px] font-black uppercase tracking-tight opacity-90 leading-tight">{item.label}</span>
                           </div>
                         </button>
                       </div>
@@ -926,8 +926,8 @@ function DashboardView({
                                   <div className="mb-2 md:mb-3 text-xl md:text-2xl group-hover:scale-110 transition-transform relative z-10">
                                     <span className="opacity-80 grayscale group-hover:grayscale-0 transition-all">{item.icon}</span>
                                   </div>
-                                  <p className="text-[6px] md:text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none opacity-60 relative z-10">{item.sub}</p>
-                                  <h4 className="text-[9px] md:text-xs font-black text-white tracking-tighter uppercase leading-tight relative z-10">{item.label}</h4>
+                                  <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none opacity-60 relative z-10">{item.sub}</p>
+                                  <h4 className="text-[10px] md:text-sm font-black text-white tracking-tighter uppercase leading-tight relative z-10">{item.label}</h4>
                                 </button>
                               ))}
                             </div>
@@ -1593,8 +1593,6 @@ function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterTy
     e.preventDefault();
     const resident = residentOptions.find(r => r.nama.trim() === targetName.trim());
     if (!resident) return alert("Kesalahan: Silakan pilih nama warga yang valid dari daftar yang tersedia.");
-    
-    if (nomorSurat.trim().length < 5) return alert("Peringatan: Format nomor surat tidak valid.");
 
     onPreview({
       type,
@@ -1663,7 +1661,6 @@ function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterTy
                   value={nomorSurat}
                   onChange={(e) => setNomorSurat(e.target.value)}
                   className="w-full pl-12 pr-6 py-4 bg-[#1b1e28] border-2 border-white/10 rounded-2xl outline-none focus:border-blue-500 focus:bg-white/5 font-bold text-white text-sm transition-all shadow-sm"
-                  required
                 />
               </div>
             </div>
