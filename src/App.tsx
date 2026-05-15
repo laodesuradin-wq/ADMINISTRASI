@@ -3,19 +3,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import * as XLSX from 'xlsx';
-import { 
-  Users, 
-  FileText, 
-  BarChart3, 
-  PlusCircle, 
-  LogOut, 
-  Search, 
-  Shield, 
-  User as UserIcon, 
-  MessageSquare, 
-  X, 
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import * as XLSX from "xlsx";
+import {
+  Users,
+  FileText,
+  BarChart3,
+  PlusCircle,
+  LogOut,
+  Search,
+  Shield,
+  User as UserIcon,
+  MessageSquare,
+  X,
   Send,
   Printer,
   FileDown,
@@ -30,38 +36,44 @@ import {
   Baby,
   Calendar,
   Mic,
-  MicOff
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+  MicOff,
+} from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 // @ts-ignore
-import html2pdf from 'html2pdf.js';
-import { Family, AuthSession, LetterType, Resident } from './types';
-import { 
-  STORAGE_KEY, 
-  SESSION_KEY, 
-  ADMIN_EMAIL, 
-  ADMIN_PASSWORD, 
-  formatTanggalIndonesia, 
-  hitungUmur, 
-  generateNomorSurat, 
-  isValidNIK, 
-  isValidKK, 
+import html2pdf from "html2pdf.js";
+import { BackgroundIllustration } from "./components/BackgroundIllustration";
+import { Family, AuthSession, LetterType, Resident } from "./types";
+import {
+  STORAGE_KEY,
+  SESSION_KEY,
+  ADMIN_EMAIL,
+  ADMIN_PASSWORD,
+  formatTanggalIndonesia,
+  hitungUmur,
+  generateNomorSurat,
+  isValidNIK,
+  isValidKK,
   isValidName,
-  VALIDATION
-} from './utils';
+  VALIDATION,
+} from "./utils";
 
 // --- COMPONENTS ---
 
 const INITIAL_MESSAGES = [
-  { id: '1', role: 'assistant', content: "Assalamu'alaikum/Selamat Sejahtera, warga Amaholu Losy! Saya adalah Asisten Digital Sandra. Dengan senang hati saya siap melayani keperluan administrasi Anda. Apa yang bisa saya bantu hari ini?" }
+  {
+    id: "1",
+    role: "assistant",
+    content:
+      "Assalamu'alaikum/Selamat Sejahtera, warga Amaholu Losy! Saya adalah Asisten Digital Sandra. Dengan senang hati saya siap melayani keperluan administrasi Anda. Apa yang bisa saya bantu hari ini?",
+  },
 ];
 
 export default function App() {
   const [db, setDb] = useState<Family[]>([]);
   const [session, setSession] = useState<AuthSession | null>(null);
-  const [view, setView] = useState<'login' | 'dashboard'>('login');
+  const [view, setView] = useState<"login" | "dashboard">("login");
   const [activeModal, setActiveModal] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [currentFamily, setCurrentFamily] = useState<Family | null>(null);
   const [activeLetter, setActiveLetter] = useState<LetterType | null>(null);
@@ -69,14 +81,15 @@ export default function App() {
   const [printKKData, setPrintKKData] = useState<Family | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState<{ id: string, role: string, content: string }[]>(INITIAL_MESSAGES);
-  const [input, setInput] = useState('');
-  
+  const [messages, setMessages] =
+    useState<{ id: string; role: string; content: string }[]>(INITIAL_MESSAGES);
+  const [input, setInput] = useState("");
+
   // Voice Recognition states
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
-  const finalTranscriptRef = useRef('');
-  const [autoSendTrigger, setAutoSendTrigger] = useState('');
+  const finalTranscriptRef = useRef("");
+  const [autoSendTrigger, setAutoSendTrigger] = useState("");
 
   const [isMobile, setIsMobile] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -92,10 +105,10 @@ export default function App() {
     };
     // Initial check without delay
     setIsMobile(window.innerWidth < 640);
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     return () => {
       clearTimeout(timeoutId);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -114,7 +127,7 @@ export default function App() {
     const savedSession = sessionStorage.getItem(SESSION_KEY);
     if (savedSession) {
       setSession(JSON.parse(savedSession));
-      setView('dashboard');
+      setView("dashboard");
     }
   }, []);
 
@@ -127,14 +140,14 @@ export default function App() {
   const handleLogin = useCallback((user: AuthSession) => {
     setSession(user);
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    setView('dashboard');
+    setView("dashboard");
   }, []);
 
   const handleLogout = useCallback(() => {
     if (window.confirm("Yakin ingin logout?")) {
       setSession(null);
       sessionStorage.removeItem(SESSION_KEY);
-      setView('login');
+      setView("login");
       setActiveModal(null);
     }
   }, []);
@@ -142,108 +155,134 @@ export default function App() {
   const filteredFamilies = useMemo(() => {
     if (!session) return [];
     let base = db;
-    if (session.role === 'warga') {
-      base = db.filter(f => f.no_kk === session.no_kk);
+    if (session.role === "warga") {
+      base = db.filter((f) => f.no_kk === session.no_kk);
     }
-    
-    return base.filter(f => {
-      const kepala = f.anggota.find(a => a.hubungan === 'Kepala Keluarga')?.nama || '';
-      return f.no_kk.includes(searchTerm) || kepala.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return base.filter((f) => {
+      const kepala =
+        f.anggota.find((a) => a.hubungan === "Kepala Keluarga")?.nama || "";
+      return (
+        f.no_kk.includes(searchTerm) ||
+        kepala.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     });
   }, [db, session, searchTerm]);
 
   // Modals Handler
-  const openEditModal = useCallback((index: number) => {
-    setEditingIndex(index);
-    setCurrentFamily(JSON.parse(JSON.stringify(db[index])));
-    setActiveModal('family');
-  }, [db]);
+  const openEditModal = useCallback(
+    (index: number) => {
+      setEditingIndex(index);
+      setCurrentFamily(JSON.parse(JSON.stringify(db[index])));
+      setActiveModal("family");
+    },
+    [db],
+  );
 
   const openNewFamilyModal = useCallback(() => {
     setEditingIndex(null);
     setCurrentFamily({
-      no_kk: '',
-      alamat: 'Amaholu Losy',
-      rt_rw: '',
-      Desa: 'Luhu',
-      Kecamatan: 'Huamual',
-      Kabupaten: 'Seram Bagian Barat',
-      Provinsi: 'Maluku',
-      anggota: []
+      no_kk: "",
+      alamat: "Amaholu Losy",
+      rt_rw: "",
+      Desa: "Luhu",
+      Kecamatan: "Huamual",
+      Kabupaten: "Seram Bagian Barat",
+      Provinsi: "Maluku",
+      anggota: [],
     });
-    setActiveModal('family');
+    setActiveModal("family");
   }, []);
 
-  const saveFamily = useCallback((family: Family) => {
-    const duplicateKK = db.some((f, idx) => f.no_kk === family.no_kk && idx !== editingIndex);
-    if (duplicateKK) return alert("Peringatan Keamanan: Nomor KK ini sudah terdaftar dalam sistem!");
+  const saveFamily = useCallback(
+    (family: Family) => {
+      const duplicateKK = db.some(
+        (f, idx) => f.no_kk === family.no_kk && idx !== editingIndex,
+      );
+      if (duplicateKK)
+        return alert(
+          "Peringatan Keamanan: Nomor KK ini sudah terdaftar dalam sistem!",
+        );
 
-    const allNiks = db.flatMap((f, idx) => 
-      idx === editingIndex ? [] : f.anggota.map(a => a.nik)
-    );
-    const hasDuplicateNIK = family.anggota.some(a => allNiks.includes(a.nik));
-    if (hasDuplicateNIK) return alert("Peringatan Keamanan: Salah satu NIK sudah terdaftar di keluarga lain!");
+      const allNiks = db.flatMap((f, idx) =>
+        idx === editingIndex ? [] : f.anggota.map((a) => a.nik),
+      );
+      const hasDuplicateNIK = family.anggota.some((a) =>
+        allNiks.includes(a.nik),
+      );
+      if (hasDuplicateNIK)
+        return alert(
+          "Peringatan Keamanan: Salah satu NIK sudah terdaftar di keluarga lain!",
+        );
 
-    const familyNiks = family.anggota.map(a => a.nik);
-    const hasDuplicateNIKInFamily = familyNiks.some((nik, idx) => familyNiks.indexOf(nik) !== idx);
-    if (hasDuplicateNIKInFamily) return alert("Kesalahan Input: Ada NIK ganda dalam satu KK!");
+      const familyNiks = family.anggota.map((a) => a.nik);
+      const hasDuplicateNIKInFamily = familyNiks.some(
+        (nik, idx) => familyNiks.indexOf(nik) !== idx,
+      );
+      if (hasDuplicateNIKInFamily)
+        return alert("Kesalahan Input: Ada NIK ganda dalam satu KK!");
 
-    const trimmedFamily: Family = {
-      ...family,
-      no_kk: family.no_kk.trim(),
-      alamat: family.alamat.trim(),
-      rt_rw: family.rt_rw.trim(),
-      Desa: family.Desa.trim(),
-      Kecamatan: family.Kecamatan.trim(),
-      Kabupaten: family.Kabupaten.trim(),
-      Provinsi: family.Provinsi.trim(),
-      anggota: family.anggota.map(a => ({
-        ...a,
-        nama: a.nama.trim(),
-        nik: a.nik.trim(),
-        tempat_lahir: a.tempat_lahir.trim(),
-        pendidikan: a.pendidikan.trim(),
-        pekerjaan: a.pekerjaan.trim(),
-        agama: a.agama.trim() as Resident['agama'],
-        jk: a.jk.trim() as Resident['jk'],
-        hubungan: a.hubungan.trim() as Resident['hubungan'],
-        bansos: a.bansos.trim()
-      })) as Resident[]
-    };
+      const trimmedFamily: Family = {
+        ...family,
+        no_kk: family.no_kk.trim(),
+        alamat: family.alamat.trim(),
+        rt_rw: family.rt_rw.trim(),
+        Desa: family.Desa.trim(),
+        Kecamatan: family.Kecamatan.trim(),
+        Kabupaten: family.Kabupaten.trim(),
+        Provinsi: family.Provinsi.trim(),
+        anggota: family.anggota.map((a) => ({
+          ...a,
+          nama: a.nama.trim(),
+          nik: a.nik.trim(),
+          tempat_lahir: a.tempat_lahir.trim(),
+          pendidikan: a.pendidikan.trim(),
+          pekerjaan: a.pekerjaan.trim(),
+          agama: a.agama.trim() as Resident["agama"],
+          jk: a.jk.trim() as Resident["jk"],
+          hubungan: a.hubungan.trim() as Resident["hubungan"],
+          bansos: a.bansos.trim(),
+        })) as Resident[],
+      };
 
-    if (editingIndex !== null) {
-      const newDb = [...db];
-      newDb[editingIndex] = trimmedFamily;
-      setDb(newDb);
-    } else {
-      setDb([...db, trimmedFamily]);
-    }
-    setActiveModal(null);
-  }, [db, editingIndex]);
+      if (editingIndex !== null) {
+        const newDb = [...db];
+        newDb[editingIndex] = trimmedFamily;
+        setDb(newDb);
+      } else {
+        setDb([...db, trimmedFamily]);
+      }
+      setActiveModal(null);
+    },
+    [db, editingIndex],
+  );
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [messages, isTyping]);
 
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = 'id-ID';
+      recognition.lang = "id-ID";
 
       recognition.onstart = () => {
         setIsRecording(true);
-        finalTranscriptRef.current = '';
+        finalTranscriptRef.current = "";
       };
 
       recognition.onresult = (event: any) => {
-        let currentTranscript = '';
+        let currentTranscript = "";
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           currentTranscript += event.results[i][0].transcript;
         }
@@ -252,15 +291,15 @@ export default function App() {
       };
 
       recognition.onerror = (event: any) => {
-        console.error('Speech recognition error', event.error);
+        console.error("Speech recognition error", event.error);
         setIsRecording(false);
       };
 
       recognition.onend = () => {
         setIsRecording(false);
-        if (finalTranscriptRef.current.trim() !== '') {
+        if (finalTranscriptRef.current.trim() !== "") {
           setAutoSendTrigger(finalTranscriptRef.current);
-          finalTranscriptRef.current = '';
+          finalTranscriptRef.current = "";
         }
       };
 
@@ -270,21 +309,25 @@ export default function App() {
 
   const toggleRecording = async () => {
     if (!recognitionRef.current) {
-      alert("Browser Anda tidak mendukung fitur pengenalan suara (Speech Recognition). Silakan gunakan Google Chrome.");
+      alert(
+        "Browser Anda tidak mendukung fitur pengenalan suara (Speech Recognition). Silakan gunakan Google Chrome.",
+      );
       return;
     }
-    
+
     if (isRecording) {
       recognitionRef.current?.stop();
     } else {
       try {
         // Request microphone permission explicitly first
         await navigator.mediaDevices.getUserMedia({ audio: true });
-        setInput('');
+        setInput("");
         recognitionRef.current?.start();
       } catch (err: any) {
         console.error("Mic access error:", err);
-        alert(`Gagal mengakses mikrofon: ${err.message || 'Izin ditolak atau perangkat tidak ditemukan.'}`);
+        alert(
+          `Gagal mengakses mikrofon: ${err.message || "Izin ditolak atau perangkat tidak ditemukan."}`,
+        );
         setIsRecording(false);
       }
     }
@@ -292,40 +335,46 @@ export default function App() {
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || isTyping) return;
-    
-    const userMsg = { id: Date.now().toString(), role: 'user', content: text };
+
+    const userMsg = { id: Date.now().toString(), role: "user", content: text };
     const newMessages = [...messages, userMsg];
-    setMessages(prev => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setIsTyping(true);
-    setInput('');
+    setInput("");
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages })
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: newMessages }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Gagal terhubung ke layanan AI.');
+        throw new Error(errorData.message || "Gagal terhubung ke layanan AI.");
       }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
-      
-      setMessages(prev => [...prev, { id: Date.now().toString() + 'ai', role: 'assistant', content: '' }]);
 
-      let assistantMessage = '';
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now().toString() + "ai", role: "assistant", content: "" },
+      ]);
+
+      let assistantMessage = "";
       if (reader) {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           assistantMessage += decoder.decode(value, { stream: true });
-          
-          setMessages(prev => {
+
+          setMessages((prev) => {
             const updated = [...prev];
-            if (updated.length > 0 && updated[updated.length - 1].role === 'assistant') {
+            if (
+              updated.length > 0 &&
+              updated[updated.length - 1].role === "assistant"
+            ) {
               updated[updated.length - 1].content = assistantMessage;
             }
             return updated;
@@ -334,7 +383,14 @@ export default function App() {
       }
     } catch (error: any) {
       console.error(error);
-      setMessages(prev => [...prev, { id: Date.now().toString() + 'err', role: 'assistant', content: `Maaf, terjadi kesalahan: ${error.message || 'Kesalahan teknis'}. Silakan coba lagi.` }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString() + "err",
+          role: "assistant",
+          content: `Maaf, terjadi kesalahan: ${error.message || "Kesalahan teknis"}. Silakan coba lagi.`,
+        },
+      ]);
     } finally {
       setIsTyping(false);
     }
@@ -343,17 +399,18 @@ export default function App() {
   useEffect(() => {
     if (autoSendTrigger) {
       handleSendMessage(autoSendTrigger);
-      setAutoSendTrigger('');
+      setAutoSendTrigger("");
     }
   }, [autoSendTrigger, messages]);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+    <div className="min-h-screen bg-transparent font-sans text-sky-950 relative">
+      <BackgroundIllustration />
       <AnimatePresence mode="wait">
-        {view === 'login' ? (
+        {view === "login" ? (
           <LoginView key="login" onLogin={handleLogin} />
         ) : (
-          <DashboardView 
+          <DashboardView
             key="dashboard"
             session={session!}
             families={filteredFamilies}
@@ -363,10 +420,16 @@ export default function App() {
             setSearchTerm={setSearchTerm}
             openEditModal={openEditModal}
             openNewFamilyModal={openNewFamilyModal}
-            openStats={() => setActiveModal('stats')}
-            openArticles={() => setActiveModal('articles')}
-            openLetter={(type) => { setActiveLetter(type); setActiveModal('letter'); }}
-            openPrintKK={(f) => { setPrintKKData(f); setActiveModal('print-kk'); }}
+            openStats={() => setActiveModal("stats")}
+            openArticles={() => setActiveModal("articles")}
+            openLetter={(type) => {
+              setActiveLetter(type);
+              setActiveModal("letter");
+            }}
+            openPrintKK={(f) => {
+              setPrintKKData(f);
+              setActiveModal("print-kk");
+            }}
             onDelete={(index) => {
               if (window.confirm("Hapus data KK ini?")) {
                 const newDb = db.filter((_, i) => i !== index);
@@ -374,7 +437,9 @@ export default function App() {
               }
             }}
             resetDb={() => {
-              const pass = window.prompt("Masukkan password admin untuk reset:");
+              const pass = window.prompt(
+                "Masukkan password admin untuk reset:",
+              );
               if (pass === ADMIN_PASSWORD) {
                 setDb([]);
                 alert("Database berhasil direset.");
@@ -387,210 +452,228 @@ export default function App() {
       </AnimatePresence>
 
       {/* MODALS */}
-        <div className={activeModal ? "print-root" : ""}>
-          {activeModal === 'family' && currentFamily && session && (
-            <FamilyModal 
-              family={currentFamily} 
-              session={session}
-              onSave={saveFamily} 
-              onClose={() => setActiveModal(null)} 
+      <div className={activeModal ? "print-root" : ""}>
+        {activeModal === "family" && currentFamily && session && (
+          <FamilyModal
+            family={currentFamily}
+            session={session}
+            onSave={saveFamily}
+            onClose={() => setActiveModal(null)}
+          />
+        )}
+
+        {activeModal === "stats" && (
+          <StatsModal db={db} onClose={() => setActiveModal(null)} />
+        )}
+
+        {activeModal === "letter" && activeLetter && (
+          <LetterModal
+            type={activeLetter}
+            db={db}
+            session={session!}
+            onClose={() => setActiveModal(null)}
+            onPreview={(data) => {
+              setLetterData(data);
+              setActiveModal("preview");
+            }}
+          />
+        )}
+
+        {activeModal === "articles" && (
+          <ArticleModal onClose={() => setActiveModal(null)} />
+        )}
+
+        {activeModal === "preview" && letterData && (
+          <div className="print-area-container">
+            <PreviewModal
+              data={letterData}
+              onClose={() => setActiveModal("letter")}
             />
-          )}
+          </div>
+        )}
 
-          {activeModal === 'stats' && (
-            <StatsModal db={db} onClose={() => setActiveModal(null)} />
-          )}
-
-          {activeModal === 'letter' && activeLetter && (
-            <LetterModal 
-              type={activeLetter} 
-              db={db}
-              session={session!}
+        {activeModal === "print-kk" && printKKData && (
+          <div className="print-area-container">
+            <PrintKKModal
+              family={printKKData}
               onClose={() => setActiveModal(null)}
-              onPreview={(data) => {
-                setLetterData(data);
-                setActiveModal('preview');
-              }}
             />
-          )}
-
-          {activeModal === 'articles' && (
-            <ArticleModal onClose={() => setActiveModal(null)} />
-          )}
-
-          {activeModal === 'preview' && letterData && (
-            <div className="print-area-container">
-              <PreviewModal 
-                data={letterData} 
-                onClose={() => setActiveModal('letter')} 
-              />
-            </div>
-          )}
-
-          {activeModal === 'print-kk' && printKKData && (
-            <div className="print-area-container">
-              <PrintKKModal 
-                family={printKKData} 
-                onClose={() => setActiveModal(null)} 
-              />
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
       {/* CHATBOT */}
-      <motion.div 
+      <motion.div
         drag
         dragMomentum={false}
         className="fixed bottom-6 right-6 z-50 no-print touch-none"
       >
         <AnimatePresence>
           {showChat && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              className="mb-6 w-[calc(100vw-48px)] max-w-[400px] h-[75vh] max-h-[600px] bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.25)] border border-white/20 flex flex-col overflow-hidden relative"
+              className="mb-6 w-[calc(100vw-48px)] max-w-[400px] h-[75vh] max-h-[600px] bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.25)] border border-sky-100 flex flex-col overflow-hidden relative"
             >
-              <div className="p-6 bg-gradient-to-r from-slate-900 to-blue-900 text-white flex justify-between items-center relative overflow-hidden">
+              <div className="p-6 bg-blue-600 text-white flex justify-between items-center relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
                 <div className="flex items-center gap-4 relative z-10">
-                  <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/10 shadow-inner">
+                  <div className="w-12 h-12 bg-white rounded-2xl border border-sky-100 shadow-sm flex items-center justify-center">
                     <MessageSquare size={24} className="text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="font-black text-base leading-none tracking-tight">KONSULTASI DIGITAL</h3>
+                    <h3 className="font-black text-base leading-none tracking-tight">
+                      KONSULTASI DIGITAL
+                    </h3>
                     <p className="text-[10px] text-blue-400 font-bold uppercase mt-1.5 flex items-center gap-2 tracking-widest">
-                      <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span> Asisten AI Aktif
+                      <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>{" "}
+                      Asisten AI Aktif
                     </p>
                   </div>
                 </div>
-                <button 
-                  onClick={() => setShowChat(false)} 
-                  className="p-3 hover:bg-white/10 rounded-2xl transition-all active:scale-90"
+                <button
+                  onClick={() => setShowChat(false)}
+                  className="p-3 hover:bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all active:scale-90"
                 >
                   <X size={20} />
                 </button>
               </div>
-              
-              <div 
-                ref={chatContainerRef}
-                className="flex-1 p-6 overflow-y-auto bg-slate-50/50 space-y-6 scroll-smooth"
-              >
-              {messages.length === 1 && (
-                <div className="grid grid-cols-1 gap-2 mb-4">
-                  {[
-                    "Bagaimana cara buat SKTM?",
-                    "Syarat Surat Domisili apa saja?",
-                    "Lupa password login warga",
-                    "Info bantuan sosial (Bansos)"
-                  ].map(q => (
-                    <button 
-                      key={q}
-                      onClick={() => {
-                        setInput(q);
-                      }}
-                      className="px-4 py-2 bg-white border border-blue-100 rounded-xl text-[10px] font-bold text-blue-600 text-left hover:bg-blue-50 transition-colors shadow-sm"
-                    >
-                      {q}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {messages.map((msg) => (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  key={msg.id} 
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-[88%] px-5 py-4 rounded-[1.5rem] text-[13px] leading-relaxed relative whitespace-pre-wrap ${
-                    msg.role === 'user' 
-                      ? 'bg-blue-600 text-white rounded-br-none shadow-xl shadow-blue-500/20 font-medium' 
-                      : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none shadow-sm font-semibold'
-                  }`}>
-                    {msg.content || (msg.role === 'assistant' ? '...' : '')}
-                    <div className={`absolute bottom-[-4px] ${msg.role === 'user' ? 'right-0 border-t-[8px] border-t-blue-600 border-l-[8px] border-l-transparent' : 'left-0 border-t-[8px] border-t-white border-r-[8px] border-r-transparent'}`}></div>
-                  </div>
-                </motion.div>
-              ))}
-              {isTyping && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-                  <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1.5">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-                  </div>
-                </motion.div>
-              )}
-            </div>
 
-            <div className="p-6 bg-white border-t border-slate-100">
-              <form 
-                className="flex gap-3 relative"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (input) {
-                    handleSendMessage(input);
-                  }
-                }}
+              <div
+                ref={chatContainerRef}
+                className="flex-1 p-6 overflow-y-auto bg-sky-50/50 space-y-6 scroll-smooth"
               >
-                <div className="flex-1 relative">
-                  <input 
-                    autoComplete="off"
-                    name="message"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    type="text" 
-                    placeholder="Tanyakan sesuatu..."
-                    className="w-full bg-slate-100/80 rounded-2xl pl-6 pr-14 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-blue-500/5 focus:bg-white focus:border-blue-500/20 transition-all border-2 border-transparent"
-                    disabled={isTyping}
-                  />
-                  <button
-                    type="button"
-                    onClick={toggleRecording}
-                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
-                      isRecording 
-                        ? 'bg-red-100 text-red-500 animate-pulse' 
-                        : 'text-slate-400 hover:text-blue-500 hover:bg-blue-50'
-                    }`}
-                    title={isRecording ? "Hentikan merekam" : "Mulai suara"}
+                {messages.length === 1 && (
+                  <div className="grid grid-cols-1 gap-2 mb-4">
+                    {[
+                      "Bagaimana cara buat SKTM?",
+                      "Syarat Surat Domisili apa saja?",
+                      "Lupa password login warga",
+                      "Info bantuan sosial (Bansos)",
+                    ].map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => {
+                          setInput(q);
+                        }}
+                        className="px-4 py-2 bg-white border border-blue-100 rounded-xl text-[10px] font-bold text-blue-600 text-left hover:bg-blue-50 transition-colors shadow-sm"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {messages.map((msg) => (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    key={msg.id}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
-                  </button>
-                </div>
-                <button 
-                  type="submit"
-                  disabled={!input.trim() || isTyping}
-                  className="bg-gradient-to-br from-blue-600 to-blue-800 text-white w-14 h-14 rounded-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/30 flex items-center justify-center p-0 shrink-0"
+                    <div
+                      className={`max-w-[88%] px-5 py-4 rounded-[1.5rem] text-[13px] leading-relaxed relative whitespace-pre-wrap ${
+                        msg.role === "user"
+                          ? "bg-blue-600 text-white rounded-br-none shadow-xl shadow-blue-500/20 font-medium"
+                          : "bg-white border border-sky-100 text-slate-700 rounded-bl-none shadow-sm font-semibold"
+                      }`}
+                    >
+                      {msg.content || (msg.role === "assistant" ? "..." : "")}
+                      <div
+                        className={`absolute bottom-[-4px] ${msg.role === "user" ? "right-0 border-t-[8px] border-t-blue-600 border-l-[8px] border-l-transparent" : "left-0 border-t-[8px] border-t-white border-r-[8px] border-r-transparent"}`}
+                      ></div>
+                    </div>
+                  </motion.div>
+                ))}
+                {isTyping && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex justify-start"
+                  >
+                    <div className="bg-white border border-sky-100 p-4 rounded-bl-none shadow-sm flex items-center gap-1.5">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              <div className="p-6 bg-white border-t border-sky-100">
+                <form
+                  className="flex gap-3 relative"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (input) {
+                      handleSendMessage(input);
+                    }
+                  }}
                 >
-                  <Send size={22} className="relative left-0.5" />
-                </button>
-              </form>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-        
+                  <div className="flex-1 relative">
+                    <input
+                      autoComplete="off"
+                      name="message"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      type="text"
+                      placeholder="Tanyakan sesuatu..."
+                      className="w-full bg-slate-100/80 rounded-2xl pl-6 pr-14 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-blue-500/5 focus:bg-white focus:border-blue-500/20 transition-all border-2 border-transparent"
+                      disabled={isTyping}
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleRecording}
+                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
+                        isRecording
+                          ? "bg-red-100 text-red-500 animate-pulse"
+                          : "text-sky-600 hover:text-blue-500 hover:bg-blue-50"
+                      }`}
+                      title={isRecording ? "Hentikan merekam" : "Mulai suara"}
+                    >
+                      {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+                    </button>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isTyping}
+                    className="bg-blue-600 text-white w-14 h-14 rounded-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-blue-600/20 flex items-center justify-center p-0 shrink-0"
+                  >
+                    <Send size={22} className="relative left-0.5" />
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="flex justify-end items-center gap-4">
-            <motion.button 
+          <motion.button
             onClick={() => setShowChat(!showChat)}
-            animate={{ 
+            animate={{
               y: showChat ? 0 : [0, -10, 0],
             }}
-            transition={{ 
-              duration: 4, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
             }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.5rem] text-white shadow-2xl flex items-center justify-center transition-all duration-500 group relative ${
-              showChat ? 'bg-slate-900 rotate-90 shadow-slate-900/40' : 'bg-blue-600 shadow-blue-600/40'
+            className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.5rem] text-sky-950 shadow-2xl flex items-center justify-center transition-all duration-500 group relative ${
+              showChat
+                ? "bg-white rounded-3xl border border-sky-100 shadow-sm rotate-90 shadow-slate-900/40"
+                : "bg-blue-600 shadow-blue-600/20 text-white"
             }`}
           >
-            {showChat ? <X size={24} className="md:w-7 md:h-7" /> : (
+            {showChat ? (
+              <X size={24} className="md:w-7 md:h-7" />
+            ) : (
               <>
-                <MessageSquare size={22} className="md:w-7 md:h-7 group-hover:scale-110 transition-transform" />
+                <MessageSquare
+                  size={22}
+                  className="md:w-7 md:h-7 group-hover:scale-110 transition-transform"
+                />
                 <span className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-emerald-500 rounded-full border-[3px] md:border-4 border-white shadow-sm"></span>
               </>
             )}
@@ -603,31 +686,39 @@ export default function App() {
 
 // --- SUB-VIEWS ---
 
-const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React.Key }) {
-  const [role, setRole] = useState<'warga' | 'admin'>('warga');
-  const [noKK, setNoKK] = useState('');
-  const [password, setPassword] = useState('');
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPass, setAdminPass] = useState('');
-  const [error, setError] = useState('');
+const LoginView = React.memo(function LoginView({
+  onLogin,
+}: {
+  onLogin: (u: AuthSession) => void;
+  key?: React.Key;
+}) {
+  const [role, setRole] = useState<"warga" | "admin">("warga");
+  const [noKK, setNoKK] = useState("");
+  const [password, setPassword] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPass, setAdminPass] = useState("");
+  const [error, setError] = useState("");
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
-    const db = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const db = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
 
-    if (role === 'warga') {
+    if (role === "warga") {
       const family = db.find((f: Family) => f.no_kk === noKK.trim());
       if (!family) return setError("Nomor KK tidak ditemukan.");
-      const kepala = family.anggota.find((a: Resident) => a.hubungan === 'Kepala Keluarga');
+      const kepala = family.anggota.find(
+        (a: Resident) => a.hubungan === "Kepala Keluarga",
+      );
       if (!kepala) return setError("Data Kepala Keluarga tidak ditemukan.");
-      if (kepala.nik.trim() !== password.trim()) return setError("Password (NIK) salah.");
-      
-      onLogin({ role: 'warga', no_kk: noKK.trim(), nama: kepala.nama });
+      if (kepala.nik.trim() !== password.trim())
+        return setError("Password (NIK) salah.");
+
+      onLogin({ role: "warga", no_kk: noKK.trim(), nama: kepala.nama });
     } else {
       if (adminEmail === ADMIN_EMAIL && adminPass === ADMIN_PASSWORD) {
-        onLogin({ role: 'admin', nama: 'Administrator', email: adminEmail });
+        onLogin({ role: "admin", nama: "Administrator", email: adminEmail });
       } else {
         setError("Email atau Password admin salah.");
       }
@@ -635,34 +726,34 @@ const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: Auth
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex items-center justify-center p-4 bg-slate-950 relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center p-4 bg-transparent relative overflow-hidden"
     >
       {/* Official background architecture */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]"></div>
-        <div className="absolute top-0 right-0 w-[60rem] h-[60rem] bg-blue-600/20 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute top-0 right-0 w-[60rem] h-[60rem] bg-blue-400/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-[320px] bg-white rounded-[2rem] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.3)] flex flex-col relative z-10 border border-white/10"
+        className="w-full max-w-[340px] bg-white rounded-[2.5rem] border border-sky-100 overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.3)] flex flex-col relative z-10"
       >
-        <div className="w-full p-5 text-white flex flex-col justify-center bg-slate-900 relative overflow-hidden h-[160px]">
+        <div className="w-full p-5 text-sky-950 flex flex-col justify-center bg-white rounded-3xl border border-sky-100 shadow-sm relative overflow-hidden h-[160px]">
           <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2 mb-3 shadow-xl relative z-10"
           >
-            <img 
-              src="https://iili.io/BbSYeoB.png" 
-              alt="Logo Resmi" 
+            <img
+              src="https://iili.io/BbSYeoB.png"
+              alt="Logo Resmi"
               className="w-full h-full object-contain"
               referrerPolicy="no-referrer"
             />
@@ -670,34 +761,38 @@ const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: Auth
 
           <div className="relative z-10">
             <h1 className="text-xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
-              SIAK <span className="text-blue-500">MOBILE</span>
+              <span className="text-[#ff8833]">SIAK</span> <span className="text-[#67d5ce]">MOBILE</span>
             </h1>
-            <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest leading-none">Dusun Amaholu Losy</p>
+            <p className="text-sky-600 text-[8px] font-bold uppercase tracking-[0.2em] text-blue-700 leading-none">
+              Dusun Amaholu Losy
+            </p>
           </div>
         </div>
 
         <div className="w-full bg-white p-5 md:p-6 flex flex-col justify-center">
           <div className="mb-4 text-center sm:text-left">
-             <h2 className="text-lg font-black text-slate-900 tracking-tight">Masuk Ke Sistem</h2>
+            <h2 className="text-lg font-black text-sky-950 tracking-tight">
+              Masuk Ke Sistem
+            </h2>
           </div>
 
           <div className="p-1.5 bg-slate-100 rounded-2xl flex gap-1 mb-8">
-            <button 
-              onClick={() => setRole('warga')}
-              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${role === 'warga' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-500'}`}
+            <button
+              onClick={() => setRole("warga")}
+              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${role === "warga" ? "bg-white text-blue-600 shadow-sm" : "text-sky-600 hover:text-sky-600"}`}
             >
               Login Warga
             </button>
-            <button 
-              onClick={() => setRole('admin')}
-              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${role === 'admin' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-500'}`}
+            <button
+              onClick={() => setRole("admin")}
+              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${role === "admin" ? "bg-white text-blue-600 shadow-sm" : "text-sky-600 hover:text-sky-600"}`}
             >
               Login Admin
             </button>
           </div>
 
           {error && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="mb-6 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-black uppercase tracking-wider rounded-xl flex items-center gap-3 shadow-sm"
@@ -707,19 +802,26 @@ const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: Auth
           )}
 
           <form onSubmit={handleLoginSubmit} className="space-y-4">
-            {role === 'warga' ? (
+            {role === "warga" ? (
               <>
                 <div className="space-y-1.5">
-                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Nomor Kartu Keluarga (KK)</label>
+                  <label className="text-[8px] font-black text-sky-600 uppercase tracking-[0.3em] ml-2">
+                    Nomor Kartu Keluarga (KK)
+                  </label>
                   <div className="relative group">
-                    <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={16} />
-                    <input 
-                      type="text" 
+                    <Users
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-600 transition-colors"
+                      size={16}
+                    />
+                    <input
+                      type="text"
                       placeholder="16-digit kode KK"
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-sky-50 border border-sky-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-sky-950 placeholder:text-sky-600 shadow-sm"
                       value={noKK}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, 16);
+                        const val = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 16);
                         setNoKK(val);
                       }}
                       required
@@ -727,16 +829,23 @@ const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: Auth
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Kunci Pribadi (NIK)</label>
+                  <label className="text-[8px] font-black text-sky-600 uppercase tracking-[0.3em] ml-2">
+                    Kunci Pribadi (NIK)
+                  </label>
                   <div className="relative group">
-                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={16} />
-                    <input 
-                      type="password" 
+                    <Shield
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-600 transition-colors"
+                      size={16}
+                    />
+                    <input
+                      type="password"
                       placeholder="NIK Kepala Keluarga"
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-sky-50 border border-sky-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-sky-950 placeholder:text-sky-600 shadow-sm"
                       value={password}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, 16);
+                        const val = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 16);
                         setPassword(val);
                       }}
                       required
@@ -747,13 +856,18 @@ const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: Auth
             ) : (
               <>
                 <div className="space-y-1.5">
-                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Identitas Otoritas</label>
+                  <label className="text-[8px] font-black text-sky-600 uppercase tracking-[0.3em] ml-2">
+                    Identitas Otoritas
+                  </label>
                   <div className="relative group">
-                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={16} />
-                    <input 
-                      type="email" 
+                    <UserIcon
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-600 transition-colors"
+                      size={16}
+                    />
+                    <input
+                      type="email"
                       placeholder="Email Kedinasan Resmi"
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-sky-50 border border-sky-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-sky-950 placeholder:text-sky-600 shadow-sm"
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
                       required
@@ -761,13 +875,18 @@ const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: Auth
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Kunci Akses Sistem</label>
+                  <label className="text-[8px] font-black text-sky-600 uppercase tracking-[0.3em] ml-2">
+                    Kunci Akses Sistem
+                  </label>
                   <div className="relative group">
-                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={16} />
-                    <input 
-                      type="password" 
+                    <Shield
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-600 transition-colors"
+                      size={16}
+                    />
+                    <input
+                      type="password"
                       placeholder="Masukkan kunci administrator"
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-300 shadow-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-sky-50 border border-sky-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-sky-950 placeholder:text-sky-600 shadow-sm"
                       value={adminPass}
                       onChange={(e) => setAdminPass(e.target.value)}
                       required
@@ -777,13 +896,15 @@ const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: Auth
               </>
             )}
 
-            <button type="submit" className="w-full py-4 bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-xl shadow-lg hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 group text-xs">
+            <button
+              type="submit"
+              className="w-full py-4 bg-blue-600 text-white font-black uppercase tracking-[0.2em] rounded-xl shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 group text-xs"
+            >
               Masuk
             </button>
           </form>
 
-          <div className="mt-8 flex items-center justify-center">
-          </div>
+          <div className="mt-8 flex items-center justify-center"></div>
         </div>
       </motion.div>
     </motion.div>
@@ -791,19 +912,44 @@ const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: Auth
 });
 
 const ADMIN_DOC_BUTTONS = [
-  { name: "Surat Keterangan Usaha", label: "SK USAHA", sub: "Layanan Usaha", icon: "💼" },
-  { name: "Surat Keterangan Tidak Mampu", label: "SKTM", sub: "Bantuan Sosial", icon: "🤝" },
-  { name: "Surat Keterangan Pendidikan", label: "SK PENDIDIKAN", sub: "Layanan Siswa", icon: "🎓" },
-  { name: "Surat Keterangan Kematian", label: "AKTA MATI", sub: "Saksi Kematian", icon: "🕊️" },
-  { name: "Surat Keterangan Domisili", label: "DOMISILI", sub: "Bukti Tinggal", icon: "🏠" }
+  {
+    name: "Surat Keterangan Usaha",
+    label: "SK USAHA",
+    sub: "Layanan Usaha",
+    icon: "💼",
+  },
+  {
+    name: "Surat Keterangan Tidak Mampu",
+    label: "SKTM",
+    sub: "Bantuan Sosial",
+    icon: "🤝",
+  },
+  {
+    name: "Surat Keterangan Pendidikan",
+    label: "SK PENDIDIKAN",
+    sub: "Layanan Siswa",
+    icon: "🎓",
+  },
+  {
+    name: "Surat Keterangan Kematian",
+    label: "AKTA MATI",
+    sub: "Saksi Kematian",
+    icon: "🕊️",
+  },
+  {
+    name: "Surat Keterangan Domisili",
+    label: "DOMISILI",
+    sub: "Bukti Tinggal",
+    icon: "🏠",
+  },
 ];
 
-const DashboardView = React.memo(function DashboardView({ 
-  session, 
-  families, 
+const DashboardView = React.memo(function DashboardView({
+  session,
+  families,
   allFamilies,
-  onLogout, 
-  searchTerm, 
+  onLogout,
+  searchTerm,
   setSearchTerm,
   openEditModal,
   openNewFamilyModal,
@@ -812,9 +958,9 @@ const DashboardView = React.memo(function DashboardView({
   openLetter,
   openPrintKK,
   onDelete,
-  resetDb
-}: { 
-  session: AuthSession; 
+  resetDb,
+}: {
+  session: AuthSession;
   families: Family[];
   allFamilies: Family[];
   onLogout: () => void;
@@ -835,9 +981,9 @@ const DashboardView = React.memo(function DashboardView({
 
   const exportToExcel = () => {
     if (allFamilies.length === 0) return alert("Database kosong.");
-    
+
     const wb = XLSX.utils.book_new();
-    
+
     const familyData = allFamilies.map((f, i) => ({
       No: i + 1,
       "No. KK": f.no_kk,
@@ -847,292 +993,393 @@ const DashboardView = React.memo(function DashboardView({
       Kecamatan: f.Kecamatan,
       Kabupaten: f.Kabupaten,
       Provinsi: f.Provinsi,
-      "Kepala Keluarga": f.anggota.find(a => a.hubungan === 'Kepala Keluarga')?.nama || '-'
+      "Kepala Keluarga":
+        f.anggota.find((a) => a.hubungan === "Kepala Keluarga")?.nama || "-",
     }));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(familyData), "Data_Keluarga");
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(familyData),
+      "Data_Keluarga",
+    );
 
-    const membersData = allFamilies.flatMap(f => f.anggota.map(a => ({
-      "No. KK": f.no_kk,
-      Nama: a.nama,
-      NIK: a.nik,
-      "Tgl Lahir": a.tgl,
-      JK: a.jk,
-      Hubungan: a.hubungan,
-      Bansos: a.bansos
-    })));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(membersData), "Data_Penduduk");
+    const membersData = allFamilies.flatMap((f) =>
+      f.anggota.map((a) => ({
+        "No. KK": f.no_kk,
+        Nama: a.nama,
+        NIK: a.nik,
+        "Tgl Lahir": a.tgl,
+        JK: a.jk,
+        Hubungan: a.hubungan,
+        Bansos: a.bansos,
+      })),
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(membersData),
+      "Data_Penduduk",
+    );
 
     XLSX.writeFile(wb, "SIAK_AMAHOLU_LOSY.xlsx");
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="flex flex-col h-screen no-print-bg"
     >
-      <header className="bg-slate-950 px-4 py-4 flex items-center justify-between sticky top-0 z-40 no-print border-b border-white/5">
+      <header className="bg-transparent px-4 py-4 flex items-center justify-between sticky top-0 z-40 no-print">
         <div className="flex items-center gap-3 relative z-10">
           <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center p-1.5 shadow-lg overflow-hidden">
-            <img 
-              src="https://iili.io/BbSYeoB.png" 
-              className="w-full h-full object-contain" 
-              alt="Logo" 
+            <img
+              src="https://iili.io/BbSYeoB.png"
+              className="w-full h-full object-contain"
+              alt="Logo"
               referrerPolicy="no-referrer"
             />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-black text-lg text-white leading-none tracking-tighter uppercase">SIAK <span className="text-blue-500">MOBILE</span></h1>
+              <h1 className="font-black text-lg leading-none tracking-tighter uppercase">
+                <span className="text-[#ff8833]">SIAK</span> <span className="text-[#67d5ce]">MOBILE</span>
+              </h1>
             </div>
             <div className="inline-block mt-1">
-              <span className="text-[8px] bg-amber-500 text-slate-900 px-2 py-0.5 rounded-full font-black uppercase tracking-widest leading-none">AMAHOLU LOSY</span>
+              <span className="text-[8px] bg-blue-100 text-blue-700 text-sky-950 px-2 py-0.5 rounded-full font-bold uppercase tracking-[0.2em] leading-none">
+                AMAHOLU LOSY
+              </span>
             </div>
           </div>
         </div>
 
-        <button 
+        <button
           onClick={onLogout}
-          className="w-11 h-11 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+          className="w-11 h-11 bg-rose-600 hover:bg-rose-700 text-sky-950 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
         >
           <LogOut size={20} />
         </button>
       </header>
 
-      <div className="flex flex-1 overflow-hidden no-print bg-[#0a0f1e]">
+      <div className="flex flex-1 overflow-hidden no-print bg-transparent">
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto scrollbar-none pb-20 px-4">
             {!adminMenuOpen && (
               <div className="pt-6 pb-4 relative z-10 transition-all duration-300">
                 <div className="container mx-auto text-center">
-                   <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 mb-6">
-                      <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span> Sistem Digital Terintegrasi
-                   </p>
+                  <p className="text-sky-600 text-[9px] font-bold uppercase tracking-[0.2em] text-blue-700 flex items-center justify-center gap-2 mb-6">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>{" "}
+                    Sistem Digital Terintegrasi
+                  </p>
                 </div>
               </div>
             )}
 
-            <div className={`grid ${session.role === 'admin' ? 'grid-cols-2' : 'grid-cols-1'} gap-2 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-xl shadow-2xl mb-6 transition-all duration-300 ${adminMenuOpen ? 'mt-4' : ''}`}>
-                  {!adminMenuOpen && [
-                    { 
-                      label: session.role === 'admin' ? "LIHAT DATA" : "DATA KELUARGA", 
-                      sub: session.role === 'admin' ? "DATABASE" : "AKSES DATA", 
-                      icon: "📋", 
-                      action: () => setIsDatabaseViewOpen(true) 
-                    },
-                    { 
-                      label: "TAMBAH KK", 
-                      sub: "OPERASI DATA", 
-                      icon: "📝", 
-                      action: () => openNewFamilyModal() 
-                    },
-                    ...(session.role === 'admin' ? [
-                      { label: "EKSPOR DATA", sub: "EXCEL", icon: "💾", action: () => exportToExcel() },
-                      { label: "STATISTIK", sub: "REKAP", icon: "📊", action: () => openStats() }
-                    ] : [])
-                  ].map((item, idx) => {
-                    return (
-                      <div className="relative group col-span-1" key={idx}>
-                        <button 
-                          onClick={item.action}
-                          className={`w-full p-2 md:p-3.5 rounded-xl md:rounded-2xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 border-2 bg-[#1b1e28] border-[#2a2e3d] text-slate-300 hover:bg-[#232734] hover:border-[#35394a] hover:text-white shadow-none active:scale-95`}
+            <div
+              className={`grid ${session.role === "admin" ? "grid-cols-2" : "grid-cols-1"} gap-4 p-2 mb-6 transition-all duration-300 ${adminMenuOpen ? "mt-4" : ""}`}
+            >
+              {!adminMenuOpen &&
+                [
+                  {
+                    label:
+                      session.role === "admin" ? "LIHAT DATA" : "DATA KELUARGA",
+                    sub: session.role === "admin" ? "DATABASE" : "AKSES DATA",
+                    icon: "📋",
+                    iconBg: "bg-[#67d5ce] text-white",
+                    action: () => setIsDatabaseViewOpen(true),
+                  },
+                  {
+                    label: "TAMBAH KK",
+                    sub: "OPERASI DATA",
+                    icon: "📝",
+                    iconBg: "bg-[#ff8833] text-white",
+                    action: () => openNewFamilyModal(),
+                  },
+                  ...(session.role === "admin"
+                    ? [
+                        {
+                          label: "EKSPOR DATA",
+                          sub: "EXCEL",
+                          icon: "💾",
+                          iconBg: "bg-[#f9d89b] text-[#331c00]",
+                          action: () => exportToExcel(),
+                        },
+                        {
+                          label: "STATISTIK",
+                          sub: "REKAP",
+                          icon: "📊",
+                          iconBg: "bg-[#67d5ce] text-white",
+                          action: () => openStats(),
+                        },
+                      ]
+                    : []),
+                ].map((item, idx) => {
+                  return (
+                    <div className="relative group col-span-1" key={idx}>
+                      <button
+                        onClick={item.action}
+                        className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-2 active:scale-95`}
+                      >
+                        <div
+                          className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] flex items-center justify-center text-3xl md:text-4xl transition-transform ${item.iconBg} shadow-lg hover:shadow-xl transition-all font-black`}
                         >
-                          <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl transition-transform bg-white/5`}>{item.icon}</div>
-                          <div className="text-center">
-                            <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-wider mb-0.5 leading-none">{item.sub}</span>
-                            <span className="block text-[10px] md:text-[12px] font-black uppercase tracking-tight opacity-90 leading-tight">{item.label}</span>
-                          </div>
-                        </button>
-                      </div>
-                    );
-                  })}
-
-                  {/* Administrasi Digital Surat & Artikel Section */}
-                  {session.role === 'admin' && (
-                    <>
-                      <div className={`${adminMenuOpen ? 'col-span-full' : 'col-span-1'} relative group`}>
-                        <button 
-                          onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                          className={`w-full p-2 md:p-3.5 rounded-xl md:rounded-2xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 border-2 bg-[#1b1e28] border-[#2a2e3d] text-slate-300 hover:bg-[#232734] hover:border-[#35394a] hover:text-white shadow-none active:scale-95`}
-                        >
-                          <div className="absolute top-2 right-2">
-                             <ChevronDown size={14} className={`transition-transform duration-500 ${adminMenuOpen ? 'rotate-180 opacity-100' : 'opacity-30'}`} />
-                          </div>
-                          <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl transition-transform ${adminMenuOpen ? 'bg-white/20 scale-110' : 'bg-white/5'}`}>📄</div>
-                          <div className="text-center">
-                            <span className="block text-[10px] md:text-[12px] font-black uppercase tracking-tight opacity-90 leading-tight">Digital Surat</span>
-                          </div>
-                        </button>
-                      </div>
-
-                      {!adminMenuOpen && (
-                        <div className="col-span-1 relative group">
-                          <button 
-                            onClick={openArticles}
-                            className={`w-full p-2 md:p-3.5 rounded-xl md:rounded-2xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 border-2 bg-[#1b1e28] border-[#2a2e3d] text-slate-300 hover:bg-[#232734] hover:border-[#35394a] hover:text-white shadow-none active:scale-95 group`}
-                          >
-                            <div className={`w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl transition-transform bg-white/5`}>📰</div>
-                            <div className="text-center">
-                              <span className="block text-[10px] md:text-[12px] font-black uppercase tracking-tight opacity-90 leading-tight">Kegiatan</span>
-                            </div>
-                          </button>
+                          {item.icon}
                         </div>
-                      )}
+                        <div className="text-center mt-1">
+                          <span className="block text-xs md:text-sm font-black text-[#331c00]">
+                            {item.label}
+                          </span>
+                        </div>
+                      </button>
+                    </div>
+                  );
+                })}
 
-                      <AnimatePresence>
-                        {adminMenuOpen && (
-                          <motion.div 
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="col-span-full bg-slate-900 border-2 border-[#2a2e3d] rounded-2xl overflow-hidden shadow-inner mt-2"
-                          >
-                            <div className="p-3 md:p-4 grid grid-cols-2 gap-2 md:gap-3">
-                                {ADMIN_DOC_BUTTONS.map((item) => (
-                                <button 
-                                  key={item.name}
-                                  onClick={() => { openLetter(item.name as LetterType); setAdminMenuOpen(false); }}
-                                  className="p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#1b1e28] border border-[#2a2e3d] hover:bg-[#232734] hover:border-blue-500/30 flex flex-col items-start group active:scale-95 transition-all text-left h-full shadow-sm relative overflow-hidden"
-                                >
-                                  <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-6xl pointer-events-none">
-                                    {item.icon}
-                                  </div>
-                                  <div className="mb-2 md:mb-3 text-xl md:text-2xl group-hover:scale-110 transition-transform relative z-10">
-                                    <span className="opacity-80 grayscale group-hover:grayscale-0 transition-all">{item.icon}</span>
-                                  </div>
-                                  <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none opacity-60 relative z-10">{item.sub}</p>
-                                  <h4 className="text-[10px] md:text-sm font-black text-white tracking-tighter uppercase leading-tight relative z-10">{item.label}</h4>
-                                </button>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </>
+              {/* Administrasi Digital Surat & Artikel Section */}
+              {session.role === "admin" && (
+                <>
+                  <div
+                    className={`${adminMenuOpen ? "col-span-full" : "col-span-1"} relative group`}
+                  >
+                    <button
+                      onClick={() => setAdminMenuOpen(!adminMenuOpen)}
+                      className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-2 active:scale-95 relative`}
+                    >
+                      <div
+                        className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] flex items-center justify-center text-3xl md:text-4xl transition-transform ${adminMenuOpen ? "bg-[#67d5ce]/80 scale-110" : "bg-[#67d5ce] text-white shadow-lg hover:shadow-xl transition-all"}`}
+                      >
+                        📄
+                      </div>
+                      <div className="text-center mt-1">
+                        <span className="block text-xs md:text-sm font-black text-[#331c00]">
+                          Digital Surat
+                        </span>
+                      </div>
+                    </button>
+                  </div>
+
+                  {!adminMenuOpen && (
+                    <div className="col-span-1 relative group">
+                      <button
+                        onClick={openArticles}
+                        className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-2 active:scale-95 group`}
+                      >
+                        <div
+                          className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] flex items-center justify-center text-3xl md:text-4xl transition-transform bg-[#ff8833] text-white shadow-lg hover:shadow-xl transition-all`}
+                        >
+                          📰
+                        </div>
+                        <div className="text-center mt-1">
+                          <span className="block text-xs md:text-sm font-black text-[#331c00]">
+                            Kegiatan
+                          </span>
+                        </div>
+                      </button>
+                    </div>
                   )}
 
-                  </div>
+                  <AnimatePresence>
+                    {adminMenuOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="col-span-full bg-white rounded-3xl border border-sky-100 border-2 overflow-hidden shadow-inner mt-2"
+                      >
+                        <div className="p-3 md:p-4 grid grid-cols-2 gap-2 md:gap-3">
+                          {ADMIN_DOC_BUTTONS.map((item) => (
+                            <button
+                              key={item.name}
+                              onClick={() => {
+                                openLetter(item.name as LetterType);
+                                setAdminMenuOpen(false);
+                              }}
+                              className="p-3 md:p-4 md:rounded-2xl bg-white rounded-3xl border border-sky-100 hover:bg-sky-100/50 hover:border-blue-500/30 flex flex-col items-start group active:scale-95 transition-all text-left h-full shadow-sm relative overflow-hidden"
+                            >
+                              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-6xl pointer-events-none">
+                                {item.icon}
+                              </div>
+                              <div className="mb-2 md:mb-3 text-xl md:text-2xl group-hover:scale-110 transition-transform relative z-10">
+                                <span className="opacity-80 grayscale group-hover:grayscale-0 transition-all">
+                                  {item.icon}
+                                </span>
+                              </div>
+                              <p className="text-[8px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1 leading-none opacity-60 relative z-10">
+                                {item.sub}
+                              </p>
+                              <h4 className="text-[10px] md:text-sm font-black text-sky-950 tracking-tighter uppercase leading-tight relative z-10">
+                                {item.label}
+                              </h4>
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </>
+              )}
+            </div>
 
             <main className="container mx-auto">
-              <div className="max-w-6xl mx-auto">
-              </div>
+              <div className="max-w-6xl mx-auto"></div>
             </main>
 
-        <AnimatePresence>
-          {isDatabaseViewOpen && (
-            <div className="fixed inset-0 z-[120] flex items-center justify-center p-0 no-print">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl"
-                onClick={() => setIsDatabaseViewOpen(false)}
-              />
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 50 }}
-                className="relative w-full h-full bg-slate-900 overflow-hidden flex flex-col"
-              >
-                <div className="bg-slate-950 px-5 py-6 border-b-2 border-blue-600 flex items-center justify-between sticky top-0 z-20 shadow-2xl">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-500 border border-blue-500/20">
-                      <Users size={20} />
-                    </div>
-                    <div>
-                      <h3 className="font-black text-lg text-white tracking-tight uppercase leading-none">Database Warga</h3>
-                      <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mt-1.5">Total: {families.length} Records</p>
-                    </div>
-                  </div>
-                  <button 
+            <AnimatePresence>
+              {isDatabaseViewOpen && (
+                <div className="fixed inset-0 z-[120] flex items-center justify-center p-0 no-print">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
                     onClick={() => setIsDatabaseViewOpen(false)}
-                    className="w-10 h-10 bg-white/5 text-white rounded-full flex items-center justify-center border border-white/10 active:scale-90 transition-all font-bold"
+                  />
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 50 }}
+                    className="relative w-full h-full bg-white rounded-3xl border border-sky-100 shadow-sm overflow-hidden flex flex-col"
                   >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-none">
-                  <div className="relative group">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                    <input 
-                      type="text" 
-                      placeholder="Cari Nama atau No. KK..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-12 pr-6 py-4 bg-white/5 border-2 border-white/10 rounded-2xl outline-none focus:border-blue-500 focus:bg-slate-800 transition-all font-bold text-white placeholder:text-slate-600 text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-4 pb-10">
-                    {families.map((f, i) => {
-                      const kepalaObj = f.anggota.find(a => a.hubungan === 'Kepala Keluarga');
-                      return (
-                        <div key={f.no_kk} className="bg-white/5 border border-white/10 rounded-3xl p-5 space-y-4 hover:border-blue-500/50 transition-all shadow-xl shadow-black/20">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="text-[8px] font-black text-blue-500 uppercase tracking-widest mb-1.5 leading-none">Kepala Keluarga</p>
-                              <h4 className="text-sm font-black text-white uppercase tracking-tight leading-tight">{kepalaObj?.nama || '-'}</h4>
-                            </div>
-                            <div className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[8px] font-mono text-slate-400">
-                              #{i + 1}
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4 pt-2">
-                             <div>
-                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1 leading-none">No. KK</p>
-                                <p className="text-[10px] font-bold text-slate-300 tracking-wider">{f.no_kk}</p>
-                             </div>
-                             <div>
-                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1 leading-none">Wilayah</p>
-                                <p className="text-[10px] font-bold text-slate-300 truncate">{f.alamat} / RT {f.rt_rw}</p>
-                             </div>
-                          </div>
-
-                          <div className="flex gap-2 pt-2">
-                            <button 
-                              onClick={() => {
-                                openEditModal(allFamilies.findIndex(it => it.no_kk === f.no_kk));
-                                setIsDatabaseViewOpen(false);
-                              }}
-                              className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-blue-900/40"
-                            >
-                              {session.role === 'admin' ? 'Kelola Data' : 'Detail'}
-                            </button>
-                            <button 
-                              onClick={() => { openPrintKK(f); setIsDatabaseViewOpen(false); }}
-                              className="w-12 h-11 bg-white/5 border border-white/10 text-white rounded-xl flex items-center justify-center active:scale-95 transition-all"
-                            >
-                              <Printer size={16} />
-                            </button>
-                            {session.role === 'admin' && (
-                              <button 
-                                onClick={() => onDelete(allFamilies.findIndex(it => it.no_kk === f.no_kk))}
-                                className="w-12 h-11 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl flex items-center justify-center active:scale-95 transition-all"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            )}
-                          </div>
+                    <div className="bg-sky-50 px-5 py-6 border-b-2 border-blue-600 flex items-center justify-between sticky top-0 z-20 shadow-2xl">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-500 border border-blue-500/20">
+                          <Users size={20} />
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  </div>
+                        <div>
+                          <h3 className="font-black text-lg text-sky-950 tracking-tight uppercase leading-none">
+                            Database Warga
+                          </h3>
+                          <p className="text-[8px] font-black text-sky-600 uppercase tracking-[0.3em] mt-1.5">
+                            Total: {families.length} Records
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setIsDatabaseViewOpen(false)}
+                        className="w-10 h-10 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 rounded-full flex items-center justify-center active:scale-90 font-bold"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
 
-      <footer className="bg-slate-900 border-t border-white/5 py-6 px-6 text-center no-print shrink-0">
-        <p className="text-slate-600 text-[8px] md:text-xs font-black uppercase tracking-[0.2em] leading-relaxed">
-          Pemerintah Dusun Amaholu Losy © 2026<br/>
-          <span className="opacity-40 tracking-widest">Sistem Informasi Administrasi Kependudukan</span>
+                    <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-none">
+                      <div className="relative group">
+                        <Search
+                          className="absolute left-5 top-1/2 -translate-y-1/2 text-sky-600"
+                          size={18}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Cari Nama atau No. KK..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="w-full pl-12 pr-6 py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 outline-none focus:border-blue-500 focus:bg-blue-700 font-bold text-sky-950 placeholder:text-sky-600 text-sm"
+                        />
+                      </div>
+
+                      <div className="space-y-4 pb-10">
+                        {families.map((f, i) => {
+                          const kepalaObj = f.anggota.find(
+                            (a) => a.hubungan === "Kepala Keluarga",
+                          );
+                          return (
+                            <div
+                              key={f.no_kk}
+                              className="bg-white rounded-3xl border border-sky-100 hover:shadow-md transition-all p-5 space-y-4 hover:border-blue-500/50 shadow-black/20"
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="text-[8px] font-black text-blue-500 uppercase tracking-widest mb-1.5 leading-none">
+                                    Kepala Keluarga
+                                  </p>
+                                  <h4 className="text-sm font-black text-sky-950 uppercase tracking-tight leading-tight">
+                                    {kepalaObj?.nama || "-"}
+                                  </h4>
+                                </div>
+                                <div className="px-2 py-1 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all rounded-lg text-[8px] font-mono text-sky-600">
+                                  #{i + 1}
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4 pt-2">
+                                <div>
+                                  <p className="text-[8px] font-black text-sky-600 uppercase tracking-widest mb-1 leading-none">
+                                    No. KK
+                                  </p>
+                                  <p className="text-[10px] font-bold text-sky-600 tracking-wider">
+                                    {f.no_kk}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-[8px] font-black text-sky-600 uppercase tracking-widest mb-1 leading-none">
+                                    Wilayah
+                                  </p>
+                                  <p className="text-[10px] font-bold text-sky-600 truncate">
+                                    {f.alamat} / RT {f.rt_rw}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-2 pt-2">
+                                <button
+                                  onClick={() => {
+                                    openEditModal(
+                                      allFamilies.findIndex(
+                                        (it) => it.no_kk === f.no_kk,
+                                      ),
+                                    );
+                                    setIsDatabaseViewOpen(false);
+                                  }}
+                                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all shadow-blue-900/40"
+                                >
+                                  {session.role === "admin"
+                                    ? "Kelola Data"
+                                    : "Detail"}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    openPrintKK(f);
+                                    setIsDatabaseViewOpen(false);
+                                  }}
+                                  className="w-12 h-11 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 flex items-center justify-center active:scale-95"
+                                >
+                                  <Printer size={16} />
+                                </button>
+                                {session.role === "admin" && (
+                                  <button
+                                    onClick={() =>
+                                      onDelete(
+                                        allFamilies.findIndex(
+                                          (it) => it.no_kk === f.no_kk,
+                                        ),
+                                      )
+                                    }
+                                    className="w-12 h-11 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl flex items-center justify-center active:scale-95 transition-all"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+
+      <footer className="bg-white border-t border-sky-100 shadow-[0_-4px_20px_rgba(14,165,233,0.05)] py-6 px-6 text-center no-print shrink-0">
+        <p className="text-sky-600 text-[8px] md:text-xs font-black uppercase tracking-[0.2em] leading-relaxed">
+          Pemerintah Dusun Amaholu Losy © 2026
+          <br />
+          <span className="opacity-40 tracking-widest">
+            Sistem Informasi Administrasi Kependudukan
+          </span>
         </p>
       </footer>
     </motion.div>
@@ -1141,12 +1388,31 @@ const DashboardView = React.memo(function DashboardView({
 
 // --- MODALS ---
 
-const FamilyModal = React.memo(function FamilyModal({ family, session, onSave, onClose }: { family: Family, session: AuthSession, onSave: (f: Family) => void, onClose: () => void }) {
+const FamilyModal = React.memo(function FamilyModal({
+  family,
+  session,
+  onSave,
+  onClose,
+}: {
+  family: Family;
+  session: AuthSession;
+  onSave: (f: Family) => void;
+  onClose: () => void;
+}) {
   const [data, setData] = useState<Family>(JSON.parse(JSON.stringify(family)));
 
   const addMember = () => {
     const newMember: Resident = {
-      nama: '', nik: '', tempat_lahir: '', tgl: '', jk: '', hubungan: '', agama: '', pendidikan: '', pekerjaan: '', bansos: ''
+      nama: "",
+      nik: "",
+      tempat_lahir: "",
+      tgl: "",
+      jk: "",
+      hubungan: "",
+      agama: "",
+      pendidikan: "",
+      pekerjaan: "",
+      bansos: "",
     };
     setData({ ...data, anggota: [...data.anggota, newMember] });
   };
@@ -1156,7 +1422,11 @@ const FamilyModal = React.memo(function FamilyModal({ family, session, onSave, o
     setData({ ...data, anggota: newMembers });
   };
 
-  const updateMember = (index: number, field: keyof Resident, value: string) => {
+  const updateMember = (
+    index: number,
+    field: keyof Resident,
+    value: string,
+  ) => {
     const newMembers = [...data.anggota];
     newMembers[index] = { ...newMembers[index], [field]: value };
     setData({ ...data, anggota: newMembers });
@@ -1164,95 +1434,139 @@ const FamilyModal = React.memo(function FamilyModal({ family, session, onSave, o
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValidKK(data.no_kk)) return alert("Data Gagal Simpan: Nomor KK harus tepat 16 digit angka.");
-    if (data.anggota.length === 0) return alert("Minimal harus ada 1 anggota keluarga yang terdaftar.");
-    
+    if (!isValidKK(data.no_kk))
+      return alert("Data Gagal Simpan: Nomor KK harus tepat 16 digit angka.");
+    if (data.anggota.length === 0)
+      return alert("Minimal harus ada 1 anggota keluarga yang terdaftar.");
+
     // Check if there is exactly one head of family
-    const headCount = data.anggota.filter(a => a.hubungan === 'Kepala Keluarga').length;
-    if (headCount === 0) return alert("Kesalahan: Keluarga harus memiliki minimal satu Kepala Keluarga.");
-    if (headCount > 1) return alert("Kesalahan: Dalam satu KK tidak boleh ada lebih dari satu Kepala Keluarga.");
+    const headCount = data.anggota.filter(
+      (a) => a.hubungan === "Kepala Keluarga",
+    ).length;
+    if (headCount === 0)
+      return alert(
+        "Kesalahan: Keluarga harus memiliki minimal satu Kepala Keluarga.",
+      );
+    if (headCount > 1)
+      return alert(
+        "Kesalahan: Dalam satu KK tidak boleh ada lebih dari satu Kepala Keluarga.",
+      );
 
     // Validate each member
     for (const member of data.anggota) {
-      if (!isValidName(member.nama)) return alert(`Kesalahan Input: Nama "${member.nama}" mengandung karakter yang tidak diizinkan.`);
-      if (!isValidNIK(member.nik)) return alert(`Data Gagal Simpan: NIK untuk "${member.nama}" harus tepat 16 digit angka.`);
-      
+      if (!isValidName(member.nama))
+        return alert(
+          `Kesalahan Input: Nama "${member.nama}" mengandung karakter yang tidak diizinkan.`,
+        );
+      if (!isValidNIK(member.nik))
+        return alert(
+          `Data Gagal Simpan: NIK untuk "${member.nama}" harus tepat 16 digit angka.`,
+        );
+
       const birthDate = new Date(member.tgl);
-      if (birthDate > new Date()) return alert(`Kesalahan Tanggal: Tanggal lahir "${member.nama}" tidak boleh di masa depan.`);
+      if (birthDate > new Date())
+        return alert(
+          `Kesalahan Tanggal: Tanggal lahir "${member.nama}" tidak boleh di masa depan.`,
+        );
     }
 
     onSave(data);
   };
 
-  const isReadOnly = session.role === 'warga' && family.no_kk !== '';
+  const isReadOnly = session.role === "warga" && family.no_kk !== "";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 no-print">
-      <motion.div 
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" 
-        onClick={onClose} 
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        onClick={onClose}
       />
-      
-      <motion.div 
+
+      <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="relative w-full max-w-5xl max-h-[95vh] bg-[#0f1423] rounded-2xl md:rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border border-white/10"
+        className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100"
       >
-        <div className="bg-[#1b1e28] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 border-amber-500 relative overflow-hidden shrink-0">
+        <div className="bg-white rounded-3xl border border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 border-amber-500 relative overflow-hidden shrink-0">
           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
           <div className="flex items-center gap-3 md:gap-6 relative z-10">
-            <div className="w-10 h-10 md:w-14 md:h-14 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-amber-500 border border-white/10 shadow-inner shrink-0">
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-white rounded-3xl border border-sky-100 hover:shadow-md transition-all md:rounded-2xl flex items-center justify-center text-amber-500 shadow-inner shrink-0">
               <Users className="w-6 h-6 md:w-8 md:h-8" />
             </div>
             <div className="text-left">
-              <h3 className="text-white text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight">
-                {isReadOnly ? 'Detail Berkas Kependudukan' : (data.no_kk ? 'Form Kartu Keluarga' : 'Registrasi Kartu Keluarga')}
+              <h3 className="text-sky-950 text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight">
+                {isReadOnly
+                  ? "Detail Berkas Kependudukan"
+                  : data.no_kk
+                    ? "Form Kartu Keluarga"
+                    : "Registrasi Kartu Keluarga"}
               </h3>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
-            className="w-8 h-8 md:w-10 md:h-10 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all border border-white/10 hover:rotate-90 shrink-0"
+          <button
+            onClick={onClose}
+            className="w-8 h-8 md:w-10 md:h-10 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 rounded-full flex items-center justify-center hover:rotate-90 shrink-0"
           >
             <X className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 md:p-14 space-y-8 md:space-y-12 scrollbar-official">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto p-5 md:p-14 space-y-8 md:space-y-12 scrollbar-official"
+        >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             <div className="space-y-2 md:space-y-3">
-               <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">ID Resmi (KK)</label>
-               <input 
-                value={data.no_kk} 
-                onChange={e => setData({...data, no_kk: e.target.value.replace(/\D/g, '').slice(0, 16)})}
+              <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">
+                ID Resmi (KK)
+              </label>
+              <input
+                value={data.no_kk}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    no_kk: e.target.value.replace(/\D/g, "").slice(0, 16),
+                  })
+                }
                 maxLength={16}
                 disabled={isReadOnly}
                 required
                 placeholder="KODE 16-DIGIT"
-                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-3xl font-black text-white placeholder:text-slate-600 outline-none focus:border-blue-500 focus:bg-white/10 transition-all shadow-sm text-sm md:text-base"
+                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-3xl font-black text-sky-950 placeholder:text-sky-600 outline-none focus:border-blue-500 focus:bg-white focus:shadow-md text-sm md:text-base"
               />
             </div>
             <div className="space-y-2 md:space-y-3">
-               <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">Alamat</label>
-               <input 
-                value={data.alamat} 
-                onChange={e => setData({...data, alamat: e.target.value})}
+              <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">
+                Alamat
+              </label>
+              <input
+                value={data.alamat}
+                onChange={(e) => setData({ ...data, alamat: e.target.value })}
                 disabled={isReadOnly}
                 required
                 placeholder="JALAN / DUSUN"
-                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-3xl font-black text-white placeholder:text-slate-600 outline-none focus:border-blue-500 focus:bg-white/10 transition-all shadow-sm text-sm md:text-base"
+                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-3xl font-black text-sky-950 placeholder:text-sky-600 outline-none focus:border-blue-500 focus:bg-white focus:shadow-md text-sm md:text-base"
               />
             </div>
             <div className="space-y-2 md:space-y-3">
-               <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">Wilayah / RT</label>
-               <input 
-                value={data.rt_rw} 
-                onChange={e => setData({...data, rt_rw: e.target.value.replace(/\D/g, '').slice(0, 3)})}
+              <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">
+                Wilayah / RT
+              </label>
+              <input
+                value={data.rt_rw}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    rt_rw: e.target.value.replace(/\D/g, "").slice(0, 3),
+                  })
+                }
                 disabled={isReadOnly}
                 required
                 placeholder="00"
-                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-3xl font-black text-white placeholder:text-slate-600 outline-none focus:border-blue-500 focus:bg-white/10 transition-all shadow-sm text-center text-sm md:text-base"
+                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-3xl font-black text-sky-950 placeholder:text-sky-600 outline-none focus:border-blue-500 focus:bg-white focus:shadow-md text-center text-sm md:text-base"
               />
             </div>
           </div>
@@ -1260,14 +1574,16 @@ const FamilyModal = React.memo(function FamilyModal({ family, session, onSave, o
           <div className="space-y-6 md:space-y-12">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-10">
               <div className="flex items-center gap-3 md:gap-4">
-                 <div className="w-1.5 h-8 md:w-2.5 md:h-10 bg-blue-600 rounded-full"></div>
-                 <h4 className="text-xl md:text-2xl font-black text-white tracking-tight">Anggota Keluarga</h4>
+                <div className="w-1.5 h-8 md:w-2.5 md:h-10 bg-blue-600 rounded-full"></div>
+                <h4 className="text-xl md:text-2xl font-black text-sky-950 tracking-tight">
+                  Anggota Keluarga
+                </h4>
               </div>
               {!isReadOnly && (
-                <button 
+                <button
                   type="button"
                   onClick={addMember}
-                  className="px-6 py-3 md:px-8 md:py-4 bg-slate-900 text-white rounded-xl md:rounded-[1.5rem] font-black text-[10px] md:text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-95 border-b-4 border-slate-700"
+                  className="px-6 py-3 md:px-8 md:py-4 bg-blue-600 text-white rounded-xl md:rounded-[1.5rem] font-black text-[10px] md:text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-blue-900/10 active:scale-95 border-b-4 border-blue-800"
                 >
                   <PlusCircle size={16} /> Tambah Registrasi
                 </button>
@@ -1276,17 +1592,17 @@ const FamilyModal = React.memo(function FamilyModal({ family, session, onSave, o
 
             <div className="space-y-6 md:space-y-8">
               {data.anggota.map((ag, i) => (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  key={i} 
-                  className="p-5 md:p-10 bg-white/5 border-2 border-white/10 rounded-2xl md:rounded-[3rem] relative group hover:border-blue-500/30 transition-all hover:bg-white/10 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
+                  key={i}
+                  className="p-5 md:p-10 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-[3rem] relative group hover:border-blue-500/30 hover:bg-white hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
                 >
                   {!isReadOnly && (
-                    <button 
+                    <button
                       type="button"
                       onClick={() => removeMember(i)}
-                      className="absolute top-4 right-4 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 bg-rose-50 text-rose-500 rounded-xl md:rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all border border-rose-100 md:opacity-0 md:group-hover:opacity-100 shadow-sm"
+                      className="absolute top-4 right-4 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 bg-rose-50 text-rose-500 rounded-xl md:rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-sky-950 transition-all border border-rose-100 md:opacity-0 md:group-hover:opacity-100 shadow-sm"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -1294,140 +1610,304 @@ const FamilyModal = React.memo(function FamilyModal({ family, session, onSave, o
 
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8 pt-6 md:pt-0">
                     <div className="md:col-span-1">
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Nama Lengkap</label>
-                       <input 
-                        value={ag.nama} 
-                        onChange={e => updateMember(i, 'nama', e.target.value)}
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        Nama Lengkap
+                      </label>
+                      <input
+                        value={ag.nama}
+                        onChange={(e) =>
+                          updateMember(i, "nama", e.target.value)
+                        }
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none transition-all shadow-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
                       />
                     </div>
                     <div>
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">NIK</label>
-                       <input 
-                        value={ag.nik} 
-                        onChange={e => updateMember(i, 'nik', e.target.value.replace(/\D/g, '').slice(0, 16))}
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        NIK
+                      </label>
+                      <input
+                        value={ag.nik}
+                        onChange={(e) =>
+                          updateMember(
+                            i,
+                            "nik",
+                            e.target.value.replace(/\D/g, "").slice(0, 16),
+                          )
+                        }
                         disabled={isReadOnly}
                         required
                         maxLength={16}
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-mono font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none transition-all shadow-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-mono font-bold text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
                       />
                     </div>
                     <div>
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Hubungan</label>
-                       <select 
-                        value={ag.hubungan} 
-                        onChange={e => updateMember(i, 'hubungan', e.target.value)}
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        Hubungan
+                      </label>
+                      <select
+                        value={ag.hubungan}
+                        onChange={(e) =>
+                          updateMember(i, "hubungan", e.target.value)
+                        }
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none transition-all shadow-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
                       >
-                        <option value="" className="bg-purple-950">Pilih</option>
-                        <option value="Kepala Keluarga" className="bg-purple-950">Kepala Keluarga</option>
-                        <option value="Istri" className="bg-purple-950">Istri</option>
-                        <option value="Anak" className="bg-purple-950">Anak</option>
-                        <option value="Lainnya" className="bg-purple-950">Lainnya</option>
+                        <option value="" className="bg-white text-slate-800">
+                          Pilih
+                        </option>
+                        <option
+                          value="Kepala Keluarga"
+                          className="bg-white text-slate-800"
+                        >
+                          Kepala Keluarga
+                        </option>
+                        <option
+                          value="Istri"
+                          className="bg-white text-slate-800"
+                        >
+                          Istri
+                        </option>
+                        <option
+                          value="Anak"
+                          className="bg-white text-slate-800"
+                        >
+                          Anak
+                        </option>
+                        <option
+                          value="Lainnya"
+                          className="bg-white text-slate-800"
+                        >
+                          Lainnya
+                        </option>
                       </select>
                     </div>
                     <div>
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">JK</label>
-                       <select 
-                        value={ag.jk} 
-                        onChange={e => updateMember(i, 'jk', e.target.value)}
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        JK
+                      </label>
+                      <select
+                        value={ag.jk}
+                        onChange={(e) => updateMember(i, "jk", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none transition-all shadow-sm"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
                       >
-                        <option value="" className="bg-purple-950">Pilih</option>
-                        <option value="Laki-laki" className="bg-purple-950">Laki-laki</option>
-                        <option value="Perempuan" className="bg-purple-950">Perempuan</option>
+                        <option value="" className="bg-white text-slate-800">
+                          Pilih
+                        </option>
+                        <option
+                          value="Laki-laki"
+                          className="bg-white text-slate-800"
+                        >
+                          Laki-laki
+                        </option>
+                        <option
+                          value="Perempuan"
+                          className="bg-white text-slate-800"
+                        >
+                          Perempuan
+                        </option>
                       </select>
                     </div>
-                    
+
                     <div>
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Tempat Lahir</label>
-                       <input 
-                        value={ag.tempat_lahir} 
-                        onChange={e => updateMember(i, 'tempat_lahir', e.target.value)}
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        Tempat Lahir
+                      </label>
+                      <input
+                        value={ag.tempat_lahir}
+                        onChange={(e) =>
+                          updateMember(i, "tempat_lahir", e.target.value)
+                        }
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-bold text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
                       />
                     </div>
                     <div>
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Tgl Lahir</label>
-                       <input 
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        Tgl Lahir
+                      </label>
+                      <input
                         type="date"
-                        value={ag.tgl} 
-                        onChange={e => updateMember(i, 'tgl', e.target.value)}
+                        value={ag.tgl}
+                        onChange={(e) => updateMember(i, "tgl", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-bold text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
                       />
                     </div>
                     <div>
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Pendidikan</label>
-                       <select 
-                        value={ag.pendidikan} 
-                        onChange={e => updateMember(i, 'pendidikan', e.target.value)}
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        Pendidikan
+                      </label>
+                      <select
+                        value={ag.pendidikan}
+                        onChange={(e) =>
+                          updateMember(i, "pendidikan", e.target.value)
+                        }
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
                       >
-                        <option value="" className="bg-purple-950">Pilih</option>
-                        <option value="Tidak/Belum Sekolah" className="bg-purple-950">Tidak/Belum Sekolah</option>
-                        <option value="SD / Sederajat" className="bg-purple-950">SD / Sederajat</option>
-                        <option value="SMP / Sederajat" className="bg-purple-950">SMP / Sederajat</option>
-                        <option value="SMA / Sederajat" className="bg-purple-950">SMA / Sederajat</option>
-                        <option value="Diploma I / II" className="bg-purple-950">Diploma I / II</option>
-                        <option value="Akademi / Diploma III" className="bg-purple-950">Akademi / Diploma III</option>
-                        <option value="Diploma IV / Strata I" className="bg-purple-950">Diploma IV / Strata I</option>
-                        <option value="Strata II" className="bg-purple-950">Strata II</option>
-                        <option value="Strata III" className="bg-purple-950">Strata III</option>
+                        <option value="" className="bg-white text-slate-800">
+                          Pilih
+                        </option>
+                        <option
+                          value="Tidak/Belum Sekolah"
+                          className="bg-white text-slate-800"
+                        >
+                          Tidak/Belum Sekolah
+                        </option>
+                        <option
+                          value="SD / Sederajat"
+                          className="bg-white text-slate-800"
+                        >
+                          SD / Sederajat
+                        </option>
+                        <option
+                          value="SMP / Sederajat"
+                          className="bg-white text-slate-800"
+                        >
+                          SMP / Sederajat
+                        </option>
+                        <option
+                          value="SMA / Sederajat"
+                          className="bg-white text-slate-800"
+                        >
+                          SMA / Sederajat
+                        </option>
+                        <option
+                          value="Diploma I / II"
+                          className="bg-white text-slate-800"
+                        >
+                          Diploma I / II
+                        </option>
+                        <option
+                          value="Akademi / Diploma III"
+                          className="bg-white text-slate-800"
+                        >
+                          Akademi / Diploma III
+                        </option>
+                        <option
+                          value="Diploma IV / Strata I"
+                          className="bg-white text-slate-800"
+                        >
+                          Diploma IV / Strata I
+                        </option>
+                        <option
+                          value="Strata II"
+                          className="bg-white text-slate-800"
+                        >
+                          Strata II
+                        </option>
+                        <option
+                          value="Strata III"
+                          className="bg-white text-slate-800"
+                        >
+                          Strata III
+                        </option>
                       </select>
                     </div>
                     <div>
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Pekerjaan</label>
-                       <input 
-                        value={ag.pekerjaan} 
-                        onChange={e => updateMember(i, 'pekerjaan', e.target.value)}
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        Pekerjaan
+                      </label>
+                      <input
+                        value={ag.pekerjaan}
+                        onChange={(e) =>
+                          updateMember(i, "pekerjaan", e.target.value)
+                        }
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-bold text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-bold text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
                       />
                     </div>
 
                     <div>
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Agama</label>
-                       <select 
-                        value={ag.agama} 
-                        onChange={e => updateMember(i, 'agama', e.target.value)}
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        Agama
+                      </label>
+                      <select
+                        value={ag.agama}
+                        onChange={(e) =>
+                          updateMember(i, "agama", e.target.value)
+                        }
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white/5 border-2 border-white/10 rounded-xl md:rounded-2xl font-black text-white text-xs md:text-sm focus:border-blue-600 focus:bg-white/10 outline-none"
+                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
                       >
-                        <option value="" className="bg-purple-950">Pilih</option>
-                        <option value="Islam" className="bg-purple-950">Islam</option>
-                        <option value="Kristen" className="bg-purple-950">Kristen</option>
-                        <option value="Katolik" className="bg-purple-950">Katolik</option>
-                        <option value="Hindu" className="bg-purple-950">Hindu</option>
-                        <option value="Budha" className="bg-purple-950">Budha</option>
+                        <option value="" className="bg-white text-slate-800">
+                          Pilih
+                        </option>
+                        <option
+                          value="Islam"
+                          className="bg-white text-slate-800"
+                        >
+                          Islam
+                        </option>
+                        <option
+                          value="Kristen"
+                          className="bg-white text-slate-800"
+                        >
+                          Kristen
+                        </option>
+                        <option
+                          value="Katolik"
+                          className="bg-white text-slate-800"
+                        >
+                          Katolik
+                        </option>
+                        <option
+                          value="Hindu"
+                          className="bg-white text-slate-800"
+                        >
+                          Hindu
+                        </option>
+                        <option
+                          value="Budha"
+                          className="bg-white text-slate-800"
+                        >
+                          Budha
+                        </option>
                       </select>
                     </div>
                     <div>
-                       <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 md:mb-3 block">Bansos</label>
-                       <select 
-                        value={ag.bansos} 
-                        onChange={e => updateMember(i, 'bansos', e.target.value)}
+                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                        Bansos
+                      </label>
+                      <select
+                        value={ag.bansos}
+                        onChange={(e) =>
+                          updateMember(i, "bansos", e.target.value)
+                        }
                         disabled={isReadOnly}
                         className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-blue-500/10 border-2 border-blue-500/20 rounded-xl md:rounded-2xl font-black text-blue-400 text-xs md:text-sm focus:border-blue-600 outline-none transition-all shadow-inner"
                       >
-                        <option value="" className="bg-purple-950">Tidak Ada</option>
-                        <option value="PKH" className="bg-purple-950">PKH</option>
-                        <option value="BPNT" className="bg-purple-950">BPNT</option>
-                        <option value="BLT" className="bg-purple-950">BLT</option>
-                        <option value="BPJS" className="bg-purple-950">BPJS</option>
+                        <option value="" className="bg-white text-slate-800">
+                          Tidak Ada
+                        </option>
+                        <option value="PKH" className="bg-white text-slate-800">
+                          PKH
+                        </option>
+                        <option
+                          value="BPNT"
+                          className="bg-white text-slate-800"
+                        >
+                          BPNT
+                        </option>
+                        <option value="BLT" className="bg-white text-slate-800">
+                          BLT
+                        </option>
+                        <option
+                          value="BPJS"
+                          className="bg-white text-slate-800"
+                        >
+                          BPJS
+                        </option>
                       </select>
                     </div>
                   </div>
@@ -1437,27 +1917,27 @@ const FamilyModal = React.memo(function FamilyModal({ family, session, onSave, o
           </div>
         </form>
 
-        <div className="bg-slate-900 px-6 py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white rounded-3xl border border-sky-100 shadow-sm px-6 py-6 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-             <div className="w-10 h-10 bg-white/10 text-blue-400 rounded-full flex items-center justify-center border border-white/10 shadow-inner">
-                <Info size={18} />
-             </div>
-             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-loose max-w-[300px]">
-                Seluruh data akan disimpan dalam infrastruktur SIAK yang aman.
-             </p>
+            <div className="w-10 h-10 bg-white border border-sky-100 hover:shadow-md transition-all text-blue-400 rounded-full flex items-center justify-center shadow-inner">
+              <Info size={18} />
+            </div>
+            <p className="text-[9px] font-black text-sky-600 uppercase tracking-widest leading-loose max-w-[300px]">
+              Seluruh data akan disimpan dalam infrastruktur SIAK yang aman.
+            </p>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
-            <button 
+            <button
               type="button"
-              onClick={onClose} 
-              className="flex-1 sm:flex-none px-8 py-3 bg-white/5 border border-white/10 text-slate-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all font-sans"
+              onClick={onClose}
+              className="flex-1 sm:flex-none px-8 py-3 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-600 font-black text-[10px] uppercase tracking-widest hover:bg-white font-sans"
             >
               Batalkan
             </button>
             {!isReadOnly && (
-              <button 
+              <button
                 type="submit"
-                onClick={handleSubmit} 
+                onClick={handleSubmit}
                 className="flex-1 sm:flex-none px-10 py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-[0_20px_50px_rgba(37,99,235,0.3)] active:scale-95 flex items-center justify-center gap-2"
               >
                 <Save size={16} /> Simpan Berkas
@@ -1472,110 +1952,149 @@ const FamilyModal = React.memo(function FamilyModal({ family, session, onSave, o
 
 const ARTICLES_DATA = [
   {
-    title: 'Aktivitas Jual Beli Ikan Segar di Pesisir Pantai Amaholu Losy',
-    date: '14 Mei 2026',
-    category: 'Dokumentasi',
-    image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80',
-    desc: 'Potret aktivitas jual beli ikan segar hasil tangkapan nelayan di pesisir pantai Dusun Amaholu Losy.',
-    content: 'Pesisir pantai Dusun Amaholu Losy menjadi salah satu pusat perputaran ekonomi warga. Setiap hari, aktivitas jual beli ikan segar hasil tangkapan para nelayan lokal selalu ramai memenuhi pesisir.\n\nPara nelayan yang baru saja bersandar langsung menawarkan hasil tangkapan laut mereka yang masih segar kepada warga maupun pengepul. Suasana tawar-menawar yang hangat dan interaksi akrab antar warga menjadi pemandangan indah yang merepresentasikan denyut nadi kehidupan di wilayah pesisir.\n\nKekayaan laut yang melimpah ini tidak hanya menjadi sumber makanan bagi warga, tetapi juga menjadi penopang kesejahteraan dan mata pencaharian masyarakat. Kelestarian laut pun selalu dijaga agar senantiasa memberikan berkah yang tak terputus bagi warga Dusun Amaholu Losy.',
-    videoId: 'QVWtQvqMHLk'
+    title: "Aktivitas Jual Beli Ikan Segar di Pesisir Pantai Amaholu Losy",
+    date: "14 Mei 2026",
+    category: "Dokumentasi",
+    image:
+      "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80",
+    desc: "Potret aktivitas jual beli ikan segar hasil tangkapan nelayan di pesisir pantai Dusun Amaholu Losy.",
+    content:
+      "Pesisir pantai Dusun Amaholu Losy menjadi salah satu pusat perputaran ekonomi warga. Setiap hari, aktivitas jual beli ikan segar hasil tangkapan para nelayan lokal selalu ramai memenuhi pesisir.\n\nPara nelayan yang baru saja bersandar langsung menawarkan hasil tangkapan laut mereka yang masih segar kepada warga maupun pengepul. Suasana tawar-menawar yang hangat dan interaksi akrab antar warga menjadi pemandangan indah yang merepresentasikan denyut nadi kehidupan di wilayah pesisir.\n\nKekayaan laut yang melimpah ini tidak hanya menjadi sumber makanan bagi warga, tetapi juga menjadi penopang kesejahteraan dan mata pencaharian masyarakat. Kelestarian laut pun selalu dijaga agar senantiasa memberikan berkah yang tak terputus bagi warga Dusun Amaholu Losy.",
+    videoId: "QVWtQvqMHLk",
   },
   {
-    title: 'Keseruan Anak-Anak Bermain di Pantai Dusun Amaholu Losy',
-    date: '14 Mei 2026',
-    category: 'Dokumentasi',
-    image: 'https://images.unsplash.com/photo-1512100356356-de1b84283e18?auto=format&fit=crop&q=80',
-    desc: 'Kegembiraan dan tawa ceria anak-anak saat bermain di pesisir pantai Dusun Amaholu Losy.',
-    content: 'Pesisir pantai Dusun Amaholu Losy tidak hanya menjadi pusat perputaran ekonomi, tetapi juga menjadi tempat bermain yang menyenangkan bagi anak-anak. Hamparan pasir putih dan deburan ombak menjadi saksi bisu keceriaan mereka setiap sore tiba.\n\nDalam video ini, terekam momen kegembiraan dan tawa lepas anak-anak yang sedang asyik bermain pasir dan berenang di laut. Kesederhanaan dalam bermain tanpa beban ini memancarkan kebahagiaan yang murni dari wajah-wajah polos mereka.\n\nMelihat keseruan ini mengingatkan kita akan keindahan masa kecil yang berharga. Kebersamaan mereka di alam terbuka menjadi salah satu pesona tersendiri dari kehidupan di pesisir Dusun Amaholu Losy yang damai.',
-    videoId: '2simRC7OgjE'
-  }
+    title: "Keseruan Anak-Anak Bermain di Pantai Dusun Amaholu Losy",
+    date: "14 Mei 2026",
+    category: "Dokumentasi",
+    image:
+      "https://images.unsplash.com/photo-1512100356356-de1b84283e18?auto=format&fit=crop&q=80",
+    desc: "Kegembiraan dan tawa ceria anak-anak saat bermain di pesisir pantai Dusun Amaholu Losy.",
+    content:
+      "Pesisir pantai Dusun Amaholu Losy tidak hanya menjadi pusat perputaran ekonomi, tetapi juga menjadi tempat bermain yang menyenangkan bagi anak-anak. Hamparan pasir putih dan deburan ombak menjadi saksi bisu keceriaan mereka setiap sore tiba.\n\nDalam video ini, terekam momen kegembiraan dan tawa lepas anak-anak yang sedang asyik bermain pasir dan berenang di laut. Kesederhanaan dalam bermain tanpa beban ini memancarkan kebahagiaan yang murni dari wajah-wajah polos mereka.\n\nMelihat keseruan ini mengingatkan kita akan keindahan masa kecil yang berharga. Kebersamaan mereka di alam terbuka menjadi salah satu pesona tersendiri dari kehidupan di pesisir Dusun Amaholu Losy yang damai.",
+    videoId: "2simRC7OgjE",
+  },
 ];
 
-const ArticleModal = React.memo(function ArticleModal({ onClose }: { onClose: () => void }) {
+const ArticleModal = React.memo(function ArticleModal({
+  onClose,
+}: {
+  onClose: () => void;
+}) {
   const [activeArticle, setActiveArticle] = useState<any>(null);
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 20 }} 
-        animate={{ opacity: 1, scale: 1, y: 0 }} 
-        className="relative w-full max-w-5xl max-h-[95vh] bg-[#0f1423] rounded-2xl md:rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border border-white/10"
+    <div className="fixed inset-0 z-50 bg-sky-50/70 backdrop-blur-md flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100"
       >
         {/* Header */}
-        <div className="bg-[#1b1e28] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 border-purple-600 relative overflow-hidden shrink-0">
+        <div className="bg-white rounded-3xl border border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 border-purple-600 relative overflow-hidden shrink-0">
           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
           <div className="flex items-center gap-3 md:gap-6 relative z-10">
             {activeArticle ? (
-              <button onClick={() => setActiveArticle(null)} className="w-10 h-10 md:w-14 md:h-14 bg-white/5 hover:bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-white transition-all border border-white/10 shrink-0">
-                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6 rotate-180" />
+              <button
+                onClick={() => setActiveArticle(null)}
+                className="w-10 h-10 md:w-14 md:h-14 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all md:rounded-2xl flex items-center justify-center text-sky-950 shrink-0"
+              >
+                <ChevronRight className="w-5 h-5 md:w-6 md:h-6 rotate-180" />
               </button>
             ) : (
-              <div className="w-10 h-10 md:w-14 md:h-14 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-purple-500 border border-white/10 shadow-inner shrink-0">
-                 <span className="text-xl md:text-3xl">📰</span>
+              <div className="w-10 h-10 md:w-14 md:h-14 bg-white rounded-3xl border border-sky-100 hover:shadow-md transition-all md:rounded-2xl flex items-center justify-center text-purple-500 shadow-inner shrink-0">
+                <span className="text-xl md:text-3xl">📰</span>
               </div>
             )}
             <div className="text-left">
-              <h2 className="text-white text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight mb-0.5 md:mb-1">{activeArticle ? 'Detail Berita' : 'Kegiatan Dusun'}</h2>
-              <p className="text-slate-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]">Portal Berita Desa</p>
+              <h2 className="text-sky-950 text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight mb-0.5 md:mb-1">
+                {activeArticle ? "Detail Berita" : "Kegiatan Dusun"}
+              </h2>
+              <p className="text-sky-600 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]">
+                Portal Berita Desa
+              </p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 md:w-10 md:h-10 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all border border-white/10 hover:rotate-90 shrink-0">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 md:w-10 md:h-10 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 rounded-full flex items-center justify-center hover:rotate-90 shrink-0"
+          >
             <X className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 scrollbar-none bg-[#0f1423]">
-          
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 scrollbar-none bg-white">
           {activeArticle ? (
             <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
               <div>
                 <div className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-3 flex items-center gap-3">
-                  <span className="bg-purple-500/20 px-3 py-1 rounded-full">{activeArticle.category}</span>
-                  <span className="flex items-center gap-1.5 opacity-70"><Calendar size={12} /> {activeArticle.date}</span>
+                  <span className="bg-purple-500/20 px-3 py-1 rounded-full">
+                    {activeArticle.category}
+                  </span>
+                  <span className="flex items-center gap-1.5 opacity-70">
+                    <Calendar size={12} /> {activeArticle.date}
+                  </span>
                 </div>
-                <h1 className="text-2xl md:text-4xl font-black text-white leading-tight mb-6">{activeArticle.title}</h1>
+                <h1 className="text-2xl md:text-4xl font-black text-sky-950 leading-tight mb-6">
+                  {activeArticle.title}
+                </h1>
               </div>
 
               {activeArticle.fbLink ? (
-                <div className="w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-white flex justify-center mb-6 py-4">
-                  <iframe 
-                    src={`https://www.facebook.com/plugins/${activeArticle.fbLink.includes('/v/') || activeArticle.fbLink.includes('/video') ? 'video.php' : 'post.php'}?href=${encodeURIComponent(activeArticle.fbLink)}&show_text=false&width=500`} 
-                    width="500" 
-                    height="600" 
-                    style={{ border: 'none', overflow: 'hidden' }} 
-                    scrolling="no" 
-                    frameBorder="0" 
-                    allowFullScreen={true} 
+                <div className="w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-sky-100 shadow-2xl bg-white flex justify-center mb-6 py-4">
+                  <iframe
+                    src={`https://www.facebook.com/plugins/${activeArticle.fbLink.includes("/v/") || activeArticle.fbLink.includes("/video") ? "video.php" : "post.php"}?href=${encodeURIComponent(activeArticle.fbLink)}&show_text=false&width=500`}
+                    width="500"
+                    height="600"
+                    style={{ border: "none", overflow: "hidden" }}
+                    scrolling="no"
+                    frameBorder="0"
+                    allowFullScreen={true}
                     allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                   ></iframe>
                 </div>
               ) : activeArticle.videoId ? (
-                <div className="aspect-video w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black relative shadow-purple-900/20">
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
+                <div className="aspect-video w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-sky-100 bg-slate-900 relative shadow-blue-900/20">
+                  <iframe
+                    width="100%"
+                    height="100%"
                     src={`https://www.youtube.com/embed/${activeArticle.videoId}?autoplay=1&mute=0`}
-                    title="YouTube video player" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    referrerPolicy="strict-origin-when-cross-origin" 
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
                     allowFullScreen
                     className="absolute inset-0 object-cover"
                   ></iframe>
                 </div>
               ) : (
-                <div className="aspect-video w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl relative shadow-purple-900/20">
-                  <img src={activeArticle.image} alt={activeArticle.title} className="w-full h-full object-cover" />
+                <div className="aspect-video w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-sky-100 relative shadow-purple-900/20">
+                  <img
+                    src={activeArticle.image}
+                    alt={activeArticle.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               )}
 
               <div className="prose prose-invert prose-slate prose-lg md:prose-xl max-w-none pb-6">
-                {activeArticle.content.split('\n\n').map((paragraph: string, idx: number) => (
-                  <p key={idx} className="text-slate-300 leading-relaxed tracking-wide text-sm md:text-base">{paragraph}</p>
-                ))}
+                {activeArticle.content
+                  .split("\n\n")
+                  .map((paragraph: string, idx: number) => (
+                    <p
+                      key={idx}
+                      className="text-sky-600 leading-relaxed tracking-wide text-sm md:text-base"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
                 {activeArticle.fbLink && (
                   <div className="pt-4">
-                    <a href={activeArticle.fbLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-3 bg-[#1877F2] hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md text-sm">
+                    <a
+                      href={activeArticle.fbLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-3 bg-[#1877F2] hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md text-sm"
+                    >
                       Buka di Aplikasi Facebook <ChevronRight size={16} />
                     </a>
                   </div>
@@ -1585,314 +2104,453 @@ const ArticleModal = React.memo(function ArticleModal({ onClose }: { onClose: ()
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {ARTICLES_DATA.map((article, idx) => (
-                <button key={idx} onClick={() => setActiveArticle(article)} className="text-left bg-[#1b1e28] border border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden group hover:border-purple-500/30 transition-all flex flex-col shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50">
-                   <div className="h-40 md:h-56 overflow-hidden relative w-full">
-                     <div className="absolute top-4 left-4 z-10 bg-purple-600 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">
-                        {article.category}
-                     </div>
-                     <img src={article.image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                     <div className="absolute inset-0 bg-gradient-to-t from-[#1b1e28] via-[#1b1e28]/20 to-transparent z-0"></div>
-                   </div>
-                   <div className="p-5 md:p-6 flex-1 flex flex-col relative z-20 -mt-8 md:-mt-10 w-full">
-                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                       <Calendar size={12} /> {article.date}
-                     </div>
-                     <h3 className="text-sm md:text-lg font-black text-white leading-tight mb-3 line-clamp-2 drop-shadow-md group-hover:text-purple-300 transition-colors">{article.title}</h3>
-                     <p className="text-xs text-slate-400/80 leading-relaxed mb-4 flex-1 line-clamp-3 md:line-clamp-none">{article.desc}</p>
-                     <div className="text-left text-[10px] font-black uppercase tracking-widest text-purple-400 group-hover:text-purple-300 transition-colors flex items-center gap-2">
-                       Baca Selengkapnya <ChevronRight size={14} />
-                     </div>
-                   </div>
+                <button
+                  key={idx}
+                  onClick={() => setActiveArticle(article)}
+                  className="text-left bg-white rounded-3xl border border-sky-100 md:rounded-[2rem] overflow-hidden group hover:border-purple-500/30 transition-all flex flex-col shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                >
+                  <div className="h-40 md:h-56 overflow-hidden relative w-full">
+                    <div className="absolute top-4 left-4 z-10 bg-purple-600 text-sky-950 text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-blue-700 px-3 py-1.5 rounded-full shadow-lg">
+                      {article.category}
+                    </div>
+                    <img
+                      src={article.image}
+                      alt={article.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-blue-900/40 to-transparent z-0"></div>
+                  </div>
+                  <div className="p-5 md:p-6 flex-1 flex flex-col relative z-20 -mt-8 md:-mt-10 w-full">
+                    <div className="text-[10px] font-black text-sky-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <Calendar size={12} /> {article.date}
+                    </div>
+                    <h3 className="text-sm md:text-lg font-black text-sky-950 leading-tight mb-3 line-clamp-2 drop-shadow-md group-hover:text-purple-300 transition-colors">
+                      {article.title}
+                    </h3>
+                    <p className="text-xs text-sky-600/80 leading-relaxed mb-4 flex-1 line-clamp-3 md:line-clamp-none">
+                      {article.desc}
+                    </p>
+                    <div className="text-left text-[10px] font-bold uppercase tracking-[0.2em] text-blue-700 text-purple-400 group-hover:text-purple-300 transition-colors flex items-center gap-2">
+                      Baca Selengkapnya <ChevronRight size={14} />
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
           )}
-
         </div>
       </motion.div>
     </div>
   );
 });
 
-const StatsModal = React.memo(function StatsModal({ db, onClose }: { db: Family[], onClose: () => void }) {
+const StatsModal = React.memo(function StatsModal({
+  db,
+  onClose,
+}: {
+  db: Family[];
+  onClose: () => void;
+}) {
   const stats = useMemo(() => {
-    let totalJiwa = 0, l = 0, p = 0, bansos = 0, balita = 0, lansia = 0;
+    let totalJiwa = 0,
+      l = 0,
+      p = 0,
+      bansos = 0,
+      balita = 0,
+      lansia = 0;
     const distribusiAlamat: Record<string, number> = {};
     const distribusiPendidikan: Record<string, number> = {};
-    
-    db.forEach(f => {
+
+    db.forEach((f) => {
       totalJiwa += f.anggota.length;
       distribusiAlamat[f.alamat] = (distribusiAlamat[f.alamat] || 0) + 1;
-      f.anggota.forEach(a => {
-        if (a.jk === 'Laki-laki') l++;
-        if (a.jk === 'Perempuan') p++;
+      f.anggota.forEach((a) => {
+        if (a.jk === "Laki-laki") l++;
+        if (a.jk === "Perempuan") p++;
         if (a.bansos) bansos++;
         if (a.pendidikan) {
-          distribusiPendidikan[a.pendidikan] = (distribusiPendidikan[a.pendidikan] || 0) + 1;
+          distribusiPendidikan[a.pendidikan] =
+            (distribusiPendidikan[a.pendidikan] || 0) + 1;
         }
         const age = hitungUmur(a.tgl);
         if (age <= 5) balita++;
         if (age >= 60) lansia++;
       });
     });
-    return { 
-      totalFamilies: db.length, 
-      totalResidents: totalJiwa, 
-      genderMale: l, 
-      genderFemale: p, 
-      bansos, 
-      children: balita, 
+    return {
+      totalFamilies: db.length,
+      totalResidents: totalJiwa,
+      genderMale: l,
+      genderFemale: p,
+      bansos,
+      children: balita,
       elders: lansia,
       distribusiAlamat,
-      distribusiPendidikan
+      distribusiPendidikan,
     };
   }, [db]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 no-print">
-      <motion.div 
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" 
-        onClick={onClose} 
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        onClick={onClose}
       />
-      
-      <motion.div 
+
+      <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="relative w-full max-w-5xl max-h-[95vh] bg-[#0f1423] rounded-2xl md:rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border border-white/10"
+        className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100"
       >
-        <div className="bg-[#1b1e28] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 border-blue-600 relative overflow-hidden shrink-0">
+        <div className="bg-white rounded-3xl border border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 relative overflow-hidden shrink-0">
           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
           <div className="flex items-center gap-3 md:gap-6 relative z-10">
-            <div className="w-10 h-10 md:w-14 md:h-14 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-blue-500 border border-white/10 shadow-inner shrink-0">
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-white rounded-3xl border border-sky-100 hover:shadow-md transition-all md:rounded-2xl flex items-center justify-center text-blue-500 shadow-inner shrink-0">
               <BarChart3 className="w-6 h-6 md:w-8 md:h-8" />
             </div>
             <div className="text-left">
-              <h3 className="text-white text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight">Statistik</h3>
-              <p className="text-slate-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mt-1.5 flex items-center gap-2">
+              <h3 className="text-sky-950 text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight">
+                Statistik
+              </h3>
+              <p className="text-sky-600 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mt-1.5 flex items-center gap-2">
                 <Shield size={10} /> Dasbor Ringkasan Eksekutif v2.0
               </p>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
-            className="w-8 h-8 md:w-10 md:h-10 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all border border-white/10 hover:rotate-90 shrink-0"
+          <button
+            onClick={onClose}
+            className="w-8 h-8 md:w-10 md:h-10 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 rounded-full flex items-center justify-center hover:rotate-90 shrink-0"
           >
             <X className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-10 scrollbar-none bg-[#0f1423]">
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-10 scrollbar-none bg-white">
           {/* Executive Overview - Image Match */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[
-              { label: "Penduduk", value: stats.totalResidents, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
-              { label: "Keluarga", value: stats.totalFamilies, icon: Shield, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-              { label: "Pria", value: stats.genderMale, icon: UserIcon, color: "text-amber-500", bg: "bg-amber-500/10" },
-              { label: "Wanita", value: stats.genderFemale, icon: UserIcon, color: "text-rose-500", bg: "bg-rose-500/10" },
-              { label: "Lansia", value: stats.elders, icon: UserIcon, color: "text-purple-500", bg: "bg-purple-500/10" },
-              { label: "Balita", value: stats.children, icon: Baby, color: "text-teal-500", bg: "bg-teal-500/10" }
+              {
+                label: "Penduduk",
+                value: stats.totalResidents,
+                icon: Users,
+                color: "text-blue-500",
+                bg: "bg-blue-500/10",
+              },
+              {
+                label: "Keluarga",
+                value: stats.totalFamilies,
+                icon: Shield,
+                color: "text-emerald-500",
+                bg: "bg-emerald-500/10",
+              },
+              {
+                label: "Pria",
+                value: stats.genderMale,
+                icon: UserIcon,
+                color: "text-amber-500",
+                bg: "bg-blue-100 text-blue-700/10",
+              },
+              {
+                label: "Wanita",
+                value: stats.genderFemale,
+                icon: UserIcon,
+                color: "text-rose-500",
+                bg: "bg-rose-500/10",
+              },
+              {
+                label: "Lansia",
+                value: stats.elders,
+                icon: UserIcon,
+                color: "text-purple-500",
+                bg: "bg-purple-500/10",
+              },
+              {
+                label: "Balita",
+                value: stats.children,
+                icon: Baby,
+                color: "text-teal-500",
+                bg: "bg-teal-500/10",
+              },
             ].map((item, idx) => (
-              <motion.div 
+              <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="p-6 md:p-8 rounded-[2rem] bg-[#1b1e28] border border-white/10 flex flex-col items-start shadow-sm hover:border-blue-500/30 transition-colors"
+                className="p-6 md:p-8 rounded-3xl bg-white border border-sky-100 flex flex-col items-start shadow-sm hover:border-blue-500/30 transition-colors"
               >
                 <div className={`mb-6 text-2xl`}>
                   <item.icon size={24} className="text-blue-500 opacity-80" />
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 leading-none">{item.label}</p>
-                <h4 className="text-3xl font-black text-white tracking-tighter flex items-center gap-2">
-                  {item.value} 
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2">Jiwa</span>
+                <p className="text-[10px] font-black text-sky-600 uppercase tracking-widest mb-2 leading-none">
+                  {item.label}
+                </p>
+                <h4 className="text-3xl font-black text-sky-950 tracking-tighter flex items-center gap-2">
+                  {item.value}
+                  <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest mt-2">
+                    Jiwa
+                  </span>
                 </h4>
               </motion.div>
             ))}
           </div>
 
-          <div className="h-px bg-white/10 w-full"></div>
+          <div className="h-px bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all w-full"></div>
 
           {/* Gender Indicator - Image Match style */}
           <div className="space-y-6">
-             <div className="flex items-center gap-3">
-               <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
-               <h4 className="text-[12px] font-black text-white uppercase tracking-tight">Komp. Gender</h4>
-             </div>
-             
-             <div className="space-y-8 px-2 md:px-6">
-                <div className="space-y-3">
-                   <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Pria</span>
-                      <span className="text-xs font-black text-white">{stats.genderMale} Jiwa</span>
-                   </div>
-                   <div className="h-2.5 bg-white/5 border border-white/10 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(stats.genderMale / (stats.totalResidents || 1)) * 100}%` }}
-                        className="h-full bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)]"
-                      />
-                   </div>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
+              <h4 className="text-[12px] font-black text-sky-950 uppercase tracking-tight">
+                Komp. Gender
+              </h4>
+            </div>
 
-                <div className="space-y-3">
-                   <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Wanita</span>
-                      <span className="text-xs font-black text-white">{stats.genderFemale} Jiwa</span>
-                   </div>
-                   <div className="h-2.5 bg-white/5 border border-white/10 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(stats.genderFemale / (stats.totalResidents || 1)) * 100}%` }}
-                        className="h-full bg-rose-500 rounded-full shadow-[0_0_20px_rgba(244,63,94,0.5)]"
-                      />
-                   </div>
+            <div className="space-y-8 px-2 md:px-6">
+              <div className="space-y-3">
+                <div className="flex justify-between items-end">
+                  <span className="text-[10px] font-black text-sky-600 uppercase tracking-[0.2em]">
+                    Pria
+                  </span>
+                  <span className="text-xs font-black text-sky-950">
+                    {stats.genderMale} Jiwa
+                  </span>
                 </div>
-             </div>
+                <div className="h-2.5 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{
+                      width: `${(stats.genderMale / (stats.totalResidents || 1)) * 100}%`,
+                    }}
+                    className="h-full bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex justify-between items-end">
+                  <span className="text-[10px] font-black text-sky-600 uppercase tracking-[0.2em]">
+                    Wanita
+                  </span>
+                  <span className="text-xs font-black text-sky-950">
+                    {stats.genderFemale} Jiwa
+                  </span>
+                </div>
+                <div className="h-2.5 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{
+                      width: `${(stats.genderFemale / (stats.totalResidents || 1)) * 100}%`,
+                    }}
+                    className="h-full bg-rose-500 rounded-full shadow-[0_0_20px_rgba(244,63,94,0.5)]"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="h-px bg-white/10 w-full"></div>
+          <div className="h-px bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all w-full"></div>
 
           {/* Education Stats */}
           <div className="space-y-6">
-             <div className="flex items-center gap-3">
-               <div className="w-1.5 h-6 bg-blue-600 rounded-full"></div>
-               <h4 className="text-[12px] font-black text-white uppercase tracking-tight">SDM & Pendidikan</h4>
-             </div>
-             
-             <div className="grid grid-cols-1 gap-3 px-2 md:px-6">
-               {Object.entries(stats.distribusiPendidikan)
-                 .sort((a, b) => (b[1] as number) - (a[1] as number))
-                 .map(([level, count], idx) => (
-                 <div key={idx} className="flex items-center justify-between p-4 bg-[#1b1e28] rounded-2xl border border-white/10 hover:border-blue-500/30 transition-all">
-                   <div className="flex items-center gap-3">
-                     <div className="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center text-blue-500 shadow-sm border border-white/10 font-bold text-xs">
-                       {idx + 1}
-                     </div>
-                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-wider">{level}</span>
-                   </div>
-                   <div className="flex items-center gap-2">
-                     <span className="text-sm font-black text-white">{count}</span>
-                     <span className="text-[8px] font-bold text-slate-500 uppercase">Jiwa</span>
-                   </div>
-                 </div>
-               ))}
-               {Object.keys(stats.distribusiPendidikan).length === 0 && (
-                 <p className="text-center text-[10px] font-bold text-slate-500 uppercase py-4">Belum ada data kependidikan terdaftar</p>
-               )}
-             </div>
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-6 bg-blue-600 rounded-full"></div>
+              <h4 className="text-[12px] font-black text-sky-950 uppercase tracking-tight">
+                SDM & Pendidikan
+              </h4>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 px-2 md:px-6">
+              {Object.entries(stats.distribusiPendidikan)
+                .sort((a, b) => (b[1] as number) - (a[1] as number))
+                .map(([level, count], idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-4 bg-white rounded-3xl border border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-500/30 transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all flex items-center justify-center text-blue-500 font-bold text-xs">
+                        {idx + 1}
+                      </div>
+                      <span className="text-[10px] font-black text-sky-600 uppercase tracking-wider">
+                        {level}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black text-sky-950">
+                        {count}
+                      </span>
+                      <span className="text-[8px] font-bold text-sky-600 uppercase">
+                        Jiwa
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              {Object.keys(stats.distribusiPendidikan).length === 0 && (
+                <p className="text-center text-[10px] font-bold text-sky-600 uppercase py-4">
+                  Belum ada data kependidikan terdaftar
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="bg-[#1b1e28] p-6 text-center border-t-4 border-amber-500/20 relative overflow-hidden shrink-0">
-           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-           <p className="text-blue-400 text-[8px] font-black uppercase tracking-[0.4em] leading-relaxed relative z-10 max-w-xs mx-auto">
-             Data terhitung secara real-time berdasarkan pembaruan data kependudukan terbaru.
-           </p>
+        <div className="bg-white rounded-3xl border border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 text-center border-t-4 border-amber-500/20 relative overflow-hidden shrink-0">
+          <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+          <p className="text-blue-400 text-[8px] font-black uppercase tracking-[0.4em] leading-relaxed relative z-10 max-w-xs mx-auto">
+            Data terhitung secara real-time berdasarkan pembaruan data
+            kependudukan terbaru.
+          </p>
         </div>
       </motion.div>
     </div>
   );
 });
 
-const LetterModal = React.memo(function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterType, db: Family[], session: AuthSession, onClose: () => void, onPreview: (d: any) => void }) {
-  const [targetName, setTargetName] = useState('');
+const LetterModal = React.memo(function LetterModal({
+  type,
+  db,
+  session,
+  onClose,
+  onPreview,
+}: {
+  type: LetterType;
+  db: Family[];
+  session: AuthSession;
+  onClose: () => void;
+  onPreview: (d: any) => void;
+}) {
+  const [targetName, setTargetName] = useState("");
   const [nomorSurat, setNomorSurat] = useState(generateNomorSurat());
-  const [usaha, setUsaha] = useState('');
+  const [usaha, setUsaha] = useState("");
 
   const residentOptions = useMemo(() => {
     let source = db;
-    if (session.role === 'warga') source = db.filter(f => f.no_kk === session.no_kk);
-    return source.flatMap(f => f.anggota.map(a => ({ ...a, family: f })));
+    if (session.role === "warga")
+      source = db.filter((f) => f.no_kk === session.no_kk);
+    return source.flatMap((f) => f.anggota.map((a) => ({ ...a, family: f })));
   }, [db, session]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const resident = residentOptions.find(r => r.nama.trim() === targetName.trim());
-    if (!resident) return alert("Kesalahan: Silakan pilih nama warga yang valid dari daftar yang tersedia.");
+    const resident = residentOptions.find(
+      (r) => r.nama.trim() === targetName.trim(),
+    );
+    if (!resident)
+      return alert(
+        "Kesalahan: Silakan pilih nama warga yang valid dari daftar yang tersedia.",
+      );
 
     onPreview({
       type,
       nomor: nomorSurat.trim(),
       resident,
       usaha: usaha.trim(),
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
     });
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 20 }} 
-        animate={{ opacity: 1, scale: 1, y: 0 }} 
-        className="relative w-full max-w-5xl max-h-[95vh] bg-[#0f1423] rounded-2xl md:rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border border-white/10"
+    <div className="fixed inset-0 z-50 bg-sky-50/70 backdrop-blur-md flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100"
       >
         {/* Header */}
-        <div className="bg-[#1b1e28] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 border-blue-600 relative overflow-hidden shrink-0">
+        <div className="bg-white rounded-3xl border border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 relative overflow-hidden shrink-0">
           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
           <div className="flex items-center gap-3 md:gap-6 relative z-10">
-            <div className="w-10 h-10 md:w-14 md:h-14 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-blue-500 border border-white/10 shadow-inner shrink-0">
-               <FileText className="w-6 h-6 md:w-8 md:h-8" />
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-white rounded-3xl border border-sky-100 hover:shadow-md transition-all md:rounded-2xl flex items-center justify-center text-blue-500 shadow-inner shrink-0">
+              <FileText className="w-6 h-6 md:w-8 md:h-8" />
             </div>
             <div className="text-left">
-              <h2 className="text-white text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight mb-0.5 md:mb-1">Drafting Surat</h2>
-              <p className="text-slate-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]">Administrasi Digital</p>
+              <h2 className="text-sky-950 text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight mb-0.5 md:mb-1">
+                Drafting Surat
+              </h2>
+              <p className="text-sky-600 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em]">
+                Administrasi Digital
+              </p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 md:w-10 md:h-10 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all border border-white/10 hover:rotate-90 shrink-0">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 md:w-10 md:h-10 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 rounded-full flex items-center justify-center hover:rotate-90 shrink-0"
+          >
             <X className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 bg-[#0f1423]">
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 bg-white">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
             <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
-            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none">Generate {type}</span>
+            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none">
+              Generate {type}
+            </span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Pilih Target Warga</label>
+              <label className="text-[10px] font-black text-sky-600 uppercase tracking-[0.2em] ml-1">
+                Pilih Target Warga
+              </label>
               <div className="relative group">
-                <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
-                <input 
+                <UserIcon
+                  className="absolute left-5 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-500 transition-colors"
+                  size={18}
+                />
+                <input
                   list="wargaList"
                   value={targetName}
                   onChange={(e) => setTargetName(e.target.value)}
-                  className="w-full pl-12 pr-6 py-4 bg-[#1b1e28] border-2 border-white/10 rounded-2xl outline-none focus:border-blue-500 focus:bg-white/5 font-black text-white text-sm transition-all shadow-sm placeholder:text-slate-600"
+                  className="w-full pl-12 pr-6 py-4 bg-white rounded-3xl border border-sky-100 border-2 outline-none focus:border-blue-500 focus:bg-white focus:shadow-md font-black text-sky-950 text-sm transition-all shadow-sm placeholder:text-sky-600"
                   placeholder="Mulai ketik nama..."
                   required
                 />
                 <datalist id="wargaList">
-                  {residentOptions.map((r, i) => <option key={i} value={r.nama} />)}
+                  {residentOptions.map((r, i) => (
+                    <option key={i} value={r.nama} />
+                  ))}
                 </datalist>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Identifikasi Berkas</label>
+              <label className="text-[10px] font-black text-sky-600 uppercase tracking-[0.2em] ml-1">
+                Identifikasi Berkas
+              </label>
               <div className="relative group">
-                <FileText className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
-                <input 
+                <FileText
+                  className="absolute left-5 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-500 transition-colors"
+                  size={18}
+                />
+                <input
                   value={nomorSurat}
                   onChange={(e) => setNomorSurat(e.target.value)}
-                  className="w-full pl-12 pr-6 py-4 bg-[#1b1e28] border-2 border-white/10 rounded-2xl outline-none focus:border-blue-500 focus:bg-white/5 font-bold text-white text-sm transition-all shadow-sm"
+                  className="w-full pl-12 pr-6 py-4 bg-white rounded-3xl border border-sky-100 border-2 outline-none focus:border-blue-500 focus:bg-white focus:shadow-md font-bold text-sky-950 text-sm transition-all shadow-sm"
                 />
               </div>
             </div>
 
-            {type === 'Surat Keterangan Usaha' && (
+            {type === "Surat Keterangan Usaha" && (
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Objek Usaha / Niaga</label>
+                <label className="text-[10px] font-black text-sky-600 uppercase tracking-[0.2em] ml-1">
+                  Objek Usaha / Niaga
+                </label>
                 <div className="relative group">
-                  <Shield className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
-                  <input 
+                  <Shield
+                    className="absolute left-5 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-500 transition-colors"
+                    size={18}
+                  />
+                  <input
                     value={usaha}
                     onChange={(e) => setUsaha(e.target.value)}
                     placeholder="e.g. Toko Kelontong, UMKM"
-                    className="w-full pl-12 pr-6 py-4 bg-[#1b1e28] border-2 border-white/10 rounded-2xl outline-none focus:border-blue-500 focus:bg-white/5 font-black text-white text-sm transition-all shadow-sm placeholder:text-slate-600"
+                    className="w-full pl-12 pr-6 py-4 bg-white rounded-3xl border border-sky-100 border-2 outline-none focus:border-blue-500 focus:bg-white focus:shadow-md font-black text-sky-950 text-sm transition-all shadow-sm placeholder:text-sky-600"
                     required
                   />
                 </div>
@@ -1900,7 +2558,10 @@ const LetterModal = React.memo(function LetterModal({ type, db, session, onClose
             )}
 
             <div className="pt-4 max-w-sm ml-auto">
-              <button type="submit" className="w-full py-4 md:py-5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 text-xs">
+              <button
+                type="submit"
+                className="w-full py-4 md:py-5 bg-blue-600 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 text-xs"
+              >
                 <Printer size={20} /> Cetak & Pratinjau
               </button>
             </div>
@@ -1908,18 +2569,25 @@ const LetterModal = React.memo(function LetterModal({ type, db, session, onClose
         </div>
 
         {/* Footer */}
-        <div className="bg-[#1b1e28] p-6 text-center border-t-4 border-amber-500/20 relative overflow-hidden shrink-0">
-           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-           <p className="text-blue-400 text-[8px] font-black uppercase tracking-[0.4em] leading-relaxed relative z-10 max-w-xs mx-auto">
-              Data terhitung secara real-time berdasarkan basis data kependudukan terbaru.
-           </p>
+        <div className="bg-white rounded-3xl border border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 text-center border-t-4 border-amber-500/20 relative overflow-hidden shrink-0">
+          <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+          <p className="text-blue-400 text-[8px] font-black uppercase tracking-[0.4em] leading-relaxed relative z-10 max-w-xs mx-auto">
+            Data terhitung secara real-time berdasarkan basis data kependudukan
+            terbaru.
+          </p>
         </div>
       </motion.div>
     </div>
   );
 });
 
-const PreviewModal = React.memo(function PreviewModal({ data, onClose }: { data: any, onClose: () => void }) {
+const PreviewModal = React.memo(function PreviewModal({
+  data,
+  onClose,
+}: {
+  data: any;
+  onClose: () => void;
+}) {
   const printAreaRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -1936,158 +2604,260 @@ const PreviewModal = React.memo(function PreviewModal({ data, onClose }: { data:
       }
     };
     autoScale();
-    window.addEventListener('resize', autoScale);
-    return () => window.removeEventListener('resize', autoScale);
+    window.addEventListener("resize", autoScale);
+    return () => window.removeEventListener("resize", autoScale);
   }, []);
 
   const downloadPdf = () => {
     if (!printAreaRef.current) return;
     setIsDownloading(true);
-    
+
     const element = printAreaRef.current;
     const opt = {
       margin: 0,
       filename: `${data.type}-${data.resident.nama}.pdf`,
-      image: { type: 'jpeg' as const, quality: 0.98 },
+      image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+      jsPDF: {
+        unit: "mm" as const,
+        format: "a4" as const,
+        orientation: "portrait" as const,
+      },
     };
 
-    html2pdf().from(element).set(opt).save().then(() => {
-      setIsDownloading(false);
-    }).catch((err: any) => {
-      console.error(err);
-      setIsDownloading(false);
-      alert("Gagal mengunduh PDF.");
-    });
+    html2pdf()
+      .from(element)
+      .set(opt)
+      .save()
+      .then(() => {
+        setIsDownloading(false);
+      })
+      .catch((err: any) => {
+        console.error(err);
+        setIsDownloading(false);
+        alert("Gagal mengunduh PDF.");
+      });
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-slate-950/98 backdrop-blur-xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-[60] bg-sky-50 flex flex-col overflow-hidden">
       {/* Header - Compact on Mobile */}
-      <div className="no-print bg-slate-900/80 backdrop-blur-md p-3 sm:p-5 flex items-center justify-between gap-4 z-50 border-b border-white/10 shadow-2xl">
-        <div className="flex items-center gap-3 text-white overflow-hidden">
-          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-            <FileText className="text-white" size={18} />
+      <div className="no-print bg-white border-b border-sky-200 shadow-sm p-3 sm:p-5 flex items-center justify-between gap-4 z-50">
+        <div className="flex items-center gap-3 text-sky-950 overflow-hidden">
+          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+            <FileText className="text-sky-950" size={18} />
           </div>
           <div className="overflow-hidden">
-            <p className="font-black text-xs sm:text-base uppercase tracking-widest leading-none mb-0.5 sm:mb-1">Pratinjau</p>
-            <p className="text-[9px] sm:text-xs opacity-60 font-bold uppercase truncate">{data.type}</p>
+            <p className="font-black text-xs sm:text-base uppercase tracking-widest leading-none mb-0.5 sm:mb-1">
+              Pratinjau
+            </p>
+            <p className="text-[9px] sm:text-xs opacity-60 font-bold uppercase truncate">
+              {data.type}
+            </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {/* Zoom Controls for Mobile */}
-          <div className="hidden sm:flex items-center bg-white/10 rounded-xl p-1 border border-white/10 mr-2">
-            <button onClick={() => setZoom(prev => Math.max(0.5, prev - 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"><ChevronDown size={16} /></button>
-            <span className="px-2 text-[10px] font-black text-white w-12 text-center">{Math.round(zoom * 100)}%</span>
-            <button onClick={() => setZoom(prev => Math.min(2, prev + 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"><ChevronRight className="-rotate-90" size={16} /></button>
+          <div className="hidden sm:flex items-center bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all p-1 mr-2">
+            <button
+              onClick={() => setZoom((prev) => Math.max(0.5, prev - 0.1))}
+              className="p-2 hover:bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all rounded-lg text-sky-950 transition-colors"
+            >
+              <ChevronDown size={16} />
+            </button>
+            <span className="px-2 text-[10px] font-black text-sky-950 w-12 text-center">
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              onClick={() => setZoom((prev) => Math.min(2, prev + 0.1))}
+              className="p-2 hover:bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all rounded-lg text-sky-950 transition-colors"
+            >
+              <ChevronRight className="-rotate-90" size={16} />
+            </button>
           </div>
 
-          <button 
+          <button
             onClick={downloadPdf}
             disabled={isDownloading}
-            className="px-4 sm:px-8 py-2 sm:py-4 bg-blue-600 text-white font-black rounded-xl sm:rounded-2xl hover:bg-blue-500 flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-95 transition-all text-[10px] sm:text-sm disabled:opacity-50"
+            className="px-4 sm:px-8 py-2 sm:py-4 bg-blue-600 text-white font-black rounded-xl sm:rounded-2xl hover:bg-blue-500 flex items-center justify-center gap-2 shadow-blue-600/20 active:scale-95 transition-all text-[10px] sm:text-sm disabled:opacity-50"
           >
-            {isDownloading ? <Loader2 className="animate-spin" size={14} /> : <Download size={14} />} 
-            <span className="hidden xs:inline">{isDownloading ? 'Memproses...' : 'Unduh PDF'}</span>
-            <span className="xs:hidden">{isDownloading ? '...' : 'PDF'}</span>
+            {isDownloading ? (
+              <Loader2 className="animate-spin" size={14} />
+            ) : (
+              <Download size={14} />
+            )}
+            <span className="hidden xs:inline">
+              {isDownloading ? "Memproses..." : "Unduh PDF"}
+            </span>
+            <span className="xs:hidden">{isDownloading ? "..." : "PDF"}</span>
           </button>
-          
-          <button onClick={onClose} className="p-2 sm:p-4 bg-white/10 text-white rounded-xl sm:rounded-2xl hover:bg-white/20 transition-all active:scale-95 border border-white/10">
+
+          <button
+            onClick={onClose}
+            className="p-2 sm:p-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 sm:rounded-2xl hover:bg-white/20 active:scale-95"
+          >
             <X size={18} />
           </button>
         </div>
       </div>
 
       {/* Document Area - Centered and Scalable */}
-      <div className="flex-1 overflow-auto p-4 sm:p-10 flex justify-center items-start scrollbar-hide bg-slate-900/40">
-        <div 
-          style={{ 
+      <div className="flex-1 overflow-auto p-4 sm:p-10 flex justify-center items-start scrollbar-hide bg-white rounded-3xl border border-sky-100 shadow-sm">
+        <div
+          style={{
             transform: `scale(${zoom})`,
-            transformOrigin: 'top center',
-            transition: 'transform 0.2s ease-out'
+            transformOrigin: "top center",
+            transition: "transform 0.2s ease-out",
           }}
           className="shadow-2xl mb-20 origin-top"
         >
-          <div ref={printAreaRef} className="bg-white p-8 sm:p-20 text-black print:shadow-none print:m-0 print:w-full print:p-[15mm] text-[12pt] print-area relative" style={{ width: '210mm', minHeight: '297mm', fontFamily: '"Times New Roman", Times, serif' }}>
-          <div className="flex items-start gap-4 pb-4 mb-4 border-b-4 border-black">
-            <div className="w-24 h-24 flex items-center justify-center overflow-hidden shrink-0">
-               <img 
-                 src="https://iili.io/BbSYeoB.png" 
-                 className="w-full grayscale brightness-0" 
-                 alt="Logo" 
-                 referrerPolicy="no-referrer"
-               />
+          <div
+            ref={printAreaRef}
+            className="bg-white p-8 sm:p-20 text-black print:shadow-none print:m-0 print:w-full print:p-[15mm] text-[12pt] print-area relative"
+            style={{
+              width: "210mm",
+              minHeight: "297mm",
+              fontFamily: '"Times New Roman", Times, serif',
+            }}
+          >
+            <div className="flex items-start gap-4 pb-4 mb-4 border-b-4 border-black">
+              <div className="w-24 h-24 flex items-center justify-center overflow-hidden shrink-0">
+                <img
+                  src="https://iili.io/BbSYeoB.png"
+                  className="w-full object-contain"
+                  alt="Logo"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="flex-1 text-center font-bold">
+                <p className="text-[12pt] leading-tight mb-1">
+                  PEMERINTAH KABUPATEN SERAM BAGIAN BARAT
+                </p>
+                <p className="text-[12pt] leading-tight mb-1">
+                  KECAMATAN HUAMUAL
+                </p>
+                <p className="text-[12pt] leading-tight mb-1">NEGERI LUHU</p>
+                <p className="text-[12pt] leading-none mt-2">
+                  DUSUN AMAHOLU LOSY
+                </p>
+              </div>
             </div>
-            <div className="flex-1 text-center font-bold">
-              <p className="text-[14pt] leading-tight mb-1">PEMERINTAH KABUPATEN SERAM BAGIAN BARAT</p>
-              <p className="text-[14pt] leading-tight mb-1">KECAMATAN HUAMUAL</p>
-              <p className="text-[14pt] leading-tight mb-1">NEGERI LUHU</p>
-              <p className="text-[18pt] leading-none mt-2">DUSUN AMAHOLU LOSY</p>
+
+            <div className="text-center mt-8 mb-10 leading-none space-y-1">
+              <h3 className="text-[12pt] font-bold uppercase underline inline-block">
+                {data.type}
+              </h3>
+              <p className="text-[12pt]">Nomor : {data.nomor}</p>
             </div>
-          </div>
 
-          <div className="text-center mt-8 mb-10">
-            <h3 className="text-[16pt] font-bold uppercase underline inline-block leading-none">{data.type}</h3>
-            <p className="mt-2 text-[12pt]">Nomor : {data.nomor}</p>
-          </div>
+            <div className="text-[12pt] leading-relaxed text-justify space-y-6">
+              <p>
+                Yang bertanda tangan di bawah ini Kepala Dusun Amaholu Losy,
+                Kecamatan Huamual, Kabupaten Seram Bagian Barat, dengan ini
+                menerangkan bahwa :
+              </p>
 
-          <div className="text-[12pt] leading-relaxed text-justify space-y-6">
-            <p>
-              Yang bertanda tangan di bawah ini Kepala Dusun Amaholu Losy, Kecamatan Huamual, Kabupaten Seram Bagian Barat, dengan ini menerangkan bahwa :
-            </p>
+              <table className="w-full border-collapse">
+                <tbody>
+                  <tr>
+                    <td className="w-56 py-1 align-top">Nama Lengkap</td>
+                    <td className="w-4 align-top">:</td>
+                    <td className="font-bold py-1 uppercase">
+                      {data.resident.nama}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="w-56 py-1 align-top">NIK</td>
+                    <td className="align-top">:</td>
+                    <td className="py-1">{data.resident.nik}</td>
+                  </tr>
+                  <tr>
+                    <td className="w-56 py-1 align-top">Tempat, Tgl Lahir</td>
+                    <td className="align-top">:</td>
+                    <td className="py-1">
+                      {data.resident.tempat_lahir},{" "}
+                      {formatTanggalIndonesia(data.resident.tgl)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="w-56 py-1 align-top">Alamat</td>
+                    <td className="align-top">:</td>
+                    <td className="py-1 leading-snug">
+                      Dusun {data.resident.family.alamat}, RT/RW{" "}
+                      {data.resident.family.rt_rw}, Desa{" "}
+                      {data.resident.family.Desa}, Kec.{" "}
+                      {data.resident.family.Kecamatan}, Kab.{" "}
+                      {data.resident.family.Kabupaten}, Prov.{" "}
+                      {data.resident.family.Provinsi}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
 
-            <table className="w-full border-collapse">
-              <tbody>
-                <tr><td className="w-56 py-1 align-top">Nama Lengkap</td><td className="w-4 align-top">:</td><td className="font-bold py-1 uppercase">{data.resident.nama}</td></tr>
-                <tr><td className="w-56 py-1 align-top">NIK</td><td className="align-top">:</td><td className="py-1">{data.resident.nik}</td></tr>
-                <tr><td className="w-56 py-1 align-top">Tempat, Tgl Lahir</td><td className="align-top">:</td><td className="py-1">{data.resident.tempat_lahir}, {formatTanggalIndonesia(data.resident.tgl)}</td></tr>
-                <tr><td className="w-56 py-1 align-top">Alamat</td><td className="align-top">:</td><td className="py-1 leading-snug">
-                  Dusun {data.resident.family.alamat}, RT/RW {data.resident.family.rt_rw}, 
-                  Desa {data.resident.family.Desa}, Kec. {data.resident.family.Kecamatan}, 
-                  Kab. {data.resident.family.Kabupaten}, Prov. {data.resident.family.Provinsi}
-                </td></tr>
-              </tbody>
-            </table>
+              <div className="pt-4">
+                {data.type === "Surat Keterangan Usaha" && (
+                  <p>
+                    Adalah benar yang bersangkutan adalah warga masyarakat Dusun
+                    Amaholu Losy yang memiliki usaha aktif berupa{" "}
+                    <b>{data.usaha}</b>.
+                  </p>
+                )}
 
-            <div className="pt-4">
-              {data.type === 'Surat Keterangan Usaha' && (
-                <p>Adalah benar yang bersangkutan adalah warga masyarakat Dusun Amaholu Losy yang memiliki usaha aktif berupa <b>{data.usaha}</b>.</p>
-              )}
-              
-              {data.type === 'Surat Keterangan Domisili' && (
-                <p>Adalah benar yang bersangkutan adalah warga masyarakat yang berdomisili menetap di Dusun Amaholu Losy.</p>
-              )}
+                {data.type === "Surat Keterangan Domisili" && (
+                  <p>
+                    Adalah benar yang bersangkutan adalah warga masyarakat yang
+                    berdomisili menetap di Dusun Amaholu Losy.
+                  </p>
+                )}
 
-              {data.type === 'Surat Keterangan Tidak Mampu' && (
-                <p>Adalah benar yang bersangkutan merupakan warga masyarakat Dusun Amaholu Losy yang tergolong dalam keluarga ekonomi kurang mampu / rentan miskin.</p>
-              )}
+                {data.type === "Surat Keterangan Tidak Mampu" && (
+                  <p>
+                    Adalah benar yang bersangkutan merupakan warga masyarakat
+                    Dusun Amaholu Losy yang tergolong dalam keluarga ekonomi
+                    kurang mampu / rentan miskin.
+                  </p>
+                )}
 
-              {data.type === 'Surat Keterangan Kematian' && (
-                <p>Adalah benar almarhum/almarhumah tercatat sebagai warga masyarakat Dusun Amaholu Losy yang telah dinyatakan meninggal dunia.</p>
-              )}
+                {data.type === "Surat Keterangan Kematian" && (
+                  <p>
+                    Adalah benar almarhum/almarhumah tercatat sebagai warga
+                    masyarakat Dusun Amaholu Losy yang telah dinyatakan
+                    meninggal dunia.
+                  </p>
+                )}
 
-              {data.type === 'Surat Keterangan Pendidikan' && (
-                <p>Adalah benar yang bersangkutan adalah warga masyarakat Dusun Amaholu Losy yang saat ini sedang menempuh pendidikan dengan jenjang <b>{data.resident.pendidikan}</b>. Surat ini diberikan untuk keperluan administrasi pendidikan yang bersangkutan.</p>
-              )}
+                {data.type === "Surat Keterangan Pendidikan" && (
+                  <p>
+                    Adalah benar yang bersangkutan adalah warga masyarakat Dusun
+                    Amaholu Losy yang saat ini sedang menempuh pendidikan dengan
+                    jenjang <b>{data.resident.pendidikan}</b>. Surat ini
+                    diberikan untuk keperluan administrasi pendidikan yang
+                    bersangkutan.
+                  </p>
+                )}
 
-              <p className="mt-4">Demikian surat keterangan ini kami berikan kepada yang bersangkutan untuk dapat dipergunakan sebagaimana mestinya.</p>
+                <p className="mt-4">
+                  Demikian surat keterangan ini kami berikan kepada yang
+                  bersangkutan untuk dapat dipergunakan sebagaimana mestinya.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="mt-16 ml-auto w-80 text-center text-[12pt]">
-             <p>Amaholu Losy, {formatTanggalIndonesia(new Date().toISOString())}</p>
-             <p className="mt-2">Mengetahui,</p>
-             <p className="font-bold">Kepala Dusun Amaholu Losy</p>
-             <div className="h-20"></div>
-             <p className="font-bold underline uppercase">FAUJI ALI</p>
+            <div className="mt-16 ml-auto w-80 text-center text-[12pt]">
+              <p>
+                Amaholu Losy, {formatTanggalIndonesia(new Date().toISOString())}
+              </p>
+              <p className="mt-2">Mengetahui,</p>
+              <p className="font-bold">Kepala Dusun Amaholu Losy</p>
+              <div className="h-20"></div>
+              <p className="font-bold underline uppercase">FAUJI ALI</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-      
-    <style>{`
+
+      <style>{`
         @media print {
           .no-print { display: none !important; }
           body { background: white !important; margin: 0 !important; }
@@ -2112,14 +2882,21 @@ const PreviewModal = React.memo(function PreviewModal({ data, onClose }: { data:
   );
 });
 
-const PrintKKModal = React.memo(function PrintKKModal({ family, onClose }: { family: Family, onClose: () => void }) {
+const PrintKKModal = React.memo(function PrintKKModal({
+  family,
+  onClose,
+}: {
+  family: Family;
+  onClose: () => void;
+}) {
   const printAreaRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
     const autoScale = () => {
-      if (window.innerWidth < 1024) { // KK is landscape (297mm), needs more scale
+      if (window.innerWidth < 1024) {
+        // KK is landscape (297mm), needs more scale
         const padding = 20;
         const availableWidth = window.innerWidth - padding;
         const docWidth = 1122; // approx 297mm
@@ -2129,172 +2906,291 @@ const PrintKKModal = React.memo(function PrintKKModal({ family, onClose }: { fam
       }
     };
     autoScale();
-    window.addEventListener('resize', autoScale);
-    return () => window.removeEventListener('resize', autoScale);
+    window.addEventListener("resize", autoScale);
+    return () => window.removeEventListener("resize", autoScale);
   }, []);
 
   const downloadPdf = () => {
     if (!printAreaRef.current) return;
     setIsDownloading(true);
-    
+
     const element = printAreaRef.current;
     const opt = {
       margin: 0,
       filename: `Kartu-Keluarga-${family.no_kk}.pdf`,
-      image: { type: 'jpeg' as const, quality: 0.98 },
+      image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'landscape' as const }
+      jsPDF: {
+        unit: "mm" as const,
+        format: "a4" as const,
+        orientation: "landscape" as const,
+      },
     };
 
-    html2pdf().from(element).set(opt).save().then(() => {
-      setIsDownloading(false);
-    }).catch((err: any) => {
-      console.error(err);
-      setIsDownloading(false);
-      alert("Gagal mengunduh PDF.");
-    });
+    html2pdf()
+      .from(element)
+      .set(opt)
+      .save()
+      .then(() => {
+        setIsDownloading(false);
+      })
+      .catch((err: any) => {
+        console.error(err);
+        setIsDownloading(false);
+        alert("Gagal mengunduh PDF.");
+      });
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-slate-950/98 backdrop-blur-xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-[60] bg-sky-50 flex flex-col overflow-hidden">
       {/* Header - Compact on Mobile */}
-      <div className="no-print bg-slate-900/80 backdrop-blur-md p-3 sm:p-5 flex items-center justify-between gap-4 z-50 border-b border-white/10 shadow-2xl">
-        <div className="flex items-center gap-3 text-white overflow-hidden">
-          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-            <Printer className="text-white" size={18} />
+      <div className="no-print bg-white border-b border-sky-200 shadow-sm p-3 sm:p-5 flex items-center justify-between gap-4 z-50">
+        <div className="flex items-center gap-3 text-sky-950 overflow-hidden">
+          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+            <Printer className="text-sky-950" size={18} />
           </div>
           <div className="overflow-hidden">
-            <p className="font-black text-xs sm:text-base uppercase tracking-widest leading-none mb-0.5 sm:mb-1">Kartu Keluarga</p>
-            <p className="text-[9px] sm:text-xs opacity-60 font-bold uppercase truncate">KK: {family.no_kk}</p>
+            <p className="font-black text-xs sm:text-base uppercase tracking-widest leading-none mb-0.5 sm:mb-1">
+              Kartu Keluarga
+            </p>
+            <p className="text-[9px] sm:text-xs opacity-60 font-bold uppercase truncate">
+              KK: {family.no_kk}
+            </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {/* Zoom Controls */}
-          <div className="hidden md:flex items-center bg-white/10 rounded-xl p-1 border border-white/10 mr-2">
-            <button onClick={() => setZoom(prev => Math.max(0.3, prev - 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"><ChevronDown size={16} /></button>
-            <span className="px-2 text-[10px] font-black text-white w-12 text-center">{Math.round(zoom * 100)}%</span>
-            <button onClick={() => setZoom(prev => Math.min(2, prev + 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"><ChevronRight className="-rotate-90" size={16} /></button>
+          <div className="hidden md:flex items-center bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all p-1 mr-2">
+            <button
+              onClick={() => setZoom((prev) => Math.max(0.3, prev - 0.1))}
+              className="p-2 hover:bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all rounded-lg text-sky-950 transition-colors"
+            >
+              <ChevronDown size={16} />
+            </button>
+            <span className="px-2 text-[10px] font-black text-sky-950 w-12 text-center">
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              onClick={() => setZoom((prev) => Math.min(2, prev + 0.1))}
+              className="p-2 hover:bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all rounded-lg text-sky-950 transition-colors"
+            >
+              <ChevronRight className="-rotate-90" size={16} />
+            </button>
           </div>
 
-          <button 
+          <button
             onClick={downloadPdf}
             disabled={isDownloading}
-            className="px-4 sm:px-8 py-2 sm:py-4 bg-emerald-600 text-white font-black rounded-xl sm:rounded-2xl hover:bg-emerald-500 flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/20 active:scale-95 transition-all text-[10px] sm:text-sm disabled:opacity-50"
+            className="px-4 sm:px-8 py-2 sm:py-4 bg-emerald-600 text-white font-black rounded-xl sm:rounded-2xl hover:bg-emerald-500 flex items-center justify-center gap-2 shadow-emerald-600/20 active:scale-95 transition-all text-[10px] sm:text-sm disabled:opacity-50"
           >
-            {isDownloading ? <Loader2 className="animate-spin" size={14} /> : <Download size={14} />} 
-            <span className="hidden xs:inline">{isDownloading ? 'Memproses...' : 'Unduh KK PDF'}</span>
-            <span className="xs:hidden">{isDownloading ? '...' : 'PDF'}</span>
+            {isDownloading ? (
+              <Loader2 className="animate-spin" size={14} />
+            ) : (
+              <Download size={14} />
+            )}
+            <span className="hidden xs:inline">
+              {isDownloading ? "Memproses..." : "Unduh KK PDF"}
+            </span>
+            <span className="xs:hidden">{isDownloading ? "..." : "PDF"}</span>
           </button>
-          
-          <button onClick={onClose} className="p-2 sm:p-4 bg-white/10 text-white rounded-xl sm:rounded-2xl hover:bg-white/20 transition-all active:scale-95 border border-white/10">
+
+          <button
+            onClick={onClose}
+            className="p-2 sm:p-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 sm:rounded-2xl hover:bg-white/20 active:scale-95"
+          >
             <X size={18} />
           </button>
         </div>
       </div>
 
       {/* Document Area */}
-      <div className="flex-1 overflow-auto p-4 sm:p-10 flex justify-center items-start scrollbar-hide bg-slate-900/40">
-        <div 
-          style={{ 
+      <div className="flex-1 overflow-auto p-4 sm:p-10 flex justify-center items-start scrollbar-hide bg-white rounded-3xl border border-sky-100 shadow-sm">
+        <div
+          style={{
             transform: `scale(${zoom})`,
-            transformOrigin: 'top center',
-            transition: 'transform 0.2s ease-out'
+            transformOrigin: "top center",
+            transition: "transform 0.2s ease-out",
           }}
           className="shadow-2xl mb-20 origin-top"
         >
-          <div ref={printAreaRef} className="bg-white p-12 text-black print:shadow-none print:m-0 print:w-full print:p-8 print-area relative" style={{ width: '297mm', minHeight: '210mm', fontFamily: '"Times New Roman", serif' }}>
+          <div
+            ref={printAreaRef}
+            className="bg-white p-12 text-black print:shadow-none print:m-0 print:w-full print:p-8 print-area relative"
+            style={{
+              width: "297mm",
+              minHeight: "210mm",
+              fontFamily: '"Times New Roman", serif',
+            }}
+          >
             <div className="absolute top-12 left-12 w-24 h-24 flex items-center justify-center overflow-hidden">
-              <img 
-                src="https://iili.io/BbSYeoB.png" 
-                className="w-full object-contain" 
-                alt="Logo KK" 
+              <img
+                src="https://iili.io/BbSYeoB.png"
+                className="w-full object-contain"
+                alt="Logo KK"
                 referrerPolicy="no-referrer"
               />
             </div>
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold uppercase tracking-widest">KARTU KELUARGA</h2>
+              <h2 className="text-2xl font-bold uppercase tracking-widest">
+                KARTU KELUARGA
+              </h2>
               <p className="text-xl font-bold mt-1">No. {family.no_kk}</p>
             </div>
 
-          <div className="grid grid-cols-2 gap-12 text-sm font-bold mb-8">
-            <div className="space-y-1">
-              <div className="flex"><span className="w-32 uppercase">Nama Kepala Keluarga</span><span>: {family.anggota.find(a => a.hubungan === 'Kepala Keluarga')?.nama || '-'}</span></div>
-              <div className="flex"><span className="w-32 uppercase">Alamat</span><span>: {family.alamat}</span></div>
-              <div className="flex"><span className="w-32 uppercase">RT/RW</span><span>: {family.rt_rw}</span></div>
-              <div className="flex"><span className="w-32 uppercase">Desa/Kelurahan</span><span>: {family.Desa}</span></div>
+            <div className="grid grid-cols-2 gap-12 text-sm font-bold mb-8">
+              <div className="space-y-1">
+                <div className="flex">
+                  <span className="w-32 uppercase">Nama Kepala Keluarga</span>
+                  <span>
+                    :{" "}
+                    {family.anggota.find(
+                      (a) => a.hubungan === "Kepala Keluarga",
+                    )?.nama || "-"}
+                  </span>
+                </div>
+                <div className="flex">
+                  <span className="w-32 uppercase">Alamat</span>
+                  <span>: {family.alamat}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-32 uppercase">RT/RW</span>
+                  <span>: {family.rt_rw}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-32 uppercase">Desa/Kelurahan</span>
+                  <span>: {family.Desa}</span>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex">
+                  <span className="w-32 uppercase">Kecamatan</span>
+                  <span>: {family.Kecamatan}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-32 uppercase">Kabupaten/Kota</span>
+                  <span>: {family.Kabupaten}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-32 uppercase">Kode Pos</span>
+                  <span>: -</span>
+                </div>
+                <div className="flex">
+                  <span className="w-32 uppercase">Provinsi</span>
+                  <span>: {family.Provinsi}</span>
+                </div>
+              </div>
             </div>
-            <div className="space-y-1">
-              <div className="flex"><span className="w-32 uppercase">Kecamatan</span><span>: {family.Kecamatan}</span></div>
-              <div className="flex"><span className="w-32 uppercase">Kabupaten/Kota</span><span>: {family.Kabupaten}</span></div>
-              <div className="flex"><span className="w-32 uppercase">Kode Pos</span><span>: -</span></div>
-              <div className="flex"><span className="w-32 uppercase">Provinsi</span><span>: {family.Provinsi}</span></div>
-            </div>
-          </div>
 
-          <table className="w-full border-collapse border-2 border-black text-xs">
-            <thead className="bg-slate-100">
-              <tr>
-                <th className="border-2 border-black p-1 text-center font-bold">No</th>
-                <th className="border-2 border-black p-1 text-center font-bold">Nama Lengkap</th>
-                <th className="border-2 border-black p-1 text-center font-bold">NIK</th>
-                <th className="border-2 border-black p-1 text-center font-bold">Jenis Kelamin</th>
-                <th className="border-2 border-black p-1 text-center font-bold">Tempat Lahir</th>
-                <th className="border-2 border-black p-1 text-center font-bold">Tanggal Lahir</th>
-                <th className="border-2 border-black p-1 text-center font-bold">Agama</th>
-                <th className="border-2 border-black p-1 text-center font-bold">Pendidikan</th>
-                <th className="border-2 border-black p-1 text-center font-bold">Jenis Pekerjaan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {family.anggota.map((a, i) => (
-                <tr key={i}>
-                  <td className="border-2 border-black p-1 text-center">{i + 1}</td>
-                  <td className="border-2 border-black p-1 font-bold">{a.nama}</td>
-                  <td className="border-2 border-black p-1 text-center">{a.nik}</td>
-                  <td className="border-2 border-black p-1 text-center">{a.jk}</td>
-                  <td className="border-2 border-black p-1 text-center">{a.tempat_lahir}</td>
-                  <td className="border-2 border-black p-1 text-center">{formatTanggalIndonesia(a.tgl)}</td>
-                  <td className="border-2 border-black p-1 text-center">{a.agama}</td>
-                  <td className="border-2 border-black p-1 text-center">{a.pendidikan}</td>
-                  <td className="border-2 border-black p-1 text-center">{a.pekerjaan}</td>
+            <table className="w-full border-collapse border-2 border-black text-xs">
+              <thead className="bg-slate-100">
+                <tr>
+                  <th className="border-2 border-black p-1 text-center font-bold">
+                    No
+                  </th>
+                  <th className="border-2 border-black p-1 text-center font-bold">
+                    Nama Lengkap
+                  </th>
+                  <th className="border-2 border-black p-1 text-center font-bold">
+                    NIK
+                  </th>
+                  <th className="border-2 border-black p-1 text-center font-bold">
+                    Jenis Kelamin
+                  </th>
+                  <th className="border-2 border-black p-1 text-center font-bold">
+                    Tempat Lahir
+                  </th>
+                  <th className="border-2 border-black p-1 text-center font-bold">
+                    Tanggal Lahir
+                  </th>
+                  <th className="border-2 border-black p-1 text-center font-bold">
+                    Agama
+                  </th>
+                  <th className="border-2 border-black p-1 text-center font-bold">
+                    Pendidikan
+                  </th>
+                  <th className="border-2 border-black p-1 text-center font-bold">
+                    Jenis Pekerjaan
+                  </th>
                 </tr>
-              ))}
-              {Array.from({ length: Math.max(0, 10 - family.anggota.length) }).map((_, i) => (
-                <tr key={`empty-${i}`}>
-                   <td className="border-2 border-black p-1 text-center">{family.anggota.length + i + 1}</td>
-                   <td className="border-2 border-black p-1">&nbsp;</td>
-                   <td className="border-2 border-black p-1">&nbsp;</td>
-                   <td className="border-2 border-black p-1">&nbsp;</td>
-                   <td className="border-2 border-black p-1">&nbsp;</td>
-                   <td className="border-2 border-black p-1">&nbsp;</td>
-                   <td className="border-2 border-black p-1">&nbsp;</td>
-                   <td className="border-2 border-black p-1">&nbsp;</td>
-                   <td className="border-2 border-black p-1">&nbsp;</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {family.anggota.map((a, i) => (
+                  <tr key={i}>
+                    <td className="border-2 border-black p-1 text-center">
+                      {i + 1}
+                    </td>
+                    <td className="border-2 border-black p-1 font-bold">
+                      {a.nama}
+                    </td>
+                    <td className="border-2 border-black p-1 text-center">
+                      {a.nik}
+                    </td>
+                    <td className="border-2 border-black p-1 text-center">
+                      {a.jk}
+                    </td>
+                    <td className="border-2 border-black p-1 text-center">
+                      {a.tempat_lahir}
+                    </td>
+                    <td className="border-2 border-black p-1 text-center">
+                      {formatTanggalIndonesia(a.tgl)}
+                    </td>
+                    <td className="border-2 border-black p-1 text-center">
+                      {a.agama}
+                    </td>
+                    <td className="border-2 border-black p-1 text-center">
+                      {a.pendidikan}
+                    </td>
+                    <td className="border-2 border-black p-1 text-center">
+                      {a.pekerjaan}
+                    </td>
+                  </tr>
+                ))}
+                {Array.from({
+                  length: Math.max(0, 10 - family.anggota.length),
+                }).map((_, i) => (
+                  <tr key={`empty-${i}`}>
+                    <td className="border-2 border-black p-1 text-center">
+                      {family.anggota.length + i + 1}
+                    </td>
+                    <td className="border-2 border-black p-1">&nbsp;</td>
+                    <td className="border-2 border-black p-1">&nbsp;</td>
+                    <td className="border-2 border-black p-1">&nbsp;</td>
+                    <td className="border-2 border-black p-1">&nbsp;</td>
+                    <td className="border-2 border-black p-1">&nbsp;</td>
+                    <td className="border-2 border-black p-1">&nbsp;</td>
+                    <td className="border-2 border-black p-1">&nbsp;</td>
+                    <td className="border-2 border-black p-1">&nbsp;</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-          <div className="mt-8 flex justify-between text-sm px-10">
-            <div className="text-center">
-              <p>&nbsp;</p>
-              <p>KEPALA KELUARGA</p>
-              <div className="h-20"></div>
-              <p className="font-bold underline uppercase">{family.anggota.find(a => a.hubungan === 'Kepala Keluarga')?.nama || '-'}</p>
-            </div>
-            <div className="text-center">
-              <p>DIKELUARKAN DI : Amaholu Losy</p>
-              <p>PADA TANGGAL : {formatTanggalIndonesia(new Date().toISOString())}</p>
-              <p>KEPALA DUSUN AMAHOLU LOSY</p>
-              <div className="h-16"></div>
-              <p className="font-bold underline uppercase">FAUJI ALI</p>
+            <div className="mt-8 flex justify-between text-sm px-10">
+              <div className="text-center">
+                <p>&nbsp;</p>
+                <p>KEPALA KELUARGA</p>
+                <div className="h-20"></div>
+                <p className="font-bold underline uppercase">
+                  {family.anggota.find((a) => a.hubungan === "Kepala Keluarga")
+                    ?.nama || "-"}
+                </p>
+              </div>
+              <div className="text-center">
+                <p>DIKELUARKAN DI : Amaholu Losy</p>
+                <p>
+                  PADA TANGGAL :{" "}
+                  {formatTanggalIndonesia(new Date().toISOString())}
+                </p>
+                <p>KEPALA DUSUN AMAHOLU LOSY</p>
+                <div className="h-16"></div>
+                <p className="font-bold underline uppercase">FAUJI ALI</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <style>{`
+
+        <style>{`
         @media print {
           .no-print { display: none !important; }
           .no-print-bg { background: white !important; }
@@ -2307,7 +3203,7 @@ const PrintKKModal = React.memo(function PrintKKModal({ family, onClose }: { fam
           .print-root > *:not(.print-area) { display: none !important; }
         }
       `}</style>
+      </div>
     </div>
-  </div>
-);
+  );
 });

@@ -1,0 +1,52 @@
+518:                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+576:                          : "bg-white border border-sky-100 text-slate-700 rounded-bl-none shadow-sm font-semibold"
+619:                      className="w-full bg-slate-100/80 rounded-2xl pl-6 pr-14 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-blue-500/5 focus:bg-white focus:border-blue-500/20 transition-all border-2 border-transparent"
+625:                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
+663:                ? "bg-white rounded-3xl border border-sky-100 shadow-sm rotate-90 shadow-slate-900/40"
+736:        <div className="absolute top-0 right-0 w-[60rem] h-[60rem] bg-blue-400/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+777:          <div className="p-1.5 bg-slate-100 rounded-2xl flex gap-1 mb-8">
+811:                      className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-600 transition-colors"
+835:                      className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-600 transition-colors"
+862:                      className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-600 transition-colors"
+881:                      className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-600 transition-colors"
+899:              className="w-full py-4 bg-white rounded-3xl border border-sky-100 shadow-sm text-sky-950 font-black uppercase tracking-[0.2em] rounded-xl shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 group text-xs"
+1236:                    className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+1271:                          className="absolute left-5 top-1/2 -translate-y-1/2 text-sky-600"
+1487:        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+1589:                  className="px-6 py-3 md:px-8 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm text-sky-950 rounded-xl md:rounded-[1.5rem] font-black text-[10px] md:text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-xl shadow-slate-900/10 active:scale-95 border-b-4 border-slate-700"
+1661:                        <option value="" className="bg-white text-slate-800">
+1666:                          className="bg-white text-slate-800"
+1672:                          className="bg-white text-slate-800"
+1678:                          className="bg-white text-slate-800"
+1684:                          className="bg-white text-slate-800"
+1701:                        <option value="" className="bg-white text-slate-800">
+1706:                          className="bg-white text-slate-800"
+1712:                          className="bg-white text-slate-800"
+1759:                        <option value="" className="bg-white text-slate-800">
+1764:                          className="bg-white text-slate-800"
+1770:                          className="bg-white text-slate-800"
+1776:                          className="bg-white text-slate-800"
+1782:                          className="bg-white text-slate-800"
+1788:                          className="bg-white text-slate-800"
+1794:                          className="bg-white text-slate-800"
+1800:                          className="bg-white text-slate-800"
+1806:                          className="bg-white text-slate-800"
+1812:                          className="bg-white text-slate-800"
+1846:                        <option value="" className="bg-white text-slate-800">
+1851:                          className="bg-white text-slate-800"
+1857:                          className="bg-white text-slate-800"
+1863:                          className="bg-white text-slate-800"
+1869:                          className="bg-white text-slate-800"
+1875:                          className="bg-white text-slate-800"
+1893:                        <option value="" className="bg-white text-slate-800">
+1896:                        <option value="PKH" className="bg-white text-slate-800">
+1901:                          className="bg-white text-slate-800"
+1905:                        <option value="BLT" className="bg-white text-slate-800">
+1910:                          className="bg-white text-slate-800"
+2059:                <div className="aspect-video w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/60 shadow-2xl bg-slate-900 relative shadow-blue-900/20">
+2082:              <div className="prose prose-invert prose-slate prose-lg md:prose-xl max-w-none pb-6">
+2202:        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+2506:                  className="absolute left-5 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-500 transition-colors"
+2531:                  className="absolute left-5 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-500 transition-colors"
+2549:                    className="absolute left-5 top-1/2 -translate-y-1/2 text-sky-600 group-focus-within:text-blue-500 transition-colors"
+3089:              <thead className="bg-slate-100">

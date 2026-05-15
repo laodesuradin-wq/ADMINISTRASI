@@ -1,0 +1,13 @@
+406:    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+543:                className="flex-1 p-6 overflow-y-auto bg-slate-50/50 space-y-6 scroll-smooth"
+731:      className="min-h-screen flex items-center justify-center p-4 bg-slate-50 relative overflow-hidden"
+817:                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-500 shadow-sm"
+841:                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-500 shadow-sm"
+868:                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-500 shadow-sm"
+887:                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-blue-600/30 focus:bg-white transition-all font-bold text-xs text-slate-900 placeholder:text-slate-500 shadow-sm"
+1061:      <div className="flex flex-1 overflow-hidden no-print bg-slate-50">
+1246:                    <div className="bg-slate-50 px-5 py-6 border-b-2 border-blue-600 flex items-center justify-between sticky top-0 z-20 shadow-2xl">
+1989:    <div className="fixed inset-0 z-50 bg-slate-50/70 backdrop-blur-md flex items-center justify-center p-4">
+2460:    <div className="fixed inset-0 z-50 bg-slate-50/70 backdrop-blur-md flex items-center justify-center p-4">
+2646:    <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col overflow-hidden">
+2948:    <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col overflow-hidden">

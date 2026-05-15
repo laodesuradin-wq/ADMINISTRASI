@@ -1,4 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  
+  --color-sky-50: #faf7eb;
+  --color-sky-100: #f9d89b;
+  --color-sky-600: #995500;
+  --color-sky-950: #1a0800;
+
+  --color-blue-50: #e0f9f7;
+  --color-blue-100: #b1eee9;
+  --color-blue-400: #ff8833;
+  --color-blue-500: #ff8833;
+  --color-blue-600: #67d5ce;
+  --color-blue-700: #4abbb4;
+  --color-blue-800: #3a9c96;
+  --color-blue-900: #297a75;
+}
 
 @keyframes kenburns {
   0% { transform: scale(1) translate(0, 0); }
@@ -17,4 +37,25 @@
 
 .animate-progress {
   animation: progress 15s linear infinite;
+}
+
+body {
+  background-color: #faecca;
+  color: #1a0800;
+}
+
+/* Scrollbar Beautification */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #ff8833;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #cc6600;
 }
