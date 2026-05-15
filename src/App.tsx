@@ -1138,20 +1138,6 @@ const DashboardView = React.memo(function DashboardView({
                           icon: "📊",
                           iconBg: "bg-[#67d5ce] text-white",
                           action: () => openStats(),
-                        },
-                        {
-                          label: "Digital Surat",
-                          sub: "Administrasi",
-                          icon: "📄",
-                          iconBg: "bg-[#67d5ce] text-white",
-                          action: () => openLetter("Surat Keterangan Usaha"),
-                        },
-                        {
-                          label: "Kegiatan",
-                          sub: "Informasi",
-                          icon: "📰",
-                          iconBg: "bg-[#ff8833] text-white",
-                          action: () => openArticles(),
                         }
                       ]
                     : []),
