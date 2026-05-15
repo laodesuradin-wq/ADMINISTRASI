@@ -2,9 +2,9 @@ import { config } from "dotenv";
 config();
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
-import { streamText } from 'ai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { GoogleGenAI } from "@google/genai";
 
 async function startServer() {
   const app = express();
@@ -12,45 +12,135 @@ async function startServer() {
 
   app.use(express.json());
 
-  // API Route for chat using Vercel AI SDK
+  // API Route for chat using FAQ database and Gemini
   app.post("/api/chat", async (req, res) => {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
     try {
+      const { messages } = req.body;
+      const lastMessage = messages[messages.length - 1]?.content.toLowerCase() || "";
+
+      let faqData: any[] = [];
+      // 1. Try local FAQ database first
+      const faqPath = path.join(process.cwd(), 'src', 'faq.json');
+      if (fs.existsSync(faqPath)) {
+        faqData = JSON.parse(fs.readFileSync(faqPath, 'utf8'));
+        
+        // Find best match
+        let bestMatch = null;
+        let maxMatches = 0;
+        
+        for (const item of faqData) {
+          const matches = item.keywords.filter((kw: string) => {
+            const regex = new RegExp(`\\b${kw.toLowerCase()}\\b`, 'i');
+            return regex.test(lastMessage);
+          }).length;
+          if (matches > maxMatches) {
+            maxMatches = matches;
+            bestMatch = item.answer;
+          }
+        }
+        
+        if (bestMatch && maxMatches > 0) {
+          // Stream the FAQ answer
+          res.write(bestMatch);
+          res.end();
+          return;
+        }
+      }
+
+      const getRecommendations = () => {
+        if (!faqData || faqData.length === 0) return "";
+        const recommendList = faqData
+          .filter(item => !["halo", "terima kasih", "operator", "lokasi", "kepala dusun"].includes(item.keywords[0]))
+          .map(item => `- ${item.keywords[0].toUpperCase()}`)
+          .slice(0, 4)
+          .join("\n");
+        return `\n\nBeberapa layanan yang bisa beta bantu jelaskan antara lain:\n${recommendList}`;
+      };
+
+      // 2. Fallback to Gemini AI if API Key exists
       const apiKey = process.env.GEMINI_API_KEY?.trim() || '';
       if (!apiKey) {
-        console.error("API Key missing at request time");
-        res.status(500).json({ error: "API_KEY_MISSING", message: "API key is missing in environment variables." });
+        // No AI Key, no FAQ match
+        res.write(`Maaf, pertanyaan Bapak/Ibu belum ada di basis data kami, dan saat ini layanan Artificial Intelligence sedang offline karena Kunci API belum diatur. ${getRecommendations()}\n\nSilakan hubungi Bapak Kepala Dusun.`);
+        res.end();
         return;
       }
-      const googleProvider = createGoogleGenerativeAI({ apiKey });
 
-      const { messages } = req.body;
+      const ai = new GoogleGenAI({ apiKey });
+      const formattedContents = messages.map((m: any) => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      }));
       
-      const result = streamText({
-        model: googleProvider('gemini-1.5-flash'),
-        system: `Anda adalah asisten AI resmi bernama 'Sandra' (Asisten SIAK MOBILE) untuk Dusun Amaholu Losy, Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku. Dusun ini dipimpin oleh Kepala Dusun Fauji Ali. 
+      const faqString = faqData.map((f:any) => `Topik: ${f.keywords.join(", ")}\nInfo: ${f.answer}`).join("\n\n");
+
+      const responseStream = await ai.models.generateContentStream({
+        model: 'gemini-1.5-flash',
+        contents: formattedContents,
+        config: {
+            systemInstruction: `Anda adalah asisten AI resmi bernama 'Sandra' (Asisten SIAK MOBILE) untuk Dusun Amaholu Losy, Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku. Dusun ini dipimpin oleh Kepala Dusun Fauji Ali. 
+
+Berikut adalah Basis Data (FAQ) yang harus Anda jadikan acuan untuk menjawab dan memberikan rekomendasi layanan kepada warga:
+${faqString}
             
 Tugas utama Anda:
-- Menjawab pertanyaan dari warga terkait kepengurusan administrasi.
+- Menjawab pertanyaan dari warga terkait kepengurusan administrasi berdasarkan Basis Data FAQ di atas.
+- Jika pengguna bertanya sesuatu yang tidak jelas atau topiknya tidak ada, berikan rekomendasi daftar layanan dari Basis Data kepada warga agar mereka tahu apa yang bisa ditanyakan.
 - Menjelaskan rute untuk pengguna: Jika warga meminta pelayanan digital surat, arahkan mereka ke "Administrasi -> Digital Surat" atau untuk membuat Kartu Keluarga arahkan ke bagian form penambahan anggota keluarga.
 
 Sikap dan Nada:
 - Gunakan bahasa yang santun khas masyarakat Maluku yang ramah.
 - Pastikan warga merasa terbantu dan dihargai.
-- Gunakan kata ganti "beta" untuk menyebut diri sendiri (Sandra).
+- Gunakan kata ganti "beta" untuk menyebut diri sendiri (Sandra) dan sapa penelepon dengan "Bapak/Ibu" atau sapaan yang sesuai.
 
 Keamanan:
 - Jangan meminta data sensitif seperti NIK atau Nomor KK secara langsung dalam chat.
 
 Kontak Penting:
-Operator Dusun (WA): 0821-4636-2670.`,
-        messages,
+Bapak Kepala Dusun.`
+        }
       });
 
-      result.pipeTextStreamToResponse(res);
+      for await (const chunk of responseStream) {
+        if (chunk.text) {
+          res.write(chunk.text);
+        }
+      }
+      res.end();
     } catch (error: any) {
-      console.error("AI Error:", error);
-      const isApiKeyError = error?.message?.includes("API key not valid") || error?.message?.includes("API_KEY");
-      res.status(500).json({ error: "Failed to process chat.", message: isApiKeyError ? "Kunci API Gemini tidak valid. Harap periksa pengaturan di Settings > Secrets." : "Kesalahan internal pada AI." });
+      const errorString = error?.message || String(error) || "";
+      const isApiKeyError = errorString.includes("API key not valid") || errorString.includes("API_KEY") || errorString.includes("API_KEY_INVALID");
+      
+      if (!isApiKeyError) {
+        console.error("AI Error:", error);
+      }
+
+      const getRecommendations = () => {
+        let faqData: any[] = [];
+        try {
+          const faqPath = path.join(process.cwd(), 'src', 'faq.json');
+          if (fs.existsSync(faqPath)) {
+            faqData = JSON.parse(fs.readFileSync(faqPath, 'utf8'));
+          }
+        } catch(e) {}
+        if (!faqData || faqData.length === 0) return "";
+        const recommendList = faqData
+          .filter((item: any) => !["halo", "terima kasih", "operator", "lokasi", "kepala dusun"].includes(item.keywords[0]))
+          .map((item: any) => `- Pendaftaran ${item.keywords[0].toUpperCase()}`)
+          .slice(0, 4)
+          .join("\n");
+        return `\n\nBeberapa layanan yang bisa beta bantu jelaskan antara lain:\n${recommendList}`;
+      };
+
+      if (isApiKeyError) {
+        res.write(`Maaf, pertanyaan Bapak/Ibu belum ada di basis data kami, dan saat ini layanan Artificial Intelligence sedang offline karena Kunci API Tidak Valid. ${getRecommendations()}\n\nSilakan hubungi Bapak Kepala Dusun.`);
+      } else {
+        res.write("\n\n[Maaf, terjadi masalah saat memproses permintaan Anda. Silakan hubungi Bapak Kepala Dusun.]");
+      }
+      res.end();
     }
   });
 

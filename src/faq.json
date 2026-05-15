@@ -1,0 +1,46 @@
+[
+  {
+    "keywords": ["kartu keluarga", "syarat", "kk", "buat kk", "bikin kk"],
+    "answer": "Untuk membuat atau mengurus Kartu Keluarga (KK) baru, Anda membutuhkan: 1. Surat Pengantar RT/RW, 2. Fotokopi Buku Nikah/Akta Perkawinan, 3. Surat Keterangan Pindah (jika dari luar daerah). Silakan bawa dokumen tersebut ke balai dusun."
+  },
+  {
+    "keywords": ["ktp", "syarat", "buat ktp", "bikin ktp", "e-ktp"],
+    "answer": "Syarat pembuatan KTP (e-KTP): 1. Berusia 17 tahun atau sudah menikah, 2. Membawa Fotokopi Kartu Keluarga (KK), 3. Surat Pengantar dari RT/RW. Anda dapat melakukan perekaman di kantor kecamatan."
+  },
+  {
+    "keywords": ["akta lahir", "syarat", "kelahiran", "anak"],
+    "answer": "Syarat pembuatan Akta Kelahiran: 1. Surat Keterangan Lahir dari Bidan/Rumah Sakit, 2. Fotokopi Buku Nikah Orang Tua, 3. Fotokopi KK dan KTP Orang Tua. Segera urus paling lambat 60 hari setelah kelahiran."
+  },
+  {
+    "keywords": ["surat pindah", "pindah", "mutasi"],
+    "answer": "Untuk mengurus Surat Keterangan Pindah: 1. Bawa KTP asli dan KK asli, 2. Minta Surat Pengantar RT/RW, 3. Tentukan alamat tujuan pindah dengan jelas."
+  },
+  {
+    "keywords": ["akta kematian", "kematian", "surat kematian"],
+    "answer": "Syarat mengurus Akta Kematian: 1. Surat Keterangan Kematian dari Dokter/Kepala Desa, 2. KTP dan KK asli almarhum/almarhumah, 3. Fotokopi KTP pelapor dan saksi."
+  },
+  {
+    "keywords": ["surat nikah", "nikah", "pengantar nikah", "na"],
+    "answer": "Syarat pengantar nikah (Surat N1-N4): 1. Pengantar RT/RW, 2. Fotokopi KTP dan KK, 3. Pas foto ukuran 3x4 (2 lembar), 4. Fotokopi Akta Cerai/Kematian (jika berstatus janda/duda)."
+  },
+  {
+    "keywords": ["kepala dusun", "kadus", "pemimpin", "kepala"],
+    "answer": "Dusun Amaholu Losy dipimpin oleh Kepala Dusun Bapak Fauji Ali."
+  },
+  {
+    "keywords": ["kontak", "hubungi", "bantuan"],
+    "answer": "Jika memerlukan bantuan lebih lanjut, silakan hubungi Bapak Kepala Dusun."
+  },
+  {
+    "keywords": ["lokasi", "alamat", "dimana", "tempat"],
+    "answer": "Dusun Amaholu Losy berlokasi di Negeri Luhu, Kecamatan Huamual, Kabupaten Seram Bagian Barat, Maluku."
+  },
+  {
+    "keywords": ["halo", "hai", "selamat pagi", "selamat siang", "selamat malam", "assalamualaikum"],
+    "answer": "Wa'alaikumsalam/Selamat Sejahtera! Saya Sandra, Asisten Digital Dusun Amaholu Losy. Ada yang bisa saya bantu terkait informasi dan administrasi dusun?"
+  },
+  {
+    "keywords": ["terima kasih", "makasih", "thanks"],
+    "answer": "Sama-sama! Jika masih ada yang ingin ditanyakan, jangan ragu untuk menghubungi saya lagi. Semoga urusan Anda lancar!"
+  }
+]
