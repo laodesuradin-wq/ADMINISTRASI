@@ -733,22 +733,26 @@ const LoginView = React.memo(function LoginView({
       className="min-h-screen flex items-center justify-center p-4 bg-transparent relative overflow-hidden"
     >
       {/* Official background architecture */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]"></div>
-        <div className="absolute top-0 right-0 w-[60rem] h-[60rem] bg-blue-400/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[#faecca] bg-[radial-gradient(#d38736_0.5px,transparent_0.5px)] [background-size:24px_24px] opacity-20"></div>
+        <div className="absolute -top-1/4 -right-1/4 w-[80rem] h-[80rem] bg-orange-400/10 rounded-full blur-[140px] animate-pulse"></div>
+        <div className="absolute -bottom-1/4 -left-1/4 w-[60rem] h-[60rem] bg-teal-400/10 rounded-full blur-[120px] animate-pulse [animation-delay:2s]"></div>
       </div>
 
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
+        initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-[420px] bg-white rounded-3xl border border-sky-100 overflow-hidden shadow-2xl flex flex-col relative z-10"
+        transition={{ type: "spring", damping: 25, stiffness: 120 }}
+        className="w-full max-w-[440px] bg-white rounded-[2.5rem] border border-sky-100 overflow-hidden shadow-[0_32px_64px_-16px_rgba(153,85,0,0.15)] flex flex-col relative z-10"
       >
-        <div className="w-full p-6 md:p-8 text-sky-950 flex flex-col justify-center bg-[#f8f8f8] bg-[radial-gradient(#e5e5e5_2px,transparent_2px)] [background-size:12px_12px] relative overflow-hidden h-[180px] border-b border-gray-200 border-dashed">
+        <div className="w-full p-8 text-sky-950 flex flex-col justify-center bg-[#fdfaf5] bg-[radial-gradient(#e5e5e5_1.5px,transparent_1.5px)] [background-size:16px_16px] relative overflow-hidden h-[200px] border-b border-gray-100 border-dashed">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50"></div>
           <div className="flex flex-col items-center justify-center text-center relative z-10 h-full">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2 mb-4 shadow-sm border border-sky-50"
+              transition={{ delay: 0.2 }}
+              className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center p-3 mb-5 shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-sky-50"
             >
               <img
                 src="https://iili.io/BbSYeoB.png"
@@ -759,33 +763,34 @@ const LoginView = React.memo(function LoginView({
             </motion.div>
 
             <div>
-              <h1 className="text-2xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
+              <h1 className="text-3xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
                 <span className="text-[#ff8833]">SIAK</span><span className="text-[#67d5ce]">MOBILE</span>
               </h1>
-              <p className="text-[#995500] text-[9px] font-bold uppercase tracking-[0.2em] leading-none">
+              <p className="text-[#995500] text-[10px] font-black uppercase tracking-[0.3em] leading-none opacity-80">
                 Dusun Amaholu Losy
               </p>
             </div>
           </div>
         </div>
 
-        <div className="w-full bg-white p-6 md:p-8 flex flex-col justify-center">
-          <div className="mb-4 text-center sm:text-left">
-            <h2 className="text-lg font-black text-sky-950 tracking-tight">
+        <div className="w-full bg-white p-8 md:p-10 flex flex-col justify-center">
+          <div className="mb-6 text-center sm:text-left">
+            <h2 className="text-xl font-extrabold text-sky-950 tracking-tight">
               Masuk Ke Sistem
             </h2>
+            <p className="text-slate-500 text-xs mt-1 font-medium italic">Silahkan pilih metode masuk Anda</p>
           </div>
 
-          <div className="p-1.5 bg-slate-50 border border-slate-100 rounded-2xl flex gap-1 mb-8">
+          <div className="p-1.5 bg-[#fdfaf5] border border-orange-100/50 rounded-[1.25rem] flex gap-1 mb-8">
             <button
               onClick={() => setRole("warga")}
-              className={`flex-1 py-3 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all ${role === "warga" ? "bg-white text-[#67d5ce] shadow-sm border-b-2 border-slate-100" : "text-[#995500] hover:text-[#995500]"}`}
+              className={`flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.1em] transition-all relative group overflow-hidden ${role === "warga" ? "bg-white text-[#67d5ce] shadow-[0_4px_12px_rgba(0,0,0,0.05)] border-b-2 border-[#67d5ce]/10" : "text-[#995500]/60 hover:text-[#995500]"}`}
             >
               Login Warga
             </button>
             <button
               onClick={() => setRole("admin")}
-              className={`flex-1 py-3 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all ${role === "admin" ? "bg-white text-[#67d5ce] shadow-sm border-b-2 border-slate-100" : "text-[#995500] hover:text-[#995500]"}`}
+              className={`flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.1em] transition-all relative group overflow-hidden ${role === "admin" ? "bg-white text-[#67d5ce] shadow-[0_4px_12px_rgba(0,0,0,0.05)] border-b-2 border-[#67d5ce]/10" : "text-[#995500]/60 hover:text-[#995500]"}`}
             >
               Login Admin
             </button>
@@ -816,7 +821,7 @@ const LoginView = React.memo(function LoginView({
                     <input
                       type="text"
                       placeholder="16-digit kode KK"
-                      className="w-full pl-11 pr-4 py-3.5 bg-[#fcfaf5] border border-[#f9d89b] rounded-xl outline-none focus:border-[#d38736] focus:bg-[#fcfaf5] transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/70 shadow-sm"
+                      className="w-full pl-11 pr-4 py-4 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
                       value={noKK}
                       onChange={(e) => {
                         const val = e.target.value
@@ -840,7 +845,7 @@ const LoginView = React.memo(function LoginView({
                     <input
                       type="password"
                       placeholder="NIK Kepala Keluarga"
-                      className="w-full pl-11 pr-4 py-3.5 bg-[#fcfaf5] border border-[#f9d89b] rounded-xl outline-none focus:border-[#d38736] focus:bg-[#fcfaf5] transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/70 shadow-sm"
+                      className="w-full pl-11 pr-4 py-4 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
                       value={password}
                       onChange={(e) => {
                         const val = e.target.value
@@ -867,7 +872,7 @@ const LoginView = React.memo(function LoginView({
                     <input
                       type="email"
                       placeholder="Email Kedinasan Resmi"
-                      className="w-full pl-11 pr-4 py-3.5 bg-[#fcfaf5] border border-[#f9d89b] rounded-xl outline-none focus:border-[#d38736] focus:bg-[#fcfaf5] transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/70 shadow-sm"
+                      className="w-full pl-11 pr-4 py-4 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
                       required
@@ -886,7 +891,7 @@ const LoginView = React.memo(function LoginView({
                     <input
                       type="password"
                       placeholder="Masukkan kunci administrator"
-                      className="w-full pl-11 pr-4 py-3.5 bg-[#fcfaf5] border border-[#f9d89b] rounded-xl outline-none focus:border-[#d38736] focus:bg-[#fcfaf5] transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/70 shadow-sm"
+                      className="w-full pl-11 pr-4 py-4 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
                       value={adminPass}
                       onChange={(e) => setAdminPass(e.target.value)}
                       required
@@ -1028,56 +1033,78 @@ const DashboardView = React.memo(function DashboardView({
       animate={{ opacity: 1 }}
       className="min-h-screen flex items-center justify-center p-4 bg-transparent relative overflow-hidden no-print-bg"
     >
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -bottom-[200px] -left-[100px] w-[500px] h-[400px] bg-[#995500]/5 rounded-[50%_50%_0_0] rotate-12 blur-[100px]"></div>
+        <div className="absolute -top-[100px] -right-[100px] w-[600px] h-[500px] bg-[#67d5ce]/5 rounded-[0_0_50%_50%] -rotate-12 blur-[120px]"></div>
+      </div>
+
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-[420px] bg-white rounded-3xl border border-sky-100 overflow-hidden shadow-2xl flex flex-col relative z-20 h-[85vh] max-h-[850px]"
+        initial={{ y: 30, opacity: 0, scale: 0.98 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        transition={{ type: "spring", damping: 25, stiffness: 100 }}
+        className="w-full max-w-[440px] bg-white rounded-[2.5rem] border border-sky-100 overflow-hidden shadow-[0_32px_80px_-20px_rgba(0,0,0,0.12)] flex flex-col relative z-20 h-[85vh] max-h-[850px]"
       >
-        <div className="w-full px-6 py-6 text-sky-950 flex flex-col justify-center bg-[#f8f8f8] bg-[radial-gradient(#e5e5e5_2px,transparent_2px)] [background-size:12px_12px] relative overflow-hidden shrink-0 border-b border-gray-200 border-dashed">
-          <div className="flex justify-between items-start relative z-10 w-full">
-            <div className="flex flex-col items-center justify-center w-full gap-3">
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center p-2 shadow-sm border border-sky-50">
+        <div className="w-full px-8 py-8 text-sky-950 flex flex-col justify-center bg-[#fdfaf5] bg-[radial-gradient(#e5e5e5_2px,transparent_2px)] [background-size:16px_16px] relative overflow-hidden shrink-0 border-b border-gray-100 border-dashed">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/60"></div>
+          <div className="flex justify-between items-start relative z-10 w-full pt-2">
+            <div className="flex flex-col items-center justify-center w-full gap-4">
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="w-16 h-16 bg-white rounded-[1.5rem] flex items-center justify-center p-3 shadow-[0_8px_20px_rgba(0,0,0,0.05)] border border-sky-50"
+              >
                 <img
                   src="https://iili.io/BbSYeoB.png"
                   className="w-full h-full object-contain"
                   alt="Logo"
                   referrerPolicy="no-referrer"
                 />
-              </div>
+              </motion.div>
               <div className="text-center">
-                <h1 className="text-xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
+                <h1 className="text-2xl font-black leading-tight mb-0.5 tracking-tighter uppercase font-sans">
                   <span className="text-[#ff8833]">SIAK</span><span className="text-[#67d5ce]">MOBILE</span>
                 </h1>
-                <p className="text-[#995500] text-[8px] font-bold uppercase tracking-[0.2em] leading-none">
-                  Dusun Amaholu Losy
-                </p>
+                <div className="inline-flex items-center px-2 py-0.5 bg-[#995500]/5 rounded-full">
+                  <p className="text-[#995500] text-[8px] font-black uppercase tracking-[0.2em] leading-none">
+                    Dusun Amaholu Losy
+                  </p>
+                </div>
               </div>
             </div>
             
             <button
               onClick={onLogout}
-              className="absolute right-0 top-0 w-10 h-10 bg-rose-600 text-white hover:bg-rose-700 rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+              className="absolute right-0 top-0 w-11 h-11 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition-all border border-rose-100"
             >
-              <LogOut size={16} />
+              <LogOut size={18} strokeWidth={2.5} />
             </button>
           </div>
         </div>
 
         <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
-          <div className="flex-1 overflow-y-auto scrollbar-none pb-20 px-4 pt-6">
+          {/* Decorative mountain shapes from image */}
+          <div className="absolute bottom-0 left-0 w-full h-[60%] pointer-events-none opacity-[0.03] z-0 overflow-hidden">
+            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[800px] h-[800px] border-[60px] border-[#995500] rotate-45 rounded-[80px]"></div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto scrollbar-none pb-20 px-6 pt-8 relative z-10">
             {!adminMenuOpen && (
-              <div className="pb-6 relative z-10 transition-all duration-300">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="pb-8 relative z-10"
+              >
                 <div className="text-center">
-                  <p className="text-[#995500] text-[9px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
-                    Sistem Digital Terintegrasi
-                  </p>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100/50 shadow-sm overflow-hidden relative">
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Sistem Digital Terintegrasi</span>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             <div
-              className={`grid grid-cols-3 gap-4 p-2 mb-6 transition-all duration-300 ${adminMenuOpen ? "mt-4" : ""}`}
+              className={`grid grid-cols-3 gap-4 p-1 mb-6 transition-all duration-300 ${adminMenuOpen ? "mt-4" : ""}`}
             >
               {!adminMenuOpen &&
                 [
@@ -1112,27 +1139,47 @@ const DashboardView = React.memo(function DashboardView({
                           iconBg: "bg-[#67d5ce] text-white",
                           action: () => openStats(),
                         },
+                        {
+                          label: "Digital Surat",
+                          sub: "Administrasi",
+                          icon: "📄",
+                          iconBg: "bg-[#67d5ce] text-white",
+                          action: () => openLetter("Surat Keterangan Usaha"),
+                        },
+                        {
+                          label: "Kegiatan",
+                          sub: "Informasi",
+                          icon: "📰",
+                          iconBg: "bg-[#ff8833] text-white",
+                          action: () => openArticles(),
+                        }
                       ]
                     : []),
                 ].map((item, idx) => {
                   return (
-                    <div className="relative group col-span-1" key={idx}>
+                    <motion.div 
+                      key={idx}
+                      initial={{ opacity: 0, scale: 0.8, y: 15 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ delay: 0.1 + (idx * 0.05), type: "spring", stiffness: 120 }}
+                      className="relative group col-span-1"
+                    >
                       <button
                         onClick={item.action}
-                        className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-2 active:scale-95`}
+                        className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-3 active:scale-90 group`}
                       >
                         <div
-                          className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] flex items-center justify-center text-3xl md:text-4xl transition-transform ${item.iconBg} shadow-lg hover:shadow-xl transition-all font-black`}
+                          className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.75rem] flex items-center justify-center text-3xl md:text-3xl transition-all ${item.iconBg} shadow-[0_8px_20px_-4px_rgba(0,0,0,0.1)] group-hover:shadow-[0_12px_24px_-4px_rgba(0,0,0,0.15)] group-hover:-translate-y-1 font-black`}
                         >
                           {item.icon}
                         </div>
-                        <div className="text-center mt-1">
-                          <span className="block text-xs md:text-sm font-black text-[#331c00]">
+                        <div className="text-center">
+                          <span className="block text-[10px] md:text-[11px] font-black text-[#995500] uppercase tracking-tight leading-tight">
                             {item.label}
                           </span>
                         </div>
                       </button>
-                    </div>
+                    </motion.div>
                   );
                 })}
 
@@ -1276,99 +1323,119 @@ const DashboardView = React.memo(function DashboardView({
                     />
                     <input
                       type="text"
-                      placeholder="Cari Nama atau No. KK..."
+                      placeholder="Cari NIK atau Nama Kepala Keluarga..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-12 pr-6 py-3.5 bg-white rounded-2xl border border-slate-200 outline-none focus:border-[#d38736] focus:ring-4 ring-[#d38736]/10 font-bold text-[#995500] placeholder:text-slate-400 text-sm transition-all shadow-sm"
+                      className="w-full pl-12 pr-6 py-4 bg-white rounded-[1.25rem] border-2 border-slate-100 outline-none focus:border-[#67d5ce] focus:ring-4 ring-[#67d5ce]/5 font-black text-[#995500] placeholder:text-slate-300 text-sm transition-all shadow-sm group-hover:shadow-md"
                     />
                   </div>
 
-                  <div className="space-y-4 pb-10">
-                    {families.map((f, i) => {
-                      const kepalaObj = f.anggota.find(
-                        (a) => a.hubungan === "Kepala Keluarga",
-                      );
-                      return (
-                        <div
-                          key={f.no_kk}
-                          className="bg-white rounded-[1.5rem] border border-slate-200 p-5 space-y-4 hover:border-[#d38736] shadow-sm hover:shadow-md transition-all group"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="text-[8px] font-black text-[#d38736] uppercase tracking-widest mb-1 leading-none">
-                                Kepala Keluarga
-                              </p>
-                              <h4 className="text-sm font-black text-[#995500] uppercase tracking-tight leading-tight">
-                                {kepalaObj?.nama || "-"}
-                              </h4>
+                  <div className="space-y-4 pb-14">
+                    {families.length > 0 ? (
+                      families.map((f, i) => {
+                        const kepalaObj = f.anggota.find(
+                          (a) => a.hubungan === "Kepala Keluarga",
+                        );
+                        return (
+                          <motion.div
+                            key={f.no_kk}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.03 }}
+                            className="bg-white rounded-[1.75rem] border border-slate-200 p-5 space-y-4 hover:border-[#67d5ce] shadow-[0_4px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] transition-all group relative overflow-hidden"
+                          >
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#67d5ce]/5 to-transparent rounded-bl-full pointer-events-none transition-all group-hover:scale-150 group-hover:opacity-100 opacity-0"></div>
+                            
+                            <div className="flex justify-between items-start relative z-10">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5">
+                                  <div className="w-1.5 h-1.5 bg-[#d38736] rounded-full"></div>
+                                  <p className="text-[9px] font-black text-[#d38736] uppercase tracking-widest leading-none">
+                                    Kepala Keluarga
+                                  </p>
+                                </div>
+                                <h4 className="text-base font-black text-[#995500] uppercase tracking-tight leading-tight">
+                                  {kepalaObj?.nama || "-"}
+                                </h4>
+                              </div>
+                              <div className="px-3 py-1.5 bg-[#fdfaf5] border border-[#f9d89b]/40 rounded-xl text-[10px] font-black text-[#995500] shadow-sm">
+                                #{i + 1}
+                              </div>
                             </div>
-                            <div className="px-2 py-1 bg-[#fcfaf5] border border-[#f9d89b] rounded-lg text-[9px] font-black text-[#995500] shadow-sm">
-                              #{i + 1}
-                            </div>
-                          </div>
 
-                          <div className="grid grid-cols-2 gap-4 pt-2">
-                            <div>
-                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">
-                                No. KK
-                              </p>
-                              <p className="text-[11px] font-black text-slate-700 tracking-wider">
-                                {f.no_kk}
-                              </p>
+                            <div className="grid grid-cols-2 gap-4 pt-2 relative z-10">
+                              <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 group-hover:bg-white transition-colors">
+                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1 leading-none">
+                                  No. KK
+                                </p>
+                                <p className="text-[11px] font-black text-slate-700 tracking-wider">
+                                  {f.no_kk}
+                                </p>
+                              </div>
+                              <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 group-hover:bg-white transition-colors">
+                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1 leading-none">
+                                  Wilayah
+                                </p>
+                                <p className="text-[11px] font-black text-slate-700 truncate">
+                                  RT {f.rt_rw}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">
-                                Wilayah
-                              </p>
-                              <p className="text-[11px] font-black text-slate-700 truncate">
-                                {f.alamat} / RT {f.rt_rw}
-                              </p>
-                            </div>
-                          </div>
 
-                          <div className="flex gap-2 pt-2">
-                            <button
-                              onClick={() => {
-                                openEditModal(
-                                  allFamilies.findIndex(
-                                    (it) => it.no_kk === f.no_kk,
-                                  ),
-                                );
-                                setIsDatabaseViewOpen(false);
-                              }}
-                              className="flex-1 py-3 bg-[#67d5ce] text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#5bc4bd] active:scale-[0.98] transition-all shadow-sm group-hover:shadow-[0_8px_20px_rgba(103,213,206,0.3)]"
-                            >
-                              {session.role === "admin"
-                                ? "Kelola Data"
-                                : "Detail"}
-                            </button>
-                            <button
-                              onClick={() => {
-                                openPrintKK(f);
-                                setIsDatabaseViewOpen(false);
-                              }}
-                              className="w-[46px] h-[46px] bg-[#fcfaf5] rounded-xl border border-[#f9d89b] text-[#995500] flex items-center justify-center hover:bg-white hover:shadow-md active:scale-95 transition-all outline-none"
-                            >
-                              <Printer size={16} />
-                            </button>
-                            {session.role === "admin" && (
+                            <div className="flex gap-2.5 pt-2 relative z-10">
                               <button
-                                onClick={() =>
-                                  onDelete(
+                                onClick={() => {
+                                  openEditModal(
                                     allFamilies.findIndex(
                                       (it) => it.no_kk === f.no_kk,
                                     ),
-                                  )
-                                }
-                                className="w-[46px] h-[46px] bg-rose-50 text-rose-500 rounded-xl border border-rose-100 flex items-center justify-center hover:bg-rose-100 active:scale-95 transition-all outline-none"
+                                  );
+                                  setIsDatabaseViewOpen(false);
+                                }}
+                                className="flex-1 py-3.5 bg-[#67d5ce] text-white rounded-[1.25rem] font-black text-[10px] uppercase tracking-widest hover:bg-[#5bc4bd] active:scale-[0.98] transition-all shadow-lg shadow-[#67d5ce]/20 hover:shadow-[#67d5ce]/40"
                               >
-                                <Trash2 size={16} />
+                                {session.role === "admin"
+                                  ? "Kelola Database"
+                                  : "Detail Berkas"}
                               </button>
-                            )}
-                          </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => {
+                                    openPrintKK(f);
+                                    setIsDatabaseViewOpen(false);
+                                  }}
+                                  className="w-[50px] h-[50px] bg-white rounded-2xl border border-slate-200 text-slate-600 flex items-center justify-center hover:text-[#67d5ce] hover:border-[#67d5ce] hover:shadow-md active:scale-95 transition-all outline-none"
+                                >
+                                  <Printer size={18} strokeWidth={2.5} />
+                                </button>
+                                {session.role === "admin" && (
+                                  <button
+                                    onClick={() =>
+                                      onDelete(
+                                        allFamilies.findIndex(
+                                          (it) => it.no_kk === f.no_kk,
+                                        ),
+                                      )
+                                    }
+                                    className="w-[50px] h-[50px] bg-rose-50 text-rose-500 rounded-2xl border border-rose-100 flex items-center justify-center hover:bg-rose-500 hover:text-white hover:border-rose-500 active:scale-95 transition-all outline-none"
+                                  >
+                                    <Trash2 size={18} strokeWidth={2.5} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4 opacity-50">
+                          <Users size={40} />
                         </div>
-                      );
-                    })}
+                        <p className="text-slate-500 font-bold text-sm tracking-tight">Tidak ada data ditemukan</p>
+                        <p className="text-slate-400 text-[10px] mt-1 italic">Gunakan kata kunci pencarian lain</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -1480,42 +1547,45 @@ const FamilyModal = React.memo(function FamilyModal({
       />
 
       <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 30 }}
+        initial={{ scale: 0.95, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100"
+        exit={{ scale: 0.95, opacity: 0, y: 30 }}
+        className="relative w-full max-w-5xl max-h-[92vh] bg-white rounded-[2.5rem] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col border border-sky-100"
       >
-        <div className="bg-white rounded-3xl border border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 border-amber-500 relative overflow-hidden shrink-0">
-          <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-          <div className="flex items-center gap-3 md:gap-6 relative z-10">
-            <div className="w-10 h-10 md:w-14 md:h-14 bg-white rounded-3xl border border-sky-100 hover:shadow-md transition-all md:rounded-2xl flex items-center justify-center text-amber-500 shadow-inner shrink-0">
+        <div className="bg-[#fdfaf5] border-b border-[#f9d89b]/40 px-6 py-6 md:px-10 md:py-8 flex items-center justify-between relative overflow-hidden shrink-0">
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#995500_2px,transparent_2px)] [background-size:12px_12px]"></div>
+          <div className="flex items-center gap-4 md:gap-6 relative z-10">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-2xl border border-[#f9d89b]/40 flex items-center justify-center text-[#d38736] shadow-sm shrink-0">
               <Users className="w-6 h-6 md:w-8 md:h-8" />
             </div>
             <div className="text-left">
-              <h3 className="text-sky-950 text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight">
+              <h3 className="text-sky-950 text-xl md:text-2xl font-black tracking-tighter uppercase leading-tight">
                 {isReadOnly
-                  ? "Detail Berkas Kependudukan"
+                  ? "Detail Berkas Digital"
                   : data.no_kk
-                    ? "Form Kartu Keluarga"
-                    : "Registrasi Kartu Keluarga"}
+                    ? "Formulir Kartu Keluarga"
+                    : "Pendaftaran Keluarga Baru"}
               </h3>
+              <p className="text-[10px] font-black text-[#d38736]/70 uppercase tracking-[0.2em] mt-1">Sistem Administrasi Kependudukan</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 md:w-10 md:h-10 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 rounded-full flex items-center justify-center hover:rotate-90 shrink-0"
+            className="w-10 h-10 md:w-12 md:h-12 bg-white border border-[#f9d89b]/40 shadow-sm hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition-all text-sky-950 rounded-2xl flex items-center justify-center active:scale-90 shrink-0 group"
           >
-            <X className="w-4 h-4 md:w-5 md:h-5" />
+            <X className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-90 transition-transform" />
           </button>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto p-5 md:p-14 space-y-8 md:space-y-12 scrollbar-official"
+          className="flex-1 overflow-y-auto p-6 md:p-12 space-y-10 md:space-y-14 scrollbar-none bg-white"
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-            <div className="space-y-2 md:space-y-3">
-              <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">
-                ID Resmi (KK)
+          {/* Header Data KK */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 bg-[#fdfaf5]/50 p-6 md:p-10 rounded-[2rem] border border-orange-100/30">
+            <div className="space-y-2.5">
+              <label className="text-[10px] font-black text-[#995500] uppercase tracking-[0.2em] ml-2">
+                Nomor Kartu Keluarga
               </label>
               <input
                 value={data.no_kk}
@@ -1528,26 +1598,26 @@ const FamilyModal = React.memo(function FamilyModal({
                 maxLength={16}
                 disabled={isReadOnly}
                 required
-                placeholder="KODE 16-DIGIT"
-                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-3xl font-black text-sky-950 placeholder:text-sky-600 outline-none focus:border-blue-500 focus:bg-white focus:shadow-md text-sm md:text-base"
+                placeholder="16 DIGIT KODE KK"
+                className="w-full px-6 py-4 bg-white border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:ring-4 focus:ring-[#67d5ce]/5 transition-all font-black text-[#995500] placeholder:text-[#995500]/30 text-sm md:text-base leading-none shadow-sm"
               />
             </div>
-            <div className="space-y-2 md:space-y-3">
-              <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">
-                Alamat
+            <div className="space-y-2.5">
+              <label className="text-[10px] font-black text-[#995500] uppercase tracking-[0.2em] ml-2">
+                Alamat Lengkap
               </label>
               <input
                 value={data.alamat}
                 onChange={(e) => setData({ ...data, alamat: e.target.value })}
                 disabled={isReadOnly}
                 required
-                placeholder="JALAN / DUSUN"
-                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-3xl font-black text-sky-950 placeholder:text-sky-600 outline-none focus:border-blue-500 focus:bg-white focus:shadow-md text-sm md:text-base"
+                placeholder="DUSUN / JALAN"
+                className="w-full px-6 py-4 bg-white border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:ring-4 focus:ring-[#67d5ce]/5 transition-all font-black text-[#995500] placeholder:text-[#995500]/30 text-sm md:text-base leading-none shadow-sm"
               />
             </div>
-            <div className="space-y-2 md:space-y-3">
-              <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">
-                Wilayah / RT
+            <div className="space-y-2.5">
+              <label className="text-[10px] font-black text-[#995500] uppercase tracking-[0.2em] ml-2">
+                Wilayah RT/RW
               </label>
               <input
                 value={data.rt_rw}
@@ -1559,171 +1629,131 @@ const FamilyModal = React.memo(function FamilyModal({
                 }
                 disabled={isReadOnly}
                 required
-                placeholder="00"
-                className="w-full px-5 md:px-7 py-3 md:py-5 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-3xl font-black text-sky-950 placeholder:text-sky-600 outline-none focus:border-blue-500 focus:bg-white focus:shadow-md text-center text-sm md:text-base"
+                placeholder="00/00"
+                className="w-full px-6 py-4 bg-white border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:ring-4 focus:ring-[#67d5ce]/5 transition-all font-black text-[#995500] placeholder:text-[#995500]/30 text-center text-sm md:text-base leading-none shadow-sm"
               />
             </div>
           </div>
 
-          <div className="space-y-6 md:space-y-12">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-10">
-              <div className="flex items-center gap-3 md:gap-4">
-                <div className="w-1.5 h-8 md:w-2.5 md:h-10 bg-blue-600 rounded-full"></div>
-                <h4 className="text-xl md:text-2xl font-black text-sky-950 tracking-tight">
-                  Anggota Keluarga
-                </h4>
+          {/* Daftar Anggota */}
+          <div className="space-y-8 md:space-y-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-2.5 h-10 bg-[#ff8833] rounded-full shadow-[0_0_15px_rgba(255,136,51,0.3)]"></div>
+                <div>
+                  <h4 className="text-xl md:text-2xl font-black text-sky-950 tracking-tight leading-none">
+                    Daftar Anggota Keluarga
+                  </h4>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 leading-none">Total Terdaftar: {data.anggota.length} Jiwa</p>
+                </div>
               </div>
               {!isReadOnly && (
                 <button
                   type="button"
                   onClick={addMember}
-                  className="px-6 py-3 md:px-8 md:py-4 bg-blue-600 text-white rounded-xl md:rounded-[1.5rem] font-black text-[10px] md:text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-blue-900/10 active:scale-95 border-b-4 border-blue-800"
+                  className="px-8 py-4 bg-[#67d5ce] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#5bc4bd] transition-all shadow-lg shadow-[#67d5ce]/20 active:scale-95"
                 >
-                  <PlusCircle size={16} /> Tambah Registrasi
+                  <PlusCircle size={18} /> Tambah Anggota
                 </button>
               )}
             </div>
 
-            <div className="space-y-6 md:space-y-8">
+            <div className="grid grid-cols-1 gap-6 md:gap-10">
               {data.anggota.map((ag, i) => (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
                   key={i}
-                  className="p-5 md:p-10 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-[3rem] relative group hover:border-blue-500/30 hover:bg-white hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
+                  className="p-6 md:p-10 bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_8px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_25px_60px_rgba(0,0,0,0.08)] transition-all relative group overflow-hidden border-2"
                 >
+                  <div className="absolute top-0 left-0 w-2.5 h-full bg-[#f9d89b]/40 group-hover:bg-[#67d5ce] transition-colors"></div>
+                  
                   {!isReadOnly && (
                     <button
                       type="button"
                       onClick={() => removeMember(i)}
-                      className="absolute top-4 right-4 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 bg-rose-50 text-rose-500 rounded-xl md:rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-sky-950 transition-all border border-rose-100 md:opacity-0 md:group-hover:opacity-100 shadow-sm"
+                      className="absolute top-6 right-6 md:top-8 md:right-8 w-11 h-11 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all border border-rose-100 shadow-sm z-20 group-hover:scale-110 active:scale-90"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={20} strokeWidth={2.5} />
                     </button>
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8 pt-6 md:pt-0">
-                    <div className="md:col-span-1">
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 relative z-10">
+                    <div className="md:col-span-1 space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
                         Nama Lengkap
                       </label>
                       <input
                         value={ag.nama}
-                        onChange={(e) =>
-                          updateMember(i, "nama", e.target.value)
-                        }
+                        onChange={(e) => updateMember(i, "nama", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
                       />
                     </div>
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
-                        NIK
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        NIK (16 Digit)
                       </label>
                       <input
                         value={ag.nik}
-                        onChange={(e) =>
-                          updateMember(
-                            i,
-                            "nik",
-                            e.target.value.replace(/\D/g, "").slice(0, 16),
-                          )
-                        }
+                        onChange={(e) => updateMember(i, "nik", e.target.value.replace(/\D/g, "").slice(0, 16))}
                         disabled={isReadOnly}
                         required
                         maxLength={16}
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-mono font-bold text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-mono font-bold text-slate-700 text-sm shadow-sm"
                       />
                     </div>
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
-                        Hubungan
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Status Hubungan
                       </label>
                       <select
                         value={ag.hubungan}
-                        onChange={(e) =>
-                          updateMember(i, "hubungan", e.target.value)
-                        }
+                        onChange={(e) => updateMember(i, "hubungan", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm appearance-none cursor-pointer shadow-sm"
                       >
-                        <option value="" className="bg-white text-slate-800">
-                          Pilih
-                        </option>
-                        <option
-                          value="Kepala Keluarga"
-                          className="bg-white text-slate-800"
-                        >
-                          Kepala Keluarga
-                        </option>
-                        <option
-                          value="Istri"
-                          className="bg-white text-slate-800"
-                        >
-                          Istri
-                        </option>
-                        <option
-                          value="Anak"
-                          className="bg-white text-slate-800"
-                        >
-                          Anak
-                        </option>
-                        <option
-                          value="Lainnya"
-                          className="bg-white text-slate-800"
-                        >
-                          Lainnya
-                        </option>
+                        <option value="">Pilih Hubungan</option>
+                        <option value="Kepala Keluarga">Kepala Keluarga</option>
+                        <option value="Istri">Istri</option>
+                        <option value="Anak">Anak</option>
+                        <option value="Lainnya">Lainnya</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
-                        JK
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Jenis Kelamin
                       </label>
                       <select
                         value={ag.jk}
                         onChange={(e) => updateMember(i, "jk", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm appearance-none cursor-pointer shadow-sm"
                       >
-                        <option value="" className="bg-white text-slate-800">
-                          Pilih
-                        </option>
-                        <option
-                          value="Laki-laki"
-                          className="bg-white text-slate-800"
-                        >
-                          Laki-laki
-                        </option>
-                        <option
-                          value="Perempuan"
-                          className="bg-white text-slate-800"
-                        >
-                          Perempuan
-                        </option>
+                        <option value="">Pilih JK</option>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
                       </select>
                     </div>
 
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
                         Tempat Lahir
                       </label>
                       <input
                         value={ag.tempat_lahir}
-                        onChange={(e) =>
-                          updateMember(i, "tempat_lahir", e.target.value)
-                        }
+                        onChange={(e) => updateMember(i, "tempat_lahir", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-bold text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
                       />
                     </div>
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
-                        Tgl Lahir
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Tanggal Lahir
                       </label>
                       <input
                         type="date"
@@ -1731,177 +1761,80 @@ const FamilyModal = React.memo(function FamilyModal({
                         onChange={(e) => updateMember(i, "tgl", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-bold text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
                       />
                     </div>
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
-                        Pendidikan
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Pendidikan Terakhir
                       </label>
                       <select
                         value={ag.pendidikan}
-                        onChange={(e) =>
-                          updateMember(i, "pendidikan", e.target.value)
-                        }
+                        onChange={(e) => updateMember(i, "pendidikan", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
                       >
-                        <option value="" className="bg-white text-slate-800">
-                          Pilih
-                        </option>
-                        <option
-                          value="Tidak/Belum Sekolah"
-                          className="bg-white text-slate-800"
-                        >
-                          Tidak/Belum Sekolah
-                        </option>
-                        <option
-                          value="SD / Sederajat"
-                          className="bg-white text-slate-800"
-                        >
-                          SD / Sederajat
-                        </option>
-                        <option
-                          value="SMP / Sederajat"
-                          className="bg-white text-slate-800"
-                        >
-                          SMP / Sederajat
-                        </option>
-                        <option
-                          value="SMA / Sederajat"
-                          className="bg-white text-slate-800"
-                        >
-                          SMA / Sederajat
-                        </option>
-                        <option
-                          value="Diploma I / II"
-                          className="bg-white text-slate-800"
-                        >
-                          Diploma I / II
-                        </option>
-                        <option
-                          value="Akademi / Diploma III"
-                          className="bg-white text-slate-800"
-                        >
-                          Akademi / Diploma III
-                        </option>
-                        <option
-                          value="Diploma IV / Strata I"
-                          className="bg-white text-slate-800"
-                        >
-                          Diploma IV / Strata I
-                        </option>
-                        <option
-                          value="Strata II"
-                          className="bg-white text-slate-800"
-                        >
-                          Strata II
-                        </option>
-                        <option
-                          value="Strata III"
-                          className="bg-white text-slate-800"
-                        >
-                          Strata III
-                        </option>
+                        <option value="">Pilih Pendidikan</option>
+                        <option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option>
+                        <option value="SD / Sederajat">SD / Sederajat</option>
+                        <option value="SMP / Sederajat">SMP / Sederajat</option>
+                        <option value="SMA / Sederajat">SMA / Sederajat</option>
+                        <option value="Diploma I / II">Diploma I / II</option>
+                        <option value="Akademi / Diploma III">Akademi / Diploma III</option>
+                        <option value="Diploma IV / Strata I">Diploma IV / Strata I</option>
+                        <option value="Strata II">Strata II</option>
+                        <option value="Strata III">Strata III</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
-                        Pekerjaan
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Pekerjaan Utama
                       </label>
                       <input
                         value={ag.pekerjaan}
-                        onChange={(e) =>
-                          updateMember(i, "pekerjaan", e.target.value)
-                        }
+                        onChange={(e) => updateMember(i, "pekerjaan", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-bold text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
                       />
                     </div>
 
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
                         Agama
                       </label>
                       <select
                         value={ag.agama}
-                        onChange={(e) =>
-                          updateMember(i, "agama", e.target.value)
-                        }
+                        onChange={(e) => updateMember(i, "agama", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 md:rounded-2xl font-black text-sky-950 text-xs md:text-sm focus:border-blue-600 focus:bg-white focus:border-blue-500 focus:shadow-md outline-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
                       >
-                        <option value="" className="bg-white text-slate-800">
-                          Pilih
-                        </option>
-                        <option
-                          value="Islam"
-                          className="bg-white text-slate-800"
-                        >
-                          Islam
-                        </option>
-                        <option
-                          value="Kristen"
-                          className="bg-white text-slate-800"
-                        >
-                          Kristen
-                        </option>
-                        <option
-                          value="Katolik"
-                          className="bg-white text-slate-800"
-                        >
-                          Katolik
-                        </option>
-                        <option
-                          value="Hindu"
-                          className="bg-white text-slate-800"
-                        >
-                          Hindu
-                        </option>
-                        <option
-                          value="Budha"
-                          className="bg-white text-slate-800"
-                        >
-                          Budha
-                        </option>
+                        <option value="">Pilih Agama</option>
+                        <option value="Islam">Islam</option>
+                        <option value="Kristen">Kristen</option>
+                        <option value="Katolik">Katolik</option>
+                        <option value="Hindu">Hindu</option>
+                        <option value="Budha">Budha</option>
+                        <option value="Khonghucu">Khonghucu</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 md:mb-3 block">
-                        Bansos
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Status Bansos
                       </label>
                       <select
                         value={ag.bansos}
-                        onChange={(e) =>
-                          updateMember(i, "bansos", e.target.value)
-                        }
+                        onChange={(e) => updateMember(i, "bansos", e.target.value)}
                         disabled={isReadOnly}
-                        className="w-full px-4 md:px-6 py-2.5 md:py-4 bg-blue-500/10 border-2 border-blue-500/20 rounded-xl md:rounded-2xl font-black text-blue-400 text-xs md:text-sm focus:border-blue-600 outline-none transition-all shadow-inner"
+                        className="w-full px-5 py-3.5 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-xl outline-none focus:border-[#67d5ce] transition-all font-black text-[#995500] text-sm shadow-sm"
                       >
-                        <option value="" className="bg-white text-slate-800">
-                          Tidak Ada
-                        </option>
-                        <option value="PKH" className="bg-white text-slate-800">
-                          PKH
-                        </option>
-                        <option
-                          value="BPNT"
-                          className="bg-white text-slate-800"
-                        >
-                          BPNT
-                        </option>
-                        <option value="BLT" className="bg-white text-slate-800">
-                          BLT
-                        </option>
-                        <option
-                          value="BPJS"
-                          className="bg-white text-slate-800"
-                        >
-                          BPJS
-                        </option>
+                        <option value="">Tidak Menerima</option>
+                        <option value="PKH">Penerima PKH</option>
+                        <option value="BPNT">Penerima BPNT</option>
+                        <option value="BLT">Penerima BLT</option>
+                        <option value="BPJS">Penerima BPJS</option>
                       </select>
                     </div>
                   </div>
@@ -1911,33 +1844,24 @@ const FamilyModal = React.memo(function FamilyModal({
           </div>
         </form>
 
-        <div className="bg-white rounded-3xl border border-sky-100 shadow-sm px-6 py-6 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-white border border-sky-100 hover:shadow-md transition-all text-blue-400 rounded-full flex items-center justify-center shadow-inner">
-              <Info size={18} />
-            </div>
-            <p className="text-[9px] font-black text-sky-600 uppercase tracking-widest leading-loose max-w-[300px]">
-              Seluruh data akan disimpan dalam infrastruktur SIAK yang aman.
-            </p>
-          </div>
-          <div className="flex gap-3 w-full sm:w-auto">
+        {/* Footer Actions */}
+        <div className="p-6 md:p-10 bg-[#fdfaf5] border-t border-[#f9d89b]/40 flex items-center justify-between gap-4 shrink-0 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#995500_2px,transparent_2px)] [background-size:12px_12px]"></div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-8 py-4 bg-white border-2 border-[#f9d89b]/40 text-[#995500] rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-50 active:scale-95 transition-all relative z-10 shadow-sm"
+          >
+            Batalkan
+          </button>
+          {!isReadOnly && (
             <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 sm:flex-none px-8 py-3 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-600 font-black text-[10px] uppercase tracking-widest hover:bg-white font-sans"
+              onClick={handleSubmit}
+              className="px-10 py-5 bg-[#67d5ce] text-white rounded-2xl font-black text-[12px] uppercase tracking-[0.1em] shadow-lg shadow-[#67d5ce]/30 hover:bg-[#5bc4bd] hover:shadow-xl transition-all active:scale-[0.98] relative z-10"
             >
-              Batalkan
+              Simpan Data Berkas
             </button>
-            {!isReadOnly && (
-              <button
-                type="submit"
-                onClick={handleSubmit}
-                className="flex-1 sm:flex-none px-10 py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-[0_20px_50px_rgba(37,99,235,0.3)] active:scale-95 flex items-center justify-center gap-2"
-              >
-                <Save size={16} /> Simpan Berkas
-              </button>
-            )}
-          </div>
+          )}
         </div>
       </motion.div>
     </div>
