@@ -1,6 +1,8 @@
 {
   "name": "SIAK MOBILE",
   "description": "Sistem Informasi Administrasi Kependudukan Terpadu (Mobile Only Edition)",
-  "requestFramePermissions": [],
+  "requestFramePermissions": [
+    "microphone"
+  ],
   "majorCapabilities": []
 }

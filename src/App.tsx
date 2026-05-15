@@ -28,7 +28,9 @@ import {
   Loader2,
   Download,
   Baby,
-  Calendar
+  Calendar,
+  Mic,
+  MicOff
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 // @ts-ignore
@@ -67,6 +69,12 @@ export default function App() {
     { id: '1', role: 'assistant', content: "Assalamu'alaikum/Selamat Sejahtera, warga Amaholu Losy! Saya adalah Asisten Digital Dusun. Dengan senang hati saya siap melayani keperluan administrasi Anda. Apa yang bisa saya bantu hari ini?" }
   ]);
   const [input, setInput] = useState('');
+  
+  // Voice Recognition states
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const finalTranscriptRef = useRef('');
+  const [autoSendTrigger, setAutoSendTrigger] = useState('');
 
   const [isMobile, setIsMobile] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -216,6 +224,67 @@ export default function App() {
     }
   }, [messages, isTyping]);
 
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'id-ID';
+
+      recognition.onstart = () => {
+        setIsRecording(true);
+        finalTranscriptRef.current = '';
+      };
+
+      recognition.onresult = (event: any) => {
+        let currentTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          currentTranscript += event.results[i][0].transcript;
+        }
+        setInput(currentTranscript);
+        finalTranscriptRef.current = currentTranscript;
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error', event.error);
+        setIsRecording(false);
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+        if (finalTranscriptRef.current.trim() !== '') {
+          setAutoSendTrigger(finalTranscriptRef.current);
+          finalTranscriptRef.current = '';
+        }
+      };
+
+      recognitionRef.current = recognition;
+    }
+  }, []);
+
+  const toggleRecording = async () => {
+    if (!recognitionRef.current) {
+      alert("Browser Anda tidak mendukung fitur pengenalan suara (Speech Recognition). Silakan gunakan Google Chrome.");
+      return;
+    }
+    
+    if (isRecording) {
+      recognitionRef.current?.stop();
+    } else {
+      try {
+        // Request microphone permission explicitly first
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        setInput('');
+        recognitionRef.current?.start();
+      } catch (err: any) {
+        console.error("Mic access error:", err);
+        alert(`Gagal mengakses mikrofon: ${err.message || 'Izin ditolak atau perangkat tidak ditemukan.'}`);
+        setIsRecording(false);
+      }
+    }
+  };
+
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || isTyping) return;
     
@@ -265,6 +334,13 @@ export default function App() {
       setIsTyping(false);
     }
   };
+
+  useEffect(() => {
+    if (autoSendTrigger) {
+      handleSendMessage(autoSendTrigger);
+      setAutoSendTrigger('');
+    }
+  }, [autoSendTrigger, messages]);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
@@ -445,7 +521,7 @@ export default function App() {
 
             <div className="p-6 bg-white border-t border-slate-100">
               <form 
-                className="flex gap-3"
+                className="flex gap-3 relative"
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (input) {
@@ -453,20 +529,34 @@ export default function App() {
                   }
                 }}
               >
-                <input 
-                  autoComplete="off"
-                  name="message"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  type="text" 
-                  placeholder="Tanyakan sesuatu..."
-                  className="flex-1 bg-slate-100/80 rounded-2xl px-6 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-blue-500/5 focus:bg-white focus:border-blue-500/20 transition-all border-2 border-transparent"
-                  disabled={isTyping}
-                />
+                <div className="flex-1 relative">
+                  <input 
+                    autoComplete="off"
+                    name="message"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    type="text" 
+                    placeholder="Tanyakan sesuatu..."
+                    className="w-full bg-slate-100/80 rounded-2xl pl-6 pr-14 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-blue-500/5 focus:bg-white focus:border-blue-500/20 transition-all border-2 border-transparent"
+                    disabled={isTyping}
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleRecording}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
+                      isRecording 
+                        ? 'bg-red-100 text-red-500 animate-pulse' 
+                        : 'text-slate-400 hover:text-blue-500 hover:bg-blue-50'
+                    }`}
+                    title={isRecording ? "Hentikan merekam" : "Mulai suara"}
+                  >
+                    {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+                  </button>
+                </div>
                 <button 
                   type="submit"
                   disabled={!input.trim() || isTyping}
-                  className="bg-gradient-to-br from-blue-600 to-blue-800 text-white w-14 h-14 rounded-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/30 flex items-center justify-center p-0"
+                  className="bg-gradient-to-br from-blue-600 to-blue-800 text-white w-14 h-14 rounded-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/30 flex items-center justify-center p-0 shrink-0"
                 >
                   <Send size={22} className="relative left-0.5" />
                 </button>
