@@ -2193,7 +2193,7 @@ const StatsModal = React.memo(function StatsModal({
   }, [db]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 no-print">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6 no-print">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -2205,7 +2205,7 @@ const StatsModal = React.memo(function StatsModal({
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100"
+        className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100"
       >
         <div className="bg-white rounded-3xl border border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-4 py-4 md:px-6 md:py-5 flex items-center justify-between border-b-4 relative overflow-hidden shrink-0">
           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
@@ -2217,8 +2217,8 @@ const StatsModal = React.memo(function StatsModal({
               <h3 className="text-sky-950 text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight">
                 Statistik
               </h3>
-              <p className="text-sky-600 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mt-1.5 flex items-center gap-2">
-                <Shield size={10} /> Dasbor Ringkasan Eksekutif v2.0
+              <p className="text-sky-600 text-[8px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.3em] mt-1 flex items-center gap-1.5 md:gap-2">
+                <Shield size={10} className="shrink-0" /> <span className="truncate">Dasbor Ringkasan Eksekutif</span>
               </p>
             </div>
           </div>
@@ -2230,9 +2230,9 @@ const StatsModal = React.memo(function StatsModal({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-10 scrollbar-none bg-white">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 md:space-y-10 scrollbar-none bg-white">
           {/* Executive Overview - Image Match */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {[
               {
                 label: "Penduduk",
@@ -2282,17 +2282,17 @@ const StatsModal = React.memo(function StatsModal({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="p-6 md:p-8 rounded-3xl bg-white border border-sky-100 flex flex-col items-start shadow-sm hover:border-blue-500/30 transition-colors"
+                className="p-4 md:p-6 rounded-3xl bg-white border border-sky-100 flex flex-col items-start shadow-sm hover:border-blue-500/30 transition-colors"
               >
-                <div className={`mb-6 text-2xl`}>
+                <div className={`mb-3 md:mb-4 text-2xl`}>
                   <item.icon size={24} className="text-blue-500 opacity-80" />
                 </div>
-                <p className="text-[10px] font-black text-sky-600 uppercase tracking-widest mb-2 leading-none">
+                <p className="text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1.5 leading-none">
                   {item.label}
                 </p>
-                <h4 className="text-3xl font-black text-sky-950 tracking-tighter flex items-center gap-2">
+                <h4 className="text-2xl md:text-3xl font-black text-sky-950 tracking-tighter flex items-center gap-1.5">
                   {item.value}
-                  <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest mt-2">
+                  <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest mt-1 md:mt-2">
                     Jiwa
                   </span>
                 </h4>
