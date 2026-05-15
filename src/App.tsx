@@ -741,35 +741,37 @@ const LoginView = React.memo(function LoginView({
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-[340px] bg-white rounded-[2.5rem] border border-sky-100 overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.3)] flex flex-col relative z-10"
+        className="w-full max-w-[420px] bg-white rounded-3xl border border-sky-100 overflow-hidden shadow-2xl flex flex-col relative z-10"
       >
-        <div className="w-full p-5 text-sky-950 flex flex-col justify-center bg-white rounded-3xl border border-sky-100 shadow-sm relative overflow-hidden h-[160px]">
-          <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+        <div className="w-full p-6 md:p-8 text-sky-950 flex flex-col justify-center bg-white rounded-t-3xl relative overflow-hidden h-[180px]">
+          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
 
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2 mb-3 shadow-xl relative z-10"
-          >
-            <img
-              src="https://iili.io/BbSYeoB.png"
-              alt="Logo Resmi"
-              className="w-full h-full object-contain"
-              referrerPolicy="no-referrer"
-            />
-          </motion.div>
+          <div className="flex flex-col items-center justify-center text-center relative z-10 h-full">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2 mb-4 shadow-lg border border-sky-50"
+            >
+              <img
+                src="https://iili.io/BbSYeoB.png"
+                alt="Logo Resmi"
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+              />
+            </motion.div>
 
-          <div className="relative z-10">
-            <h1 className="text-xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
-              <span className="text-[#ff8833]">SIAK</span> <span className="text-[#67d5ce]">MOBILE</span>
-            </h1>
-            <p className="text-sky-600 text-[8px] font-bold uppercase tracking-[0.2em] text-blue-700 leading-none">
-              Dusun Amaholu Losy
-            </p>
+            <div>
+              <h1 className="text-2xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
+                <span className="text-[#ff8833]">SIAK</span> <span className="text-[#67d5ce]">MOBILE</span>
+              </h1>
+              <p className="text-sky-600 text-[9px] font-bold uppercase tracking-[0.2em] leading-none">
+                Dusun Amaholu Losy
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="w-full bg-white p-5 md:p-6 flex flex-col justify-center">
+        <div className="w-full bg-white p-6 md:p-8 flex flex-col justify-center">
           <div className="mb-4 text-center sm:text-left">
             <h2 className="text-lg font-black text-sky-950 tracking-tight">
               Masuk Ke Sistem
