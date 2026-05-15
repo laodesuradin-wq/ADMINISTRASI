@@ -1077,7 +1077,7 @@ const DashboardView = React.memo(function DashboardView({
             )}
 
             <div
-              className={`grid ${session.role === "admin" ? "grid-cols-2" : "grid-cols-1"} gap-4 p-2 mb-6 transition-all duration-300 ${adminMenuOpen ? "mt-4" : ""}`}
+              className={`grid grid-cols-3 gap-4 p-2 mb-6 transition-all duration-300 ${adminMenuOpen ? "mt-4" : ""}`}
             >
               {!adminMenuOpen &&
                 [
