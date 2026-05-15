@@ -1467,30 +1467,21 @@ function ArticleModal({ onClose }: { onClose: () => void }) {
 
   const articles = [
     {
-      title: 'Aktivitas dan Dukungan Masyarakat Dusun Amaholu',
+      title: 'Aktivitas Jual Beli Ikan Segar di Pesisir Pantai',
       date: '14 Mei 2026',
       category: 'Dokumentasi',
-      image: 'https://images.unsplash.com/photo-1593113560640-621aa12217c9?auto=format&fit=crop&q=80',
-      desc: 'Momen kebersamaan, aktivitas, dan gotong royong warga masyarakat di Dusun Amaholu Losy.',
-      content: 'Masyarakat Dusun Amaholu Losy senantiasa menunjukkan kebersamaan yang luar biasa dalam setiap aktivitas kemasyarakatan. Semangat gotong royong, keakraban sesama warga, dan partisipasi aktif lintas generasi menjadi corak kehidupan yang terus dijaga.\n\nDalam video dokumentasi ini, kita dapat melihat berbagai potret aktivitas masyarakat Amaholu. Dari kerja sama bahu-membahu dalam kegiatan lingkungan hingga interaksi sosial keseharian yang terekam dengan penuh kehangatan.\n\nKekompakan ini bukan sekadar tradisi, melainkan fondasi keharmonisan masyarakat Dusun Amaholu Losy yang selalu kuat dan tak lekang oleh waktu.',
-      videoId: 'u1EhZBE_OAo'
-    },
-    {
-      title: 'Aktivitas Keseharian Warga Masyarakat Amaholu Losy',
-      date: '14 Mei 2026',
-      category: 'Dokumentasi',
-      image: 'https://images.unsplash.com/photo-1593113560640-621aa12217c9?auto=format&fit=crop&q=80',
-      desc: 'Melihat lebih dekat keseharian dan kehangatan warga masyarakat di Dusun Amaholu Losy.',
-      content: 'Keseharian warga masyarakat Dusun Amaholu Losy selalu diwarnai dengan semangat kebersamaan dan kerja keras. Dalam video ini, terekam berbagai aktivitas rutin warga yang penuh makna dan kesederhanaan.\n\nMulai dari kegiatan gotong royong, berkumpul bersama keluarga, hingga interaksi hangat sesama warga dalam kegiatan sosial maupun rutinitas sehari-hari, memberikan cerminan budaya yang melekat kuat di tengah kemajuan zaman.\n\nKerukunan dan semangat kolaborasi yang ada menjadi dasar kekuatan Dusun Amaholu Losy untuk terus maju, serta menjaga adat dan keharmonisan lingkungan sekitar.',
+      image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80',
+      desc: 'Potret aktivitas jual beli ikan segar hasil tangkapan nelayan di pesisir pantai Dusun Amaholu Losy.',
+      content: 'Pesisir pantai Dusun Amaholu Losy menjadi salah satu pusat perputaran ekonomi warga. Setiap hari, aktivitas jual beli ikan segar hasil tangkapan para nelayan lokal selalu ramai memenuhi pesisir.\n\nPara nelayan yang baru saja bersandar langsung menawarkan hasil tangkapan laut mereka yang masih segar kepada warga maupun pengepul. Suasana tawar-menawar yang hangat dan interaksi akrab antar warga menjadi pemandangan indah yang merepresentasikan denyut nadi kehidupan di wilayah pesisir.\n\nKekayaan laut yang melimpah ini tidak hanya menjadi sumber makanan bagi warga, tetapi juga menjadi penopang kesejahteraan dan mata pencaharian masyarakat. Kelestarian laut pun selalu dijaga agar senantiasa memberikan berkah yang tak terputus bagi warga Dusun Amaholu Losy.',
       videoId: 'QVWtQvqMHLk'
     },
     {
-      title: 'Semarak Kegiatan Masyarakat Dusun Amaholu Losy',
+      title: 'Keseruan Anak-Anak Bermain di Pantai Dusun Amaholu Losy',
       date: '14 Mei 2026',
       category: 'Dokumentasi',
-      image: 'https://images.unsplash.com/photo-1593113560640-621aa12217c9?auto=format&fit=crop&q=80',
-      desc: 'Dokumentasi berbagai kegiatan dan kebersamaan warga masyarakat di Dusun Amaholu Losy.',
-      content: 'Warga Dusun Amaholu Losy selalu antusias dalam mengikuti berbagai kegiatan kemasyarakatan yang diadakan. Semangat gotong royong dan kebersamaan menjadi ciri khas yang lekat dengan kehidupan sehari-hari warga di dusun ini.\n\nKebersamaan tersebut tidak hanya terlihat dalam kegiatan formal, namun juga dalam momen-momen santai antar warga. Partisipasi aktif dari berbagai elemen masyarakat, mulai dari anak-anak, pemuda, hingga para tetua adat dan perangkat dusun, membuat setiap kegiatan terasa lebih bermakna dan meriah.\n\nMelalui dokumentasi video ini, kita dapat melihat secara langsung bagaimana masyarakat Dusun Amaholu Losy saling bersinergi, menjaga tradisi, dan membangun keharmonisan dalam kehidupan bermasyarakat. Tentu diharapkan segala kebaikan ini terus berlanjut di masa depan.',
+      image: 'https://images.unsplash.com/photo-1512100356356-de1b84283e18?auto=format&fit=crop&q=80',
+      desc: 'Kegembiraan dan tawa ceria anak-anak saat bermain di pesisir pantai Dusun Amaholu Losy.',
+      content: 'Pesisir pantai Dusun Amaholu Losy tidak hanya menjadi pusat perputaran ekonomi, tetapi juga menjadi tempat bermain yang menyenangkan bagi anak-anak. Hamparan pasir putih dan deburan ombak menjadi saksi bisu keceriaan mereka setiap sore tiba.\n\nDalam video ini, terekam momen kegembiraan dan tawa lepas anak-anak yang sedang asyik bermain pasir dan berenang di laut. Kesederhanaan dalam bermain tanpa beban ini memancarkan kebahagiaan yang murni dari wajah-wajah polos mereka.\n\nMelihat keseruan ini mengingatkan kita akan keindahan masa kecil yang berharga. Kebersamaan mereka di alam terbuka menjadi salah satu pesona tersendiri dari kehidupan di pesisir Dusun Amaholu Losy yang damai.',
       videoId: '2simRC7OgjE'
     }
   ];
@@ -1537,12 +1528,25 @@ function ArticleModal({ onClose }: { onClose: () => void }) {
                 <h1 className="text-2xl md:text-4xl font-black text-white leading-tight mb-6">{activeArticle.title}</h1>
               </div>
 
-              {activeArticle.videoId ? (
+              {activeArticle.fbLink ? (
+                <div className="w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-white flex justify-center mb-6 py-4">
+                  <iframe 
+                    src={`https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(activeArticle.fbLink)}&show_text=true&width=500`} 
+                    width="500" 
+                    height="600" 
+                    style={{ border: 'none', overflow: 'hidden' }} 
+                    scrolling="no" 
+                    frameBorder="0" 
+                    allowFullScreen={true} 
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  ></iframe>
+                </div>
+              ) : activeArticle.videoId ? (
                 <div className="aspect-video w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black relative shadow-purple-900/20">
                   <iframe 
                     width="100%" 
                     height="100%" 
-                    src={`https://www.youtube.com/embed/${activeArticle.videoId}?autoplay=1&mute=1`}
+                    src={`https://www.youtube.com/embed/${activeArticle.videoId}?autoplay=1&mute=0`}
                     title="YouTube video player" 
                     frameBorder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
@@ -1561,6 +1565,13 @@ function ArticleModal({ onClose }: { onClose: () => void }) {
                 {activeArticle.content.split('\n\n').map((paragraph: string, idx: number) => (
                   <p key={idx} className="text-slate-300 leading-relaxed tracking-wide text-sm md:text-base">{paragraph}</p>
                 ))}
+                {activeArticle.fbLink && (
+                  <div className="pt-4">
+                    <a href={activeArticle.fbLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-3 bg-[#1877F2] hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md text-sm">
+                      Buka di Aplikasi Facebook <ChevronRight size={16} />
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
