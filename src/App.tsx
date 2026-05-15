@@ -1026,48 +1026,50 @@ const DashboardView = React.memo(function DashboardView({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex flex-col h-screen no-print-bg"
+      className="min-h-screen flex items-center justify-center p-4 bg-transparent relative overflow-hidden no-print-bg"
     >
-      <header className="bg-transparent px-4 py-4 flex items-center justify-between sticky top-0 z-40 no-print">
-        <div className="flex items-center gap-3 relative z-10">
-          <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center p-1.5 shadow-lg overflow-hidden">
-            <img
-              src="https://iili.io/BbSYeoB.png"
-              className="w-full h-full object-contain"
-              alt="Logo"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-black text-lg leading-none tracking-tighter uppercase">
-                <span className="text-[#ff8833]">SIAK</span> <span className="text-[#67d5ce]">MOBILE</span>
-              </h1>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="w-full max-w-[420px] bg-white rounded-3xl border border-sky-100 overflow-hidden shadow-2xl flex flex-col relative z-20 h-[85vh] max-h-[850px]"
+      >
+        <div className="w-full px-6 py-6 text-sky-950 flex flex-col justify-center bg-[#f8f8f8] bg-[radial-gradient(#e5e5e5_2px,transparent_2px)] [background-size:12px_12px] relative overflow-hidden shrink-0 border-b border-gray-200 border-dashed">
+          <div className="flex justify-between items-start relative z-10 w-full">
+            <div className="flex flex-col items-center justify-center w-full gap-3">
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center p-2 shadow-sm border border-sky-50">
+                <img
+                  src="https://iili.io/BbSYeoB.png"
+                  className="w-full h-full object-contain"
+                  alt="Logo"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="text-center">
+                <h1 className="text-xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
+                  <span className="text-[#ff8833]">SIAK</span><span className="text-[#67d5ce]">MOBILE</span>
+                </h1>
+                <p className="text-[#995500] text-[8px] font-bold uppercase tracking-[0.2em] leading-none">
+                  Dusun Amaholu Losy
+                </p>
+              </div>
             </div>
-            <div className="inline-block mt-1">
-              <span className="text-[8px] bg-blue-100 text-blue-700 text-sky-950 px-2 py-0.5 rounded-full font-bold uppercase tracking-[0.2em] leading-none">
-                AMAHOLU LOSY
-              </span>
-            </div>
+            
+            <button
+              onClick={onLogout}
+              className="absolute right-0 top-0 w-10 h-10 bg-rose-600 text-white hover:bg-rose-700 rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
 
-        <button
-          onClick={onLogout}
-          className="w-11 h-11 bg-rose-600 hover:bg-rose-700 text-sky-950 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
-        >
-          <LogOut size={20} />
-        </button>
-      </header>
-
-      <div className="flex flex-1 overflow-hidden no-print bg-transparent">
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto scrollbar-none pb-20 px-4">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
+          <div className="flex-1 overflow-y-auto scrollbar-none pb-20 px-4 pt-6">
             {!adminMenuOpen && (
-              <div className="pt-6 pb-4 relative z-10 transition-all duration-300">
-                <div className="container mx-auto text-center">
-                  <p className="text-sky-600 text-[9px] font-bold uppercase tracking-[0.2em] text-blue-700 flex items-center justify-center gap-2 mb-6">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>{" "}
+              <div className="pb-6 relative z-10 transition-all duration-300">
+                <div className="text-center">
+                  <p className="text-[#995500] text-[9px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
                     Sistem Digital Terintegrasi
                   </p>
                 </div>
@@ -1218,170 +1220,162 @@ const DashboardView = React.memo(function DashboardView({
                 </>
               )}
             </div>
-
-            <main className="container mx-auto">
-              <div className="max-w-6xl mx-auto"></div>
-            </main>
-
-            <AnimatePresence>
-              {isDatabaseViewOpen && (
-                <div className="fixed inset-0 z-[120] flex items-center justify-center p-0 no-print">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                    onClick={() => setIsDatabaseViewOpen(false)}
-                  />
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 50 }}
-                    className="relative w-full h-full bg-white rounded-3xl border border-sky-100 shadow-sm overflow-hidden flex flex-col"
-                  >
-                    <div className="bg-sky-50 px-5 py-6 border-b-2 border-blue-600 flex items-center justify-between sticky top-0 z-20 shadow-2xl">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-500 border border-blue-500/20">
-                          <Users size={20} />
-                        </div>
-                        <div>
-                          <h3 className="font-black text-lg text-sky-950 tracking-tight uppercase leading-none">
-                            Database Warga
-                          </h3>
-                          <p className="text-[8px] font-black text-sky-600 uppercase tracking-[0.3em] mt-1.5">
-                            Total: {families.length} Records
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setIsDatabaseViewOpen(false)}
-                        className="w-10 h-10 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 rounded-full flex items-center justify-center active:scale-90 font-bold"
-                      >
-                        <X size={20} />
-                      </button>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-none">
-                      <div className="relative group">
-                        <Search
-                          className="absolute left-5 top-1/2 -translate-y-1/2 text-sky-600"
-                          size={18}
-                        />
-                        <input
-                          type="text"
-                          placeholder="Cari Nama atau No. KK..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="w-full pl-12 pr-6 py-4 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all border-2 outline-none focus:border-blue-500 focus:bg-blue-700 font-bold text-sky-950 placeholder:text-sky-600 text-sm"
-                        />
-                      </div>
-
-                      <div className="space-y-4 pb-10">
-                        {families.map((f, i) => {
-                          const kepalaObj = f.anggota.find(
-                            (a) => a.hubungan === "Kepala Keluarga",
-                          );
-                          return (
-                            <div
-                              key={f.no_kk}
-                              className="bg-white rounded-3xl border border-sky-100 hover:shadow-md transition-all p-5 space-y-4 hover:border-blue-500/50 shadow-black/20"
-                            >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <p className="text-[8px] font-black text-blue-500 uppercase tracking-widest mb-1.5 leading-none">
-                                    Kepala Keluarga
-                                  </p>
-                                  <h4 className="text-sm font-black text-sky-950 uppercase tracking-tight leading-tight">
-                                    {kepalaObj?.nama || "-"}
-                                  </h4>
-                                </div>
-                                <div className="px-2 py-1 bg-white border border-sky-100 shadow-sm hover:shadow-md transition-all rounded-lg text-[8px] font-mono text-sky-600">
-                                  #{i + 1}
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-4 pt-2">
-                                <div>
-                                  <p className="text-[8px] font-black text-sky-600 uppercase tracking-widest mb-1 leading-none">
-                                    No. KK
-                                  </p>
-                                  <p className="text-[10px] font-bold text-sky-600 tracking-wider">
-                                    {f.no_kk}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-[8px] font-black text-sky-600 uppercase tracking-widest mb-1 leading-none">
-                                    Wilayah
-                                  </p>
-                                  <p className="text-[10px] font-bold text-sky-600 truncate">
-                                    {f.alamat} / RT {f.rt_rw}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="flex gap-2 pt-2">
-                                <button
-                                  onClick={() => {
-                                    openEditModal(
-                                      allFamilies.findIndex(
-                                        (it) => it.no_kk === f.no_kk,
-                                      ),
-                                    );
-                                    setIsDatabaseViewOpen(false);
-                                  }}
-                                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all shadow-blue-900/40"
-                                >
-                                  {session.role === "admin"
-                                    ? "Kelola Data"
-                                    : "Detail"}
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    openPrintKK(f);
-                                    setIsDatabaseViewOpen(false);
-                                  }}
-                                  className="w-12 h-11 bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all text-sky-950 flex items-center justify-center active:scale-95"
-                                >
-                                  <Printer size={16} />
-                                </button>
-                                {session.role === "admin" && (
-                                  <button
-                                    onClick={() =>
-                                      onDelete(
-                                        allFamilies.findIndex(
-                                          (it) => it.no_kk === f.no_kk,
-                                        ),
-                                      )
-                                    }
-                                    className="w-12 h-11 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl flex items-center justify-center active:scale-95 transition-all"
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-              )}
-            </AnimatePresence>
           </div>
         </div>
-      </div>
 
-      <footer className="bg-white border-t border-sky-100 shadow-[0_-4px_20px_rgba(14,165,233,0.05)] py-6 px-6 text-center no-print shrink-0">
-        <p className="text-sky-600 text-[8px] md:text-xs font-black uppercase tracking-[0.2em] leading-relaxed">
-          Pemerintah Dusun Amaholu Losy © 2026
-          <br />
-          <span className="opacity-40 tracking-widest">
+        <div className="bg-[#fcfaf5] border-t border-slate-100 py-4 px-6 text-center shrink-0">
+          <p className="text-[#995500] text-[8px] font-bold uppercase tracking-[0.2em] leading-relaxed">
             Sistem Informasi Administrasi Kependudukan
-          </span>
-        </p>
-      </footer>
+          </p>
+        </div>
+
+        <AnimatePresence>
+          {isDatabaseViewOpen && (
+            <div className="absolute inset-0 z-[120] flex items-center justify-center p-0 no-print">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                onClick={() => setIsDatabaseViewOpen(false)}
+              />
+
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                className="relative w-full h-full bg-white rounded-3xl border border-sky-100 shadow-sm overflow-hidden flex flex-col"
+              >
+                <div className="bg-[#fcfaf5] px-5 py-6 border-b border-[#f9d89b] flex items-center justify-between sticky top-0 z-20 shadow-sm relative overflow-hidden">
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-[#f9d89b] flex items-center justify-center text-[#995500]">
+                      <Users size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-lg text-[#995500] tracking-tight uppercase leading-none">
+                        Database Warga
+                      </h3>
+                      <p className="text-[8px] font-black text-[#d38736] uppercase tracking-[0.3em] mt-1.5">
+                        Total: {families.length} Records
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsDatabaseViewOpen(false)}
+                    className="w-10 h-10 bg-white border border-[#f9d89b] shadow-sm hover:bg-[#fcfaf5] transition-all text-[#995500] rounded-full flex items-center justify-center active:scale-90 font-bold relative z-10"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-none bg-[#f8f8f8]">
+                  <div className="relative group">
+                    <Search
+                      className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
+                      size={18}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Cari Nama atau No. KK..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-12 pr-6 py-3.5 bg-white rounded-2xl border border-slate-200 outline-none focus:border-[#d38736] focus:ring-4 ring-[#d38736]/10 font-bold text-[#995500] placeholder:text-slate-400 text-sm transition-all shadow-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-4 pb-10">
+                    {families.map((f, i) => {
+                      const kepalaObj = f.anggota.find(
+                        (a) => a.hubungan === "Kepala Keluarga",
+                      );
+                      return (
+                        <div
+                          key={f.no_kk}
+                          className="bg-white rounded-[1.5rem] border border-slate-200 p-5 space-y-4 hover:border-[#d38736] shadow-sm hover:shadow-md transition-all group"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-[8px] font-black text-[#d38736] uppercase tracking-widest mb-1 leading-none">
+                                Kepala Keluarga
+                              </p>
+                              <h4 className="text-sm font-black text-[#995500] uppercase tracking-tight leading-tight">
+                                {kepalaObj?.nama || "-"}
+                              </h4>
+                            </div>
+                            <div className="px-2 py-1 bg-[#fcfaf5] border border-[#f9d89b] rounded-lg text-[9px] font-black text-[#995500] shadow-sm">
+                              #{i + 1}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4 pt-2">
+                            <div>
+                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">
+                                No. KK
+                              </p>
+                              <p className="text-[11px] font-black text-slate-700 tracking-wider">
+                                {f.no_kk}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">
+                                Wilayah
+                              </p>
+                              <p className="text-[11px] font-black text-slate-700 truncate">
+                                {f.alamat} / RT {f.rt_rw}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2 pt-2">
+                            <button
+                              onClick={() => {
+                                openEditModal(
+                                  allFamilies.findIndex(
+                                    (it) => it.no_kk === f.no_kk,
+                                  ),
+                                );
+                                setIsDatabaseViewOpen(false);
+                              }}
+                              className="flex-1 py-3 bg-[#67d5ce] text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#5bc4bd] active:scale-[0.98] transition-all shadow-sm group-hover:shadow-[0_8px_20px_rgba(103,213,206,0.3)]"
+                            >
+                              {session.role === "admin"
+                                ? "Kelola Data"
+                                : "Detail"}
+                            </button>
+                            <button
+                              onClick={() => {
+                                openPrintKK(f);
+                                setIsDatabaseViewOpen(false);
+                              }}
+                              className="w-[46px] h-[46px] bg-[#fcfaf5] rounded-xl border border-[#f9d89b] text-[#995500] flex items-center justify-center hover:bg-white hover:shadow-md active:scale-95 transition-all outline-none"
+                            >
+                              <Printer size={16} />
+                            </button>
+                            {session.role === "admin" && (
+                              <button
+                                onClick={() =>
+                                  onDelete(
+                                    allFamilies.findIndex(
+                                      (it) => it.no_kk === f.no_kk,
+                                    ),
+                                  )
+                                }
+                                className="w-[46px] h-[46px] bg-rose-50 text-rose-500 rounded-xl border border-rose-100 flex items-center justify-center hover:bg-rose-100 active:scale-95 transition-all outline-none"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </motion.div>
   );
 });
