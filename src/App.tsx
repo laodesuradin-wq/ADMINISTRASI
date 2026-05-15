@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { 
   Users, 
@@ -124,20 +124,20 @@ export default function App() {
     }
   }, [db, isInitialized]);
 
-  const handleLogin = (user: AuthSession) => {
+  const handleLogin = useCallback((user: AuthSession) => {
     setSession(user);
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
     setView('dashboard');
-  };
+  }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     if (window.confirm("Yakin ingin logout?")) {
       setSession(null);
       sessionStorage.removeItem(SESSION_KEY);
       setView('login');
       setActiveModal(null);
     }
-  };
+  }, []);
 
   const filteredFamilies = useMemo(() => {
     if (!session) return [];
@@ -153,13 +153,13 @@ export default function App() {
   }, [db, session, searchTerm]);
 
   // Modals Handler
-  const openEditModal = (index: number) => {
+  const openEditModal = useCallback((index: number) => {
     setEditingIndex(index);
     setCurrentFamily(JSON.parse(JSON.stringify(db[index])));
     setActiveModal('family');
-  };
+  }, [db]);
 
-  const openNewFamilyModal = () => {
+  const openNewFamilyModal = useCallback(() => {
     setEditingIndex(null);
     setCurrentFamily({
       no_kk: '',
@@ -172,26 +172,22 @@ export default function App() {
       anggota: []
     });
     setActiveModal('family');
-  };
+  }, []);
 
-  const saveFamily = (family: Family) => {
-    // Check for duplicate KK if it's a new entry or KK is changed
+  const saveFamily = useCallback((family: Family) => {
     const duplicateKK = db.some((f, idx) => f.no_kk === family.no_kk && idx !== editingIndex);
     if (duplicateKK) return alert("Peringatan Keamanan: Nomor KK ini sudah terdaftar dalam sistem!");
 
-    // Check for duplicate NIK across all families
     const allNiks = db.flatMap((f, idx) => 
       idx === editingIndex ? [] : f.anggota.map(a => a.nik)
     );
     const hasDuplicateNIK = family.anggota.some(a => allNiks.includes(a.nik));
     if (hasDuplicateNIK) return alert("Peringatan Keamanan: Salah satu NIK sudah terdaftar di keluarga lain!");
 
-    // Check for duplicate NIK within the same family
     const familyNiks = family.anggota.map(a => a.nik);
     const hasDuplicateNIKInFamily = familyNiks.some((nik, idx) => familyNiks.indexOf(nik) !== idx);
     if (hasDuplicateNIKInFamily) return alert("Kesalahan Input: Ada NIK ganda dalam satu KK!");
 
-    // Create a trimmed version of the family data
     const trimmedFamily: Family = {
       ...family,
       no_kk: family.no_kk.trim(),
@@ -223,7 +219,7 @@ export default function App() {
       setDb([...db, trimmedFamily]);
     }
     setActiveModal(null);
-  };
+  }, [db, editingIndex]);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -607,7 +603,7 @@ export default function App() {
 
 // --- SUB-VIEWS ---
 
-function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React.Key }) {
+const LoginView = React.memo(function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React.Key }) {
   const [role, setRole] = useState<'warga' | 'admin'>('warga');
   const [noKK, setNoKK] = useState('');
   const [password, setPassword] = useState('');
@@ -792,7 +788,7 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
       </motion.div>
     </motion.div>
   );
-}
+});
 
 const ADMIN_DOC_BUTTONS = [
   { name: "Surat Keterangan Usaha", label: "SK USAHA", sub: "Layanan Usaha", icon: "💼" },
@@ -802,7 +798,7 @@ const ADMIN_DOC_BUTTONS = [
   { name: "Surat Keterangan Domisili", label: "DOMISILI", sub: "Bukti Tinggal", icon: "🏠" }
 ];
 
-function DashboardView({ 
+const DashboardView = React.memo(function DashboardView({ 
   session, 
   families, 
   allFamilies,
@@ -1135,17 +1131,17 @@ function DashboardView({
 
       <footer className="bg-slate-900 border-t border-white/5 py-6 px-6 text-center no-print shrink-0">
         <p className="text-slate-600 text-[8px] md:text-xs font-black uppercase tracking-[0.2em] leading-relaxed">
-          Pemerintah Dusun Amaholu Losy © 2024<br/>
+          Pemerintah Dusun Amaholu Losy © 2026<br/>
           <span className="opacity-40 tracking-widest">Sistem Informasi Administrasi Kependudukan</span>
         </p>
       </footer>
     </motion.div>
   );
-}
+});
 
 // --- MODALS ---
 
-function FamilyModal({ family, session, onSave, onClose }: { family: Family, session: AuthSession, onSave: (f: Family) => void, onClose: () => void }) {
+const FamilyModal = React.memo(function FamilyModal({ family, session, onSave, onClose }: { family: Family, session: AuthSession, onSave: (f: Family) => void, onClose: () => void }) {
   const [data, setData] = useState<Family>(JSON.parse(JSON.stringify(family)));
 
   const addMember = () => {
@@ -1472,7 +1468,7 @@ function FamilyModal({ family, session, onSave, onClose }: { family: Family, ses
       </motion.div>
     </div>
   );
-}
+});
 
 const ARTICLES_DATA = [
   {
@@ -1495,7 +1491,7 @@ const ARTICLES_DATA = [
   }
 ];
 
-function ArticleModal({ onClose }: { onClose: () => void }) {
+const ArticleModal = React.memo(function ArticleModal({ onClose }: { onClose: () => void }) {
   const [activeArticle, setActiveArticle] = useState<any>(null);
 
   return (
@@ -1616,9 +1612,9 @@ function ArticleModal({ onClose }: { onClose: () => void }) {
       </motion.div>
     </div>
   );
-}
+});
 
-function StatsModal({ db, onClose }: { db: Family[], onClose: () => void }) {
+const StatsModal = React.memo(function StatsModal({ db, onClose }: { db: Family[], onClose: () => void }) {
   const stats = useMemo(() => {
     let totalJiwa = 0, l = 0, p = 0, bansos = 0, balita = 0, lansia = 0;
     const distribusiAlamat: Record<string, number> = {};
@@ -1798,9 +1794,9 @@ function StatsModal({ db, onClose }: { db: Family[], onClose: () => void }) {
       </motion.div>
     </div>
   );
-}
+});
 
-function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterType, db: Family[], session: AuthSession, onClose: () => void, onPreview: (d: any) => void }) {
+const LetterModal = React.memo(function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterType, db: Family[], session: AuthSession, onClose: () => void, onPreview: (d: any) => void }) {
   const [targetName, setTargetName] = useState('');
   const [nomorSurat, setNomorSurat] = useState(generateNomorSurat());
   const [usaha, setUsaha] = useState('');
@@ -1921,9 +1917,9 @@ function LetterModal({ type, db, session, onClose, onPreview }: { type: LetterTy
       </motion.div>
     </div>
   );
-}
+});
 
-function PreviewModal({ data, onClose }: { data: any, onClose: () => void }) {
+const PreviewModal = React.memo(function PreviewModal({ data, onClose }: { data: any, onClose: () => void }) {
   const printAreaRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -2114,9 +2110,9 @@ function PreviewModal({ data, onClose }: { data: any, onClose: () => void }) {
       `}</style>
     </div>
   );
-}
+});
 
-function PrintKKModal({ family, onClose }: { family: Family, onClose: () => void }) {
+const PrintKKModal = React.memo(function PrintKKModal({ family, onClose }: { family: Family, onClose: () => void }) {
   const printAreaRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -2314,4 +2310,4 @@ function PrintKKModal({ family, onClose }: { family: Family, onClose: () => void
     </div>
   </div>
 );
-}
+});
