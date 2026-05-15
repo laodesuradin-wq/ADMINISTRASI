@@ -52,6 +52,10 @@ import {
 
 // --- COMPONENTS ---
 
+const INITIAL_MESSAGES = [
+  { id: '1', role: 'assistant', content: "Assalamu'alaikum/Selamat Sejahtera, warga Amaholu Losy! Saya adalah Asisten Digital Sandra. Dengan senang hati saya siap melayani keperluan administrasi Anda. Apa yang bisa saya bantu hari ini?" }
+];
+
 export default function App() {
   const [db, setDb] = useState<Family[]>([]);
   const [session, setSession] = useState<AuthSession | null>(null);
@@ -65,9 +69,7 @@ export default function App() {
   const [printKKData, setPrintKKData] = useState<Family | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState<{ id: string, role: string, content: string }[]>([
-    { id: '1', role: 'assistant', content: "Assalamu'alaikum/Selamat Sejahtera, warga Amaholu Losy! Saya adalah Asisten Digital Dusun. Dengan senang hati saya siap melayani keperluan administrasi Anda. Apa yang bisa saya bantu hari ini?" }
-  ]);
+  const [messages, setMessages] = useState<{ id: string, role: string, content: string }[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   
   // Voice Recognition states
@@ -81,13 +83,20 @@ export default function App() {
 
   // Check for mobile device/screen
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
     const handleResize = () => {
-      // Strictly mobile width (< 640px)
-      setIsMobile(window.innerWidth < 640);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setIsMobile(window.innerWidth < 640);
+      }, 150);
     };
-    handleResize();
+    // Initial check without delay
+    setIsMobile(window.innerWidth < 640);
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Load Initial Data
@@ -225,7 +234,7 @@ export default function App() {
   }, [messages, isTyping]);
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
@@ -785,6 +794,14 @@ function LoginView({ onLogin }: { onLogin: (u: AuthSession) => void, key?: React
   );
 }
 
+const ADMIN_DOC_BUTTONS = [
+  { name: "Surat Keterangan Usaha", label: "SK USAHA", sub: "Layanan Usaha", icon: "💼" },
+  { name: "Surat Keterangan Tidak Mampu", label: "SKTM", sub: "Bantuan Sosial", icon: "🤝" },
+  { name: "Surat Keterangan Pendidikan", label: "SK PENDIDIKAN", sub: "Layanan Siswa", icon: "🎓" },
+  { name: "Surat Keterangan Kematian", label: "AKTA MATI", sub: "Saksi Kematian", icon: "🕊️" },
+  { name: "Surat Keterangan Domisili", label: "DOMISILI", sub: "Bukti Tinggal", icon: "🏠" }
+];
+
 function DashboardView({ 
   session, 
   families, 
@@ -913,10 +930,11 @@ function DashboardView({
                       icon: "📝", 
                       action: () => openNewFamilyModal() 
                     },
-                    { label: "EKSPOR DATA", sub: "EXCEL", icon: "💾", action: () => exportToExcel(), adminOnly: true },
-                    { label: "STATISTIK", sub: "REKAP", icon: "📊", action: () => openStats(), adminOnly: true }
+                    ...(session.role === 'admin' ? [
+                      { label: "EKSPOR DATA", sub: "EXCEL", icon: "💾", action: () => exportToExcel() },
+                      { label: "STATISTIK", sub: "REKAP", icon: "📊", action: () => openStats() }
+                    ] : [])
                   ].map((item, idx) => {
-                    if (item.adminOnly && session.role !== 'admin') return null;
                     return (
                       <div className="relative group col-span-1" key={idx}>
                         <button 
@@ -974,13 +992,7 @@ function DashboardView({
                             className="col-span-full bg-slate-900 border-2 border-[#2a2e3d] rounded-2xl overflow-hidden shadow-inner mt-2"
                           >
                             <div className="p-3 md:p-4 grid grid-cols-2 gap-2 md:gap-3">
-                                {[
-                                  { name: "Surat Keterangan Usaha", label: "SK USAHA", sub: "Layanan Usaha", icon: "💼" },
-                                  { name: "Surat Keterangan Tidak Mampu", label: "SKTM", sub: "Bantuan Sosial", icon: "🤝" },
-                                  { name: "Surat Keterangan Pendidikan", label: "SK PENDIDIKAN", sub: "Layanan Siswa", icon: "🎓" },
-                                  { name: "Surat Keterangan Kematian", label: "AKTA MATI", sub: "Saksi Kematian", icon: "🕊️" },
-                                  { name: "Surat Keterangan Domisili", label: "DOMISILI", sub: "Bukti Tinggal", icon: "🏠" }
-                                ].map((item) => (
+                                {ADMIN_DOC_BUTTONS.map((item) => (
                                 <button 
                                   key={item.name}
                                   onClick={() => { openLetter(item.name as LetterType); setAdminMenuOpen(false); }}
@@ -1462,29 +1474,29 @@ function FamilyModal({ family, session, onSave, onClose }: { family: Family, ses
   );
 }
 
+const ARTICLES_DATA = [
+  {
+    title: 'Aktivitas Jual Beli Ikan Segar di Pesisir Pantai Amaholu Losy',
+    date: '14 Mei 2026',
+    category: 'Dokumentasi',
+    image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80',
+    desc: 'Potret aktivitas jual beli ikan segar hasil tangkapan nelayan di pesisir pantai Dusun Amaholu Losy.',
+    content: 'Pesisir pantai Dusun Amaholu Losy menjadi salah satu pusat perputaran ekonomi warga. Setiap hari, aktivitas jual beli ikan segar hasil tangkapan para nelayan lokal selalu ramai memenuhi pesisir.\n\nPara nelayan yang baru saja bersandar langsung menawarkan hasil tangkapan laut mereka yang masih segar kepada warga maupun pengepul. Suasana tawar-menawar yang hangat dan interaksi akrab antar warga menjadi pemandangan indah yang merepresentasikan denyut nadi kehidupan di wilayah pesisir.\n\nKekayaan laut yang melimpah ini tidak hanya menjadi sumber makanan bagi warga, tetapi juga menjadi penopang kesejahteraan dan mata pencaharian masyarakat. Kelestarian laut pun selalu dijaga agar senantiasa memberikan berkah yang tak terputus bagi warga Dusun Amaholu Losy.',
+    videoId: 'QVWtQvqMHLk'
+  },
+  {
+    title: 'Keseruan Anak-Anak Bermain di Pantai Dusun Amaholu Losy',
+    date: '14 Mei 2026',
+    category: 'Dokumentasi',
+    image: 'https://images.unsplash.com/photo-1512100356356-de1b84283e18?auto=format&fit=crop&q=80',
+    desc: 'Kegembiraan dan tawa ceria anak-anak saat bermain di pesisir pantai Dusun Amaholu Losy.',
+    content: 'Pesisir pantai Dusun Amaholu Losy tidak hanya menjadi pusat perputaran ekonomi, tetapi juga menjadi tempat bermain yang menyenangkan bagi anak-anak. Hamparan pasir putih dan deburan ombak menjadi saksi bisu keceriaan mereka setiap sore tiba.\n\nDalam video ini, terekam momen kegembiraan dan tawa lepas anak-anak yang sedang asyik bermain pasir dan berenang di laut. Kesederhanaan dalam bermain tanpa beban ini memancarkan kebahagiaan yang murni dari wajah-wajah polos mereka.\n\nMelihat keseruan ini mengingatkan kita akan keindahan masa kecil yang berharga. Kebersamaan mereka di alam terbuka menjadi salah satu pesona tersendiri dari kehidupan di pesisir Dusun Amaholu Losy yang damai.',
+    videoId: '2simRC7OgjE'
+  }
+];
+
 function ArticleModal({ onClose }: { onClose: () => void }) {
   const [activeArticle, setActiveArticle] = useState<any>(null);
-
-  const articles = [
-    {
-      title: 'Aktivitas Jual Beli Ikan Segar di Pesisir Pantai',
-      date: '14 Mei 2026',
-      category: 'Dokumentasi',
-      image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80',
-      desc: 'Potret aktivitas jual beli ikan segar hasil tangkapan nelayan di pesisir pantai Dusun Amaholu Losy.',
-      content: 'Pesisir pantai Dusun Amaholu Losy menjadi salah satu pusat perputaran ekonomi warga. Setiap hari, aktivitas jual beli ikan segar hasil tangkapan para nelayan lokal selalu ramai memenuhi pesisir.\n\nPara nelayan yang baru saja bersandar langsung menawarkan hasil tangkapan laut mereka yang masih segar kepada warga maupun pengepul. Suasana tawar-menawar yang hangat dan interaksi akrab antar warga menjadi pemandangan indah yang merepresentasikan denyut nadi kehidupan di wilayah pesisir.\n\nKekayaan laut yang melimpah ini tidak hanya menjadi sumber makanan bagi warga, tetapi juga menjadi penopang kesejahteraan dan mata pencaharian masyarakat. Kelestarian laut pun selalu dijaga agar senantiasa memberikan berkah yang tak terputus bagi warga Dusun Amaholu Losy.',
-      videoId: 'QVWtQvqMHLk'
-    },
-    {
-      title: 'Keseruan Anak-Anak Bermain di Pantai Dusun Amaholu Losy',
-      date: '14 Mei 2026',
-      category: 'Dokumentasi',
-      image: 'https://images.unsplash.com/photo-1512100356356-de1b84283e18?auto=format&fit=crop&q=80',
-      desc: 'Kegembiraan dan tawa ceria anak-anak saat bermain di pesisir pantai Dusun Amaholu Losy.',
-      content: 'Pesisir pantai Dusun Amaholu Losy tidak hanya menjadi pusat perputaran ekonomi, tetapi juga menjadi tempat bermain yang menyenangkan bagi anak-anak. Hamparan pasir putih dan deburan ombak menjadi saksi bisu keceriaan mereka setiap sore tiba.\n\nDalam video ini, terekam momen kegembiraan dan tawa lepas anak-anak yang sedang asyik bermain pasir dan berenang di laut. Kesederhanaan dalam bermain tanpa beban ini memancarkan kebahagiaan yang murni dari wajah-wajah polos mereka.\n\nMelihat keseruan ini mengingatkan kita akan keindahan masa kecil yang berharga. Kebersamaan mereka di alam terbuka menjadi salah satu pesona tersendiri dari kehidupan di pesisir Dusun Amaholu Losy yang damai.',
-      videoId: '2simRC7OgjE'
-    }
-  ];
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4">
@@ -1531,7 +1543,7 @@ function ArticleModal({ onClose }: { onClose: () => void }) {
               {activeArticle.fbLink ? (
                 <div className="w-full rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-white flex justify-center mb-6 py-4">
                   <iframe 
-                    src={`https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(activeArticle.fbLink)}&show_text=true&width=500`} 
+                    src={`https://www.facebook.com/plugins/${activeArticle.fbLink.includes('/v/') || activeArticle.fbLink.includes('/video') ? 'video.php' : 'post.php'}?href=${encodeURIComponent(activeArticle.fbLink)}&show_text=false&width=500`} 
                     width="500" 
                     height="600" 
                     style={{ border: 'none', overflow: 'hidden' }} 
@@ -1576,7 +1588,7 @@ function ArticleModal({ onClose }: { onClose: () => void }) {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              {articles.map((article, idx) => (
+              {ARTICLES_DATA.map((article, idx) => (
                 <button key={idx} onClick={() => setActiveArticle(article)} className="text-left bg-[#1b1e28] border border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden group hover:border-purple-500/30 transition-all flex flex-col shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50">
                    <div className="h-40 md:h-56 overflow-hidden relative w-full">
                      <div className="absolute top-4 left-4 z-10 bg-purple-600 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">

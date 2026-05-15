@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+@keyframes kenburns {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.1) translate(-2%, 2%); }
+  100% { transform: scale(1.05) translate(2%, -2%); }
+}
+
+@keyframes progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.animate-kenburns {
+  animation: kenburns 15s ease-in-out infinite alternate;
+}
+
+.animate-progress {
+  animation: progress 15s linear infinite;
+}
