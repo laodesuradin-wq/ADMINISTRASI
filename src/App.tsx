@@ -183,18 +183,21 @@ export default function App() {
   );
 
   const openNewFamilyModal = useCallback(() => {
-    setEditingIndex(null);
-    setCurrentFamily({
-      no_kk: "",
-      alamat: "Amaholu Losy",
-      rt_rw: "",
-      Desa: "Luhu",
-      Kecamatan: "Huamual",
-      Kabupaten: "Seram Bagian Barat",
-      Provinsi: "Maluku",
-      anggota: [],
+    setActiveModal(prev => {
+      if (prev === "tambah-kk") return null;
+      setEditingIndex(null);
+      setCurrentFamily({
+        no_kk: "",
+        alamat: "Amaholu Losy",
+        rt_rw: "",
+        Desa: "Luhu",
+        Kecamatan: "Huamual",
+        Kabupaten: "Seram Bagian Barat",
+        Provinsi: "Maluku",
+        anggota: [],
+      });
+      return "tambah-kk";
     });
-    setActiveModal("family");
   }, []);
 
   const saveFamily = useCallback(
@@ -423,7 +426,10 @@ export default function App() {
             setSearchTerm={setSearchTerm}
             openEditModal={openEditModal}
             openNewFamilyModal={openNewFamilyModal}
-            openStats={() => setActiveModal("stats")}
+            showTambahKK={activeModal === "tambah-kk"}
+            currentFamily={currentFamily}
+            saveFamily={saveFamily}
+            onCloseTambahKK={() => setActiveModal(null)}
             openArticles={() => setActiveModal("articles")}
             openLetter={(type) => {
               setActiveLetter(type);
@@ -463,10 +469,6 @@ export default function App() {
             onSave={saveFamily}
             onClose={() => setActiveModal(null)}
           />
-        )}
-
-        {activeModal === "stats" && (
-          <StatsModal db={db} onClose={() => setActiveModal(null)} />
         )}
 
         {activeModal === "letter" && activeLetter && (
@@ -961,12 +963,15 @@ const DashboardView = React.memo(function DashboardView({
   setSearchTerm,
   openEditModal,
   openNewFamilyModal,
-  openStats,
   openArticles,
   openLetter,
   openPrintKK,
   onDelete,
   resetDb,
+  showTambahKK,
+  currentFamily,
+  saveFamily,
+  onCloseTambahKK,
 }: {
   session: AuthSession;
   families: Family[];
@@ -976,16 +981,48 @@ const DashboardView = React.memo(function DashboardView({
   setSearchTerm: (s: string) => void;
   openEditModal: (i: number) => void;
   openNewFamilyModal: () => void;
-  openStats: () => void;
   openArticles: () => void;
   openLetter: (t: LetterType) => void;
   openPrintKK: (f: Family) => void;
   onDelete: (i: number) => void;
   resetDb: () => void;
+  showTambahKK: boolean;
+  currentFamily: Family | null;
+  saveFamily: (f: Family) => void;
+  onCloseTambahKK: () => void;
   key?: React.Key;
 }) {
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const [isDatabaseViewOpen, setIsDatabaseViewOpen] = useState(false);
+
+  const dashboardStats = React.useMemo(() => {
+    let totalPenduduk = 0;
+    let totalLakiLaki = 0;
+    let totalPerempuan = 0;
+    let totalBalita = 0;
+    let totalLansia = 0;
+
+    const source = session.role === "admin" ? allFamilies : allFamilies.filter(f => f.no_kk === session.no_kk);
+    const totalKK = source.length;
+    
+    source.forEach(f => {
+      totalPenduduk += f.anggota.length;
+      f.anggota.forEach(a => {
+        const jk = String(a.jk).toLowerCase();
+        if (jk.includes("laki") && !jk.includes("perempuan")) {
+          // just to be robust, but usually it's "Laki-laki"
+        }
+        if (a.jk === "Laki-laki" || jk.includes("laki") && !jk.includes("perempuan")) totalLakiLaki++;
+        if (a.jk === "Perempuan" || jk.includes("perempuan")) totalPerempuan++;
+
+        const age = hitungUmur(a.tgl);
+        if (age <= 5) totalBalita++;
+        if (age >= 60) totalLansia++;
+      });
+    });
+
+    return { totalKK, totalPenduduk, totalLakiLaki, totalPerempuan, totalBalita, totalLansia };
+  }, [allFamilies, session]);
 
   const exportToExcel = () => {
     if (allFamilies.length === 0) return alert("Database kosong.");
@@ -1093,44 +1130,65 @@ const DashboardView = React.memo(function DashboardView({
             <motion.div 
                initial={{ opacity: 0, y: 15 }}
                animate={{ opacity: 1, y: 0 }}
-               className="w-full bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded-2xl p-5 text-white shadow-lg relative overflow-hidden"
+               className="w-full bg-[#f97316] rounded-2xl p-4 text-white shadow-[0_8px_15px_rgba(249,115,22,0.2)] relative overflow-hidden"
             >
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-              <div className="absolute -left-8 -bottom-8 w-24 h-24 bg-black/10 rounded-full blur-2xl"></div>
-              
-              <div className="relative z-10 flex justify-between items-start mb-4">
-                <div>
-                   <div className="flex items-center gap-1.5 opacity-90 mb-1">
-                     <span className="text-xs font-medium">
-                       {session.role === "admin" ? "Total Keluarga Terdaftar" : "Data Keluarga Saya"}
-                     </span>
-                     <Eye size={12} />
-                   </div>
-                   <div className="text-3xl font-bold tracking-tight">
-                     {session.role === "admin" ? allFamilies.length : 1}
-                   </div>
-                </div>
-                <button 
-                  onClick={() => setIsDatabaseViewOpen(true)}
-                  className="flex items-center gap-1 text-[10px] font-semibold bg-black/10 hover:bg-black/20 px-2 py-1.5 rounded-full transition-colors"
-                >
-                  Riwayat <ChevronRight size={10} />
-                </button>
+              {/* Decorative wave background from image reference */}
+              <div className="absolute top-[-30%] right-[-10%] w-[120%] h-[150%] opacity-10 pointer-events-none origin-center rotate-12">
+                 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
+                   <path fill="#ffffff" d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,81.3,-46.3C90.8,-33.5,96.8,-18,97.7,-2.4C98.6,13.2,94.4,28.9,85.1,41.9C75.8,54.9,61.4,65.2,46.1,72.4C30.8,79.6,14.6,83.7,0.4,82.9C-13.8,82.1,-27.6,76.4,-41.2,69.5C-54.8,62.6,-68.2,54.5,-77.2,42.5C-86.2,30.5,-90.8,14.6,-91.5,-1.3C-92.2,-17.2,-89,-33.1,-80.6,-45.5C-72.2,-57.9,-58.6,-66.8,-44.6,-73.9C-30.6,-81,-16.2,-86.3,-1,-84.6C14.2,-82.9,28.4,-74.2,44.7,-76.4Z" transform="translate(100 100)" />
+                 </svg>
               </div>
+              
+              <div className="relative z-10">
+                <div className="flex justify-between items-center mb-3 border-b border-white/20 pb-3">
+                  <div>
+                    <div className="flex items-center gap-1.5 opacity-90">
+                      <span className="text-[11px] font-medium uppercase tracking-wider">Total Penduduk</span>
+                      <Eye size={12} className="opacity-80" />
+                    </div>
+                    <div className="flex items-baseline gap-1 mt-0.5">
+                      <span className="text-2xl font-bold tracking-tight leading-none">{dashboardStats.totalPenduduk}</span>
+                      <span className="text-[10px] font-medium opacity-90">Jiwa</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="opacity-90 text-[11px] font-medium uppercase tracking-wider">Data Keluarga</div>
+                    <div className="flex items-baseline justify-end gap-1 mt-0.5">
+                      <span className="text-xl font-bold tracking-tight leading-none">{dashboardStats.totalKK}</span>
+                      <span className="text-[10px] font-medium opacity-90">KK</span>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="relative z-10 flex border-t border-white/20 pt-4 mt-2">
-                 <div className="flex-1">
-                    <p className="text-[10px] opacity-90 mb-0.5">{session.role === "admin" ? "Total Jiwa" : "Anggota Keluarga"}</p>
-                    <p className="text-sm font-bold">
-                      {session.role === "admin" 
-                        ? allFamilies.reduce((acc, f) => acc + f.anggota.length, 0)
-                        : (allFamilies.find(f => f.no_kk === session.no_kk)?.anggota.length || 0)} Jiwa
-                    </p>
-                 </div>
-                 <div className="flex-1 pl-4 border-l border-white/20">
-                    <p className="text-[10px] opacity-90 mb-0.5">Status</p>
-                    <p className="text-[10px] font-semibold bg-white/20 inline-block px-1.5 py-0.5 rounded leading-none">Terverifikasi</p>
-                 </div>
+                <div className="flex justify-between items-center px-1">
+                  <div className="flex flex-col text-center">
+                    <span className="text-[9px] opacity-90 mb-0.5 uppercase tracking-wide">Laki-laki</span>
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="text-[13px] font-bold">{dashboardStats.totalLakiLaki}</span>
+                    </div>
+                  </div>
+                  <div className="h-6 w-[1px] bg-white/20"></div>
+                  <div className="flex flex-col text-center">
+                    <span className="text-[9px] opacity-90 mb-0.5 uppercase tracking-wide">Perempuan</span>
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="text-[13px] font-bold">{dashboardStats.totalPerempuan}</span>
+                    </div>
+                  </div>
+                  <div className="h-6 w-[1px] bg-white/20"></div>
+                  <div className="flex flex-col text-center">
+                    <span className="text-[9px] opacity-90 mb-0.5 uppercase tracking-wide">Balita</span>
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="text-[13px] font-bold">{dashboardStats.totalBalita}</span>
+                    </div>
+                  </div>
+                  <div className="h-6 w-[1px] bg-white/20"></div>
+                  <div className="flex flex-col text-center">
+                    <span className="text-[9px] opacity-90 mb-0.5 uppercase tracking-wide">Lansia</span>
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="text-[13px] font-bold">{dashboardStats.totalLansia}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
@@ -1142,7 +1200,6 @@ const DashboardView = React.memo(function DashboardView({
                     { label: "Top Up", icon: PlusCircle, iconColor: "text-emerald-500", action: openNewFamilyModal, hide: session.role !== "admin", title: "Tambah KK" },
                     { label: "E-Wallet", icon: FileText, iconColor: "text-blue-500", action: () => session.role === "admin" && setAdminMenuOpen(!adminMenuOpen), title: "Surat" },
                     { label: "Undang", icon: Calendar, iconColor: "text-amber-500", action: openArticles, title: "Kegiatan" },
-                    { label: "Deposito", icon: BarChart3, iconColor: "text-indigo-500", action: openStats, hide: session.role !== "admin", title: "Statistik" },
                     { label: "Tarik Tunai", icon: FileDown, iconColor: "text-rose-500", action: exportToExcel, hide: session.role !== "admin", title: "Ekspor" },
                     { label: "Pinjaman", icon: Shield, iconColor: "text-teal-500", action: () => {}, title: "Pengaturan" },
                     { label: "Lihat Semua", icon: MessageSquare, iconColor: "text-slate-400", action: () => {}, title: "Lihat Semua" }
@@ -1165,6 +1222,18 @@ const DashboardView = React.memo(function DashboardView({
                   ))}
                </div>
             </div>
+
+            <AnimatePresence>
+              {showTambahKK && currentFamily && (
+                <FamilyModal
+                  family={currentFamily}
+                  session={session}
+                  onSave={saveFamily}
+                  onClose={onCloseTambahKK}
+                  inline={true}
+                />
+              )}
+            </AnimatePresence>
 
             {/* Sub Menu / Admin Docs */}
             <AnimatePresence>
@@ -1210,6 +1279,64 @@ const DashboardView = React.memo(function DashboardView({
                )}
             </AnimatePresence>
 
+            {/* Tabel Data Warga */}
+            {session.role === "admin" && !adminMenuOpen && !showTambahKK && (
+                <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col mt-6 relative overflow-hidden">
+                    <div className="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 className="font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                                <Users size={16} className="text-[#f97316]" />
+                                Data Keluarga
+                            </h3>
+                            <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Daftar kartu keluarga dan jumlah anggota</p>
+                        </div>
+                        <div className="bg-[#fcfaf5] px-3 py-1 rounded-full border border-[#f9d89b] text-[11px] font-bold text-[#995500]">
+                            {families.length} KK
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto -mx-4 sm:-mx-5 border-t border-slate-100">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50 border-b border-slate-100">
+                                    <th className="py-3 px-4 sm:px-5 font-semibold text-[10px] uppercase tracking-wider text-slate-400 whitespace-nowrap">No. KK</th>
+                                    <th className="py-3 px-4 sm:px-5 font-semibold text-[10px] uppercase tracking-wider text-slate-400 whitespace-nowrap">Kepala Keluarga</th>
+                                    <th className="py-3 px-4 sm:px-5 font-semibold text-[10px] uppercase tracking-wider text-slate-400 whitespace-nowrap">Anggota</th>
+                                    <th className="py-3 px-4 sm:px-5 font-semibold text-[10px] uppercase tracking-wider text-slate-400 whitespace-nowrap">Wilayah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {families.length > 0 ? families.map((f, i) => {
+                                    const kepalaObj = f.anggota.find(a => a.hubungan === "Kepala Keluarga");
+                                    return (
+                                        <tr key={f.no_kk} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
+                                            <td className="py-3 px-4 sm:px-5 text-xs font-semibold text-slate-600 whitespace-nowrap">
+                                                {f.no_kk}
+                                            </td>
+                                            <td className="py-3 px-4 sm:px-5 text-sm font-bold text-slate-800 whitespace-nowrap">
+                                                {kepalaObj?.nama || "-"}
+                                            </td>
+                                            <td className="py-3 px-4 sm:px-5 text-xs font-medium text-slate-600 whitespace-nowrap">
+                                                {f.anggota.length} <span className="opacity-70 font-normal">Jiwa</span>
+                                            </td>
+                                            <td className="py-3 px-4 sm:px-5 text-xs text-slate-600 whitespace-nowrap">
+                                                RT {f.rt_rw}
+                                            </td>
+                                        </tr>
+                                    );
+                                }) : (
+                                    <tr>
+                                        <td colSpan={4} className="py-8 text-center text-sm text-slate-500 font-medium">
+                                            Tidak ada data keluarga ditemukan.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
             <div className="pb-8"></div>
           </div>
         </div>
@@ -1237,44 +1364,44 @@ const DashboardView = React.memo(function DashboardView({
                 exit={{ opacity: 0, y: 50 }}
                 className="relative w-full h-full bg-white rounded-3xl border border-sky-100 shadow-sm overflow-hidden flex flex-col"
               >
-                <div className="bg-[#fcfaf5] px-5 py-6 border-b border-[#f9d89b] flex items-center justify-between sticky top-0 z-20 shadow-sm relative overflow-hidden">
-                  <div className="flex items-center gap-4 relative z-10">
-                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-[#f9d89b] flex items-center justify-center text-[#995500]">
-                      <Users size={20} />
+                <div className="bg-[#fcfaf5] px-4 py-4 border-b border-[#f9d89b] flex items-center justify-between sticky top-0 z-20 shadow-sm relative overflow-hidden">
+                  <div className="flex items-center gap-3 relative z-10">
+                    <div className="w-8 h-8 bg-white rounded-xl shadow-sm border border-[#f9d89b] flex items-center justify-center text-[#995500]">
+                      <Users size={16} />
                     </div>
                     <div>
-                      <h3 className="font-black text-lg text-[#995500] tracking-tight uppercase leading-none">
+                      <h3 className="font-black text-[15px] text-[#995500] tracking-tight uppercase leading-none">
                         Database Warga
                       </h3>
-                      <p className="text-[8px] font-black text-[#d38736] uppercase tracking-[0.3em] mt-1.5">
+                      <p className="text-[7px] font-black text-[#d38736] uppercase tracking-[0.3em] mt-1.5">
                         Total: {families.length} Records
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => setIsDatabaseViewOpen(false)}
-                    className="w-10 h-10 bg-white border border-[#f9d89b] shadow-sm hover:bg-[#fcfaf5] transition-all text-[#995500] rounded-full flex items-center justify-center active:scale-90 font-bold relative z-10"
+                    className="w-8 h-8 bg-white border border-[#f9d89b] shadow-sm hover:bg-[#fcfaf5] transition-all text-[#995500] rounded-full flex items-center justify-center active:scale-90 font-bold relative z-10"
                   >
-                    <X size={20} />
+                    <X size={16} />
                   </button>
                 </div>
 
-                <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-6 scrollbar-none bg-[#f8f8f8]">
+                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 scrollbar-none bg-[#f8f8f8]">
                   <div className="relative group">
                     <Search
-                      className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
-                      size={18}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      size={16}
                     />
                     <input
                       type="text"
                       placeholder="Cari NIK atau Nama Kepala Keluarga..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-12 pr-6 py-4 bg-white rounded-[1.25rem] border-2 border-slate-100 outline-none focus:border-[#67d5ce] focus:ring-4 ring-[#67d5ce]/5 font-black text-[#995500] placeholder:text-slate-300 text-sm transition-all shadow-sm group-hover:shadow-md"
+                      className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl border-2 border-slate-100 outline-none focus:border-[#67d5ce] focus:ring-4 ring-[#67d5ce]/5 font-bold text-[#995500] placeholder:text-slate-300 text-xs transition-all shadow-sm group-hover:shadow-md"
                     />
                   </div>
 
-                  <div className="space-y-4 pb-14">
+                  <div className="space-y-3 pb-8">
                     {families.length > 0 ? (
                       families.map((f, i) => {
                         const kepalaObj = f.anggota.find(
@@ -1286,47 +1413,47 @@ const DashboardView = React.memo(function DashboardView({
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: i * 0.03 }}
-                            className="bg-white rounded-[1.75rem] border border-slate-200 p-5 space-y-4 hover:border-[#67d5ce] shadow-[0_4px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] transition-all group relative overflow-hidden"
+                            className="bg-white rounded-[1rem] border border-slate-200 p-3 space-y-2 hover:border-[#67d5ce] shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-sm transition-all group relative overflow-hidden"
                           >
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#67d5ce]/5 to-transparent rounded-bl-full pointer-events-none transition-all group-hover:scale-150 group-hover:opacity-100 opacity-0"></div>
+                            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[#67d5ce]/5 to-transparent rounded-bl-full pointer-events-none transition-all group-hover:scale-150 group-hover:opacity-100 opacity-0"></div>
                             
                             <div className="flex justify-between items-start relative z-10">
-                              <div className="space-y-1">
+                              <div className="space-y-0.5">
                                 <div className="flex items-center gap-1.5">
                                   <div className="w-1.5 h-1.5 bg-[#d38736] rounded-full"></div>
-                                  <p className="text-[9px] font-black text-[#d38736] uppercase tracking-widest leading-none">
+                                  <p className="text-[8px] font-black text-[#d38736] uppercase tracking-widest leading-none">
                                     Kepala Keluarga
                                   </p>
                                 </div>
-                                <h4 className="text-base font-black text-[#995500] uppercase tracking-tight leading-tight">
+                                <h4 className="text-sm font-black text-[#995500] uppercase tracking-tight leading-tight">
                                   {kepalaObj?.nama || "-"}
                                 </h4>
                               </div>
-                              <div className="px-3 py-1.5 bg-[#fdfaf5] border border-[#f9d89b]/40 rounded-xl text-[10px] font-black text-[#995500] shadow-sm">
+                              <div className="px-2 py-1 bg-[#fdfaf5] border border-[#f9d89b]/40 rounded-lg text-[9px] font-black text-[#995500] shadow-sm">
                                 #{i + 1}
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 pt-2 relative z-10">
-                              <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 group-hover:bg-white transition-colors">
-                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1 leading-none">
+                            <div className="grid grid-cols-2 gap-2 pt-1 relative z-10">
+                              <div className="p-2 bg-slate-50/50 rounded-xl border border-slate-100 group-hover:bg-white transition-colors">
+                                <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mb-1 leading-none">
                                   No. KK
                                 </p>
-                                <p className="text-[11px] font-black text-slate-700 tracking-wider">
+                                <p className="text-[10px] font-black text-slate-700 tracking-wider">
                                   {f.no_kk}
                                 </p>
                               </div>
-                              <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 group-hover:bg-white transition-colors">
-                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1 leading-none">
+                              <div className="p-2 bg-slate-50/50 rounded-xl border border-slate-100 group-hover:bg-white transition-colors">
+                                <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mb-1 leading-none">
                                   Wilayah
                                 </p>
-                                <p className="text-[11px] font-black text-slate-700 truncate">
+                                <p className="text-[10px] font-black text-slate-700 truncate">
                                   RT {f.rt_rw}
                                 </p>
                               </div>
                             </div>
 
-                            <div className="flex gap-2.5 pt-2 relative z-10">
+                            <div className="flex gap-2 pt-1 relative z-10">
                               <button
                                 onClick={() => {
                                   openEditModal(
@@ -1336,7 +1463,7 @@ const DashboardView = React.memo(function DashboardView({
                                   );
                                   setIsDatabaseViewOpen(false);
                                 }}
-                                className="flex-1 py-3.5 bg-[#67d5ce] text-white rounded-[1.25rem] font-black text-[10px] uppercase tracking-widest hover:bg-[#5bc4bd] active:scale-[0.98] transition-all shadow-lg shadow-[#67d5ce]/20 hover:shadow-[#67d5ce]/40"
+                                className="flex-1 py-2 bg-[#67d5ce] text-white rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-[#5bc4bd] active:scale-[0.98] transition-all shadow-md shadow-[#67d5ce]/20 hover:shadow-[#67d5ce]/40"
                               >
                                 {session.role === "admin"
                                   ? "Kelola Database"
@@ -1348,9 +1475,9 @@ const DashboardView = React.memo(function DashboardView({
                                     openPrintKK(f);
                                     setIsDatabaseViewOpen(false);
                                   }}
-                                  className="w-[50px] h-[50px] bg-white rounded-2xl border border-slate-200 text-slate-600 flex items-center justify-center hover:text-[#67d5ce] hover:border-[#67d5ce] hover:shadow-md active:scale-95 transition-all outline-none"
+                                  className="w-[32px] h-[32px] bg-white rounded-lg border border-slate-200 text-slate-600 flex items-center justify-center hover:text-[#67d5ce] hover:border-[#67d5ce] hover:shadow-sm active:scale-95 transition-all outline-none"
                                 >
-                                  <Printer size={18} strokeWidth={2.5} />
+                                  <Printer size={14} strokeWidth={2.5} />
                                 </button>
                                 {session.role === "admin" && (
                                   <button
@@ -1361,9 +1488,9 @@ const DashboardView = React.memo(function DashboardView({
                                         ),
                                       )
                                     }
-                                    className="w-[50px] h-[50px] bg-rose-50 text-rose-500 rounded-2xl border border-rose-100 flex items-center justify-center hover:bg-rose-500 hover:text-white hover:border-rose-500 active:scale-95 transition-all outline-none"
+                                    className="w-[32px] h-[32px] bg-rose-50 text-rose-500 rounded-lg border border-rose-100 flex items-center justify-center hover:bg-rose-500 hover:text-white hover:border-rose-500 active:scale-95 transition-all outline-none"
                                   >
-                                    <Trash2 size={18} strokeWidth={2.5} />
+                                    <Trash2 size={14} strokeWidth={2.5} />
                                   </button>
                                 )}
                               </div>
@@ -1398,11 +1525,13 @@ const FamilyModal = React.memo(function FamilyModal({
   session,
   onSave,
   onClose,
+  inline = false,
 }: {
   family: Family;
   session: AuthSession;
   onSave: (f: Family) => void;
   onClose: () => void;
+  inline?: boolean;
 }) {
   const [data, setData] = useState<Family>(JSON.parse(JSON.stringify(family)));
 
@@ -1481,20 +1610,22 @@ const FamilyModal = React.memo(function FamilyModal({
   const isReadOnly = session.role === "warga" && family.no_kk !== "";
 
   return (
-    <div className="fixed inset-0 z-[100] flex sm:items-center justify-center p-0 pt-8 sm:p-6 no-print">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <div className={inline ? "w-full no-print mt-4" : "fixed inset-0 z-[100] flex sm:items-center justify-center p-0 pt-8 sm:p-6 no-print"}>
+      {!inline && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+          onClick={onClose}
+        />
+      )}
 
       <motion.div
-        initial={{ scale: 0.95, opacity: 0, y: 30 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.95, opacity: 0, y: 30 }}
-        className="relative w-full h-full sm:h-auto max-w-5xl sm:max-h-[92vh] bg-white rounded-t-3xl sm:rounded-3xl shadow-[0_32px_80px_-20px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col sm:border border-slate-200"
+        initial={inline ? { height: 0, opacity: 0 } : { scale: 0.95, opacity: 0, y: 30 }}
+        animate={inline ? { height: "auto", opacity: 1 } : { scale: 1, opacity: 1, y: 0 }}
+        exit={inline ? { height: 0, opacity: 0 } : { scale: 0.95, opacity: 0, y: 30 }}
+        className={`relative w-full overflow-hidden flex flex-col bg-white ${inline ? "rounded-2xl border border-sky-100 shadow-sm" : "h-full sm:h-auto max-w-5xl sm:max-h-[92vh] rounded-t-3xl sm:rounded-3xl shadow-[0_32px_80px_-20px_rgba(0,0,0,0.15)] sm:border border-slate-200"}`}
       >
         <div className="bg-slate-50 border-b border-slate-200 px-6 py-5 md:px-10 md:py-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4 relative z-10 w-full">
