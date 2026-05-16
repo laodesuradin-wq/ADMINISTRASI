@@ -1044,14 +1044,14 @@ const DashboardView = React.memo(function DashboardView({
         transition={{ type: "spring", damping: 25, stiffness: 100 }}
         className="w-full max-w-[440px] md:max-w-4xl lg:max-w-6xl bg-white rounded-[2.5rem] md:rounded-3xl border border-sky-100 overflow-hidden shadow-2xl flex flex-col relative z-20 min-h-[90vh] md:h-auto"
       >
-        <div className="w-full px-8 py-8 text-sky-950 flex flex-col justify-center bg-[#fdfaf5] bg-[radial-gradient(#e5e5e5_2px,transparent_2px)] [background-size:16px_16px] relative overflow-hidden shrink-0 border-b border-gray-100 border-dashed">
+        <div className="w-full px-5 py-4 sm:px-6 sm:py-5 text-sky-950 flex flex-col justify-center bg-[#fdfaf5] bg-[radial-gradient(#e5e5e5_2px,transparent_2px)] [background-size:16px_16px] relative overflow-hidden shrink-0 border-b border-gray-100 border-dashed">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/60"></div>
-          <div className="flex justify-between items-start relative z-10 w-full pt-2">
-            <div className="flex flex-col items-center justify-center w-full gap-4">
+          <div className="flex justify-between items-center relative z-10 w-full pt-1">
+            <div className="flex flex-row items-center justify-start w-full gap-3">
               <motion.div 
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="w-16 h-16 bg-white rounded-[1.5rem] flex items-center justify-center p-3 shadow-[0_8px_20px_rgba(0,0,0,0.05)] border border-sky-50"
+                className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2 shadow-[0_8px_20px_rgba(0,0,0,0.05)] border border-sky-50 shrink-0"
               >
                 <img
                   src="https://iili.io/BbSYeoB.png"
@@ -1060,12 +1060,12 @@ const DashboardView = React.memo(function DashboardView({
                   referrerPolicy="no-referrer"
                 />
               </motion.div>
-              <div className="text-center">
-                <h1 className="text-2xl font-black leading-tight mb-0.5 tracking-tighter uppercase font-sans">
-                  <span className="text-[#ff8833]">SIAK</span><span className="text-[#67d5ce]">DIGITAL</span>
+              <div className="text-left flex flex-col justify-center">
+                <h1 className="text-lg md:text-xl font-black leading-tight mb-0.5 tracking-tighter uppercase font-sans">
+                  <span className="text-[#ff8833]">SIAK</span> <span className="text-[#67d5ce]">MOBILE</span>
                 </h1>
-                <div className="inline-flex items-center px-2 py-0.5 bg-[#995500]/5 rounded-full">
-                  <p className="text-[#995500] text-[8px] font-black uppercase tracking-[0.2em] leading-none">
+                <div className="inline-flex items-center">
+                  <p className="text-[#995500] text-[7px] md:text-[8px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] leading-none">
                     Dusun Amaholu Losy
                   </p>
                 </div>
@@ -1074,9 +1074,9 @@ const DashboardView = React.memo(function DashboardView({
             
             <button
               onClick={onLogout}
-              className="absolute right-0 top-0 w-11 h-11 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition-all border border-rose-100"
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-xl flex items-center justify-center shadow-sm active:scale-90 transition-all border border-rose-100"
             >
-              <LogOut size={18} strokeWidth={2.5} />
+              <LogOut size={16} strokeWidth={2.5} />
             </button>
           </div>
         </div>
@@ -1172,25 +1172,27 @@ const DashboardView = React.memo(function DashboardView({
               {/* Administrasi Digital Surat & Artikel Section */}
               {session.role === "admin" && (
                 <>
-                  <div
-                    className={`${adminMenuOpen ? "col-span-full" : "col-span-1"} relative group`}
-                  >
-                    <button
-                      onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                      className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-2 active:scale-95 relative`}
+                  {!adminMenuOpen && (
+                    <div
+                      className="col-span-1 relative group"
                     >
-                      <div
-                        className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] flex items-center justify-center text-3xl md:text-4xl transition-transform ${adminMenuOpen ? "bg-[#67d5ce]/80 scale-110" : "bg-[#67d5ce] text-white shadow-lg hover:shadow-xl transition-all"}`}
+                      <button
+                        onClick={() => setAdminMenuOpen(true)}
+                        className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-2 active:scale-95 relative`}
                       >
-                        📄
-                      </div>
-                      <div className="text-center mt-1">
-                        <span className="block text-xs md:text-sm font-black text-[#331c00]">
-                          Digital Surat
-                        </span>
-                      </div>
-                    </button>
-                  </div>
+                        <div
+                          className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] flex items-center justify-center text-3xl md:text-4xl transition-transform bg-[#67d5ce] text-white shadow-lg hover:shadow-xl`}
+                        >
+                          📄
+                        </div>
+                        <div className="text-center mt-1">
+                          <span className="block text-[10px] md:text-[11px] font-black text-[#995500] uppercase tracking-tight leading-tight">
+                            Digital Surat
+                          </span>
+                        </div>
+                      </button>
+                    </div>
+                  )}
 
                   {!adminMenuOpen && (
                     <div className="col-span-1 relative group">
@@ -1204,7 +1206,7 @@ const DashboardView = React.memo(function DashboardView({
                           📰
                         </div>
                         <div className="text-center mt-1">
-                          <span className="block text-xs md:text-sm font-black text-[#331c00]">
+                          <span className="block text-[10px] md:text-[11px] font-black text-[#995500] uppercase tracking-tight leading-tight">
                             Kegiatan
                           </span>
                         </div>
@@ -1218,8 +1220,17 @@ const DashboardView = React.memo(function DashboardView({
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="col-span-full bg-white rounded-3xl border border-sky-100 border-2 overflow-hidden shadow-inner mt-2"
+                        className="col-span-full bg-white rounded-3xl border border-sky-100 border-2 overflow-hidden shadow-inner mt-2 flex flex-col"
                       >
+                        <div className="p-3 bg-sky-50/50 border-b border-sky-100 flex items-center justify-between">
+                          <h3 className="text-xs font-bold text-sky-900 uppercase tracking-widest pl-2">Menu Surat</h3>
+                          <button 
+                            onClick={() => setAdminMenuOpen(false)}
+                            className="bg-white hover:bg-rose-50 text-sky-900 hover:text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-colors border border-sky-100 hover:border-rose-200"
+                          >
+                            Kembali
+                          </button>
+                        </div>
                         <div className="p-3 md:p-4 grid grid-cols-3 gap-2 md:gap-3">
                           {ADMIN_DOC_BUTTONS.map((item) => (
                             <button
