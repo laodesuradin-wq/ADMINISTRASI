@@ -730,7 +730,7 @@ const LoginView = React.memo(function LoginView({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex items-center justify-center p-4 bg-transparent relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center p-2 sm:p-4 bg-transparent relative overflow-hidden"
     >
       {/* Official background architecture */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -743,16 +743,16 @@ const LoginView = React.memo(function LoginView({
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", damping: 25, stiffness: 120 }}
-        className="w-full max-w-[440px] bg-white rounded-[2.5rem] border border-sky-100 overflow-hidden shadow-[0_32px_64px_-16px_rgba(153,85,0,0.15)] flex flex-col relative z-10"
+        className="w-[94%] sm:w-full max-w-[340px] bg-white rounded-[1.75rem] sm:rounded-[2.5rem] border border-sky-100 overflow-hidden shadow-[0_32px_64px_-16px_rgba(153,85,0,0.15)] flex flex-col relative z-10"
       >
-        <div className="w-full p-8 text-sky-950 flex flex-col justify-center bg-[#fdfaf5] bg-[radial-gradient(#e5e5e5_1.5px,transparent_1.5px)] [background-size:16px_16px] relative overflow-hidden h-[200px] border-b border-gray-100 border-dashed">
+        <div className="w-full p-4 md:p-6 text-sky-950 flex flex-col justify-center bg-[#fdfaf5] bg-[radial-gradient(#e5e5e5_1.5px,transparent_1.5px)] [background-size:16px_16px] relative overflow-hidden h-[160px] border-b border-gray-100 border-dashed">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50"></div>
           <div className="flex flex-col items-center justify-center text-center relative z-10 h-full">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center p-3 mb-5 shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-sky-50"
+              className="w-16 h-16 bg-white rounded-[1.25rem] flex items-center justify-center p-2 mb-3 shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-sky-50"
             >
               <img
                 src="https://iili.io/BbSYeoB.png"
@@ -763,34 +763,34 @@ const LoginView = React.memo(function LoginView({
             </motion.div>
 
             <div>
-              <h1 className="text-3xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
-                <span className="text-[#ff8833]">SIAK</span><span className="text-[#67d5ce]">MOBILE</span>
+              <h1 className="text-xl md:text-2xl font-black leading-tight mb-1 tracking-tighter uppercase font-sans">
+                <span className="text-[#ff8833]">SIAK</span><span className="text-[#67d5ce]">DIGITAL</span>
               </h1>
-              <p className="text-[#995500] text-[10px] font-black uppercase tracking-[0.3em] leading-none opacity-80">
+              <p className="text-[#995500] text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] leading-none opacity-80">
                 Dusun Amaholu Losy
               </p>
             </div>
           </div>
         </div>
 
-        <div className="w-full bg-white p-8 md:p-10 flex flex-col justify-center">
-          <div className="mb-6 text-center sm:text-left">
-            <h2 className="text-xl font-extrabold text-sky-950 tracking-tight">
+        <div className="w-full bg-white p-5 md:p-8 flex flex-col justify-center">
+          <div className="mb-5 text-center sm:text-left">
+            <h2 className="text-lg font-extrabold text-sky-950 tracking-tight">
               Masuk Ke Sistem
             </h2>
-            <p className="text-slate-500 text-xs mt-1 font-medium italic">Silahkan pilih metode masuk Anda</p>
+            <p className="text-slate-500 text-[11px] mt-1 font-medium italic">Silahkan pilih metode masuk Anda</p>
           </div>
 
-          <div className="p-1.5 bg-[#fdfaf5] border border-orange-100/50 rounded-[1.25rem] flex gap-1 mb-8">
+          <div className="p-1 sm:p-1.5 bg-[#fdfaf5] border border-orange-100/50 rounded-xl flex gap-1 mb-6">
             <button
               onClick={() => setRole("warga")}
-              className={`flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.1em] transition-all relative group overflow-hidden ${role === "warga" ? "bg-white text-[#67d5ce] shadow-[0_4px_12px_rgba(0,0,0,0.05)] border-b-2 border-[#67d5ce]/10" : "text-[#995500]/60 hover:text-[#995500]"}`}
+              className={`flex-1 py-2.5 px-1 sm:px-2 rounded-lg font-black text-[9px] sm:text-[10px] uppercase tracking-wider transition-all relative group overflow-hidden ${role === "warga" ? "bg-white text-[#67d5ce] shadow-[0_4px_12px_rgba(0,0,0,0.05)] border-b-2 border-[#67d5ce]/10" : "text-[#995500]/60 hover:text-[#995500]"}`}
             >
               Login Warga
             </button>
             <button
               onClick={() => setRole("admin")}
-              className={`flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.1em] transition-all relative group overflow-hidden ${role === "admin" ? "bg-white text-[#67d5ce] shadow-[0_4px_12px_rgba(0,0,0,0.05)] border-b-2 border-[#67d5ce]/10" : "text-[#995500]/60 hover:text-[#995500]"}`}
+              className={`flex-1 py-2.5 px-1 sm:px-2 rounded-lg font-black text-[9px] sm:text-[10px] uppercase tracking-wider transition-all relative group overflow-hidden ${role === "admin" ? "bg-white text-[#67d5ce] shadow-[0_4px_12px_rgba(0,0,0,0.05)] border-b-2 border-[#67d5ce]/10" : "text-[#995500]/60 hover:text-[#995500]"}`}
             >
               Login Admin
             </button>
@@ -800,28 +800,28 @@ const LoginView = React.memo(function LoginView({
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mb-6 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-black uppercase tracking-wider rounded-xl flex items-center gap-3 shadow-sm"
+              className="mb-5 p-2.5 bg-rose-50 border border-rose-100 text-rose-600 text-[9px] font-black uppercase tracking-wider rounded-lg flex items-center gap-2 shadow-sm"
             >
-              <X size={14} className="shrink-0" /> <span>{error}</span>
+              <X size={12} className="shrink-0" /> <span>{error}</span>
             </motion.div>
           )}
 
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
+          <form onSubmit={handleLoginSubmit} className="space-y-3">
             {role === "warga" ? (
               <>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-2">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-2">
                     Nomor Kartu Keluarga (KK)
                   </label>
                   <div className="relative group">
                     <Users
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
-                      size={18}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
+                      size={16}
                     />
                     <input
                       type="text"
                       placeholder="16-digit kode KK"
-                      className="w-full pl-11 pr-4 py-4 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
+                      className="w-full pl-10 pr-3 py-3 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-[13px] text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
                       value={noKK}
                       onChange={(e) => {
                         const val = e.target.value
@@ -833,19 +833,19 @@ const LoginView = React.memo(function LoginView({
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-2">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-2">
                     Kunci Pribadi (NIK)
                   </label>
                   <div className="relative group">
                     <Shield
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
-                      size={18}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
+                      size={16}
                     />
                     <input
                       type="password"
                       placeholder="NIK Kepala Keluarga"
-                      className="w-full pl-11 pr-4 py-4 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
+                      className="w-full pl-10 pr-3 py-3 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-[13px] text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
                       value={password}
                       onChange={(e) => {
                         const val = e.target.value
@@ -860,38 +860,38 @@ const LoginView = React.memo(function LoginView({
               </>
             ) : (
               <>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-2">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-2">
                     Identitas Otoritas
                   </label>
                   <div className="relative group">
                     <UserIcon
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
-                      size={18}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
+                      size={16}
                     />
                     <input
                       type="email"
                       placeholder="Email Kedinasan Resmi"
-                      className="w-full pl-11 pr-4 py-4 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
+                      className="w-full pl-10 pr-3 py-3 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-[13px] text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-2">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-2">
                     Kunci Akses Sistem
                   </label>
                   <div className="relative group">
                     <Shield
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
-                      size={18}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
+                      size={16}
                     />
                     <input
                       type="password"
                       placeholder="Masukkan kunci administrator"
-                      className="w-full pl-11 pr-4 py-4 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
+                      className="w-full pl-10 pr-3 py-3 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-[13px] text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
                       value={adminPass}
                       onChange={(e) => setAdminPass(e.target.value)}
                       required
@@ -903,7 +903,7 @@ const LoginView = React.memo(function LoginView({
 
             <button
               type="submit"
-              className="w-full py-4 mt-2 bg-[#67d5ce] text-white rounded-2xl font-black text-[13px] uppercase tracking-widest shadow-lg shadow-[#67d5ce]/30 hover:bg-[#5bc4bd] hover:shadow-xl transition-all active:scale-[0.98]"
+              className="w-full py-3.5 mt-1 bg-[#67d5ce] text-white rounded-xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[#67d5ce]/30 hover:bg-[#5bc4bd] hover:shadow-xl transition-all active:scale-[0.98]"
             >
               Masuk
             </button>
@@ -1042,7 +1042,7 @@ const DashboardView = React.memo(function DashboardView({
         initial={{ y: 30, opacity: 0, scale: 0.98 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         transition={{ type: "spring", damping: 25, stiffness: 100 }}
-        className="w-full max-w-[440px] bg-white rounded-[2.5rem] border border-sky-100 overflow-hidden shadow-[0_32px_80px_-20px_rgba(0,0,0,0.12)] flex flex-col relative z-20 h-[85vh] max-h-[850px]"
+        className="w-full max-w-[440px] md:max-w-4xl lg:max-w-6xl bg-white rounded-[2.5rem] md:rounded-3xl border border-sky-100 overflow-hidden shadow-2xl flex flex-col relative z-20 min-h-[90vh] md:h-auto"
       >
         <div className="w-full px-8 py-8 text-sky-950 flex flex-col justify-center bg-[#fdfaf5] bg-[radial-gradient(#e5e5e5_2px,transparent_2px)] [background-size:16px_16px] relative overflow-hidden shrink-0 border-b border-gray-100 border-dashed">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/60"></div>
@@ -1062,7 +1062,7 @@ const DashboardView = React.memo(function DashboardView({
               </motion.div>
               <div className="text-center">
                 <h1 className="text-2xl font-black leading-tight mb-0.5 tracking-tighter uppercase font-sans">
-                  <span className="text-[#ff8833]">SIAK</span><span className="text-[#67d5ce]">MOBILE</span>
+                  <span className="text-[#ff8833]">SIAK</span><span className="text-[#67d5ce]">DIGITAL</span>
                 </h1>
                 <div className="inline-flex items-center px-2 py-0.5 bg-[#995500]/5 rounded-full">
                   <p className="text-[#995500] text-[8px] font-black uppercase tracking-[0.2em] leading-none">
@@ -1220,7 +1220,7 @@ const DashboardView = React.memo(function DashboardView({
                         exit={{ height: 0, opacity: 0 }}
                         className="col-span-full bg-white rounded-3xl border border-sky-100 border-2 overflow-hidden shadow-inner mt-2"
                       >
-                        <div className="p-3 md:p-4 grid grid-cols-2 gap-2 md:gap-3">
+                        <div className="p-3 md:p-4 grid grid-cols-3 gap-2 md:gap-3">
                           {ADMIN_DOC_BUTTONS.map((item) => (
                             <button
                               key={item.name}
