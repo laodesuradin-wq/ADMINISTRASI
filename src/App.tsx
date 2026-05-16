@@ -37,6 +37,9 @@ import {
   Calendar,
   Mic,
   MicOff,
+  Bell,
+  Eye,
+  Copy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 // @ts-ignore
@@ -1044,226 +1047,170 @@ const DashboardView = React.memo(function DashboardView({
         transition={{ type: "spring", damping: 25, stiffness: 100 }}
         className="w-full max-w-[440px] md:max-w-4xl lg:max-w-6xl bg-white rounded-[2.5rem] md:rounded-3xl border border-sky-100 overflow-hidden shadow-2xl flex flex-col relative z-20 min-h-[90vh] md:h-auto"
       >
-        <div className="w-full px-5 py-4 sm:px-6 sm:py-5 text-sky-950 flex flex-col justify-center bg-[#fdfaf5] bg-[radial-gradient(#e5e5e5_2px,transparent_2px)] [background-size:16px_16px] relative overflow-hidden shrink-0 border-b border-gray-100 border-dashed">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/60"></div>
+        <div className="w-full px-4 py-4 sm:px-6 sm:py-5 flex flex-col justify-center bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] z-20 shrink-0 relative">
           <div className="flex justify-between items-center relative z-10 w-full pt-1">
             <div className="flex flex-row items-center justify-start w-full gap-3">
               <motion.div 
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2 shadow-[0_8px_20px_rgba(0,0,0,0.05)] border border-sky-50 shrink-0"
+                className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-slate-200 bg-slate-50 flex items-center justify-center p-0 shadow-sm"
               >
                 <img
-                  src="https://iili.io/BbSYeoB.png"
-                  className="w-full h-full object-contain"
-                  alt="Logo"
-                  referrerPolicy="no-referrer"
+                  src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fsiakdigital.com%2Fassets%2Fimg%2Fdefault-avatar.png&f=1&nofb=1"
+                  onError={(e) => { e.currentTarget.src = "https://iili.io/BbSYeoB.png" }}
+                  className="w-full h-full object-cover"
+                  alt="Avatar"
                 />
               </motion.div>
               <div className="text-left flex flex-col justify-center">
-                <h1 className="text-lg md:text-xl font-black leading-tight mb-0.5 tracking-tighter uppercase font-sans">
-                  <span className="text-[#ff8833]">SIAK</span> <span className="text-[#67d5ce]">MOBILE</span>
+                <h1 className="text-[15px] font-semibold text-slate-800 leading-tight mb-0.5 tracking-tight">
+                  {session.role === "admin" ? session.nama : session.nama}
                 </h1>
-                <div className="inline-flex items-center">
-                  <p className="text-[#995500] text-[7px] md:text-[8px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] leading-none">
-                    Dusun Amaholu Losy
+                <div className="inline-flex items-center gap-1.5 opacity-80">
+                  <p className="text-slate-500 text-[11px] font-medium">
+                    {session.role === "admin" ? "Sistem Informasi" : `No. KK: ${session.no_kk || ""}`}
                   </p>
+                  {session.role === "warga" && (
+                     <Copy size={10} className="text-slate-400" />
+                  )}
                 </div>
               </div>
             </div>
             
-            <button
-              onClick={onLogout}
-              className="absolute right-0 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-xl flex items-center justify-center shadow-sm active:scale-90 transition-all border border-rose-100"
-            >
-              <LogOut size={16} strokeWidth={2.5} />
-            </button>
+            <div className="flex items-center gap-1 relative">
+              <button className="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-50 rounded-full transition-colors relative">
+                <Bell size={20} strokeWidth={2} />
+                <span className="absolute top-2.5 right-2/4 translate-x-2 w-2 h-2 bg-[#f97316] border-2 border-white rounded-full"></span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
-          {/* Decorative mountain shapes from image */}
-          <div className="absolute bottom-0 left-0 w-full h-[60%] pointer-events-none opacity-[0.03] z-0 overflow-hidden">
-            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[800px] h-[800px] border-[60px] border-[#995500] rotate-45 rounded-[80px]"></div>
-          </div>
-
-          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none pb-20 px-6 pt-8 relative z-10">
-            {!adminMenuOpen && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="pb-8 relative z-10"
-              >
-                <div className="text-center">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100/50 shadow-sm overflow-hidden relative">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Sistem Digital Terintegrasi</span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            <div
-              className={`grid grid-cols-3 gap-4 p-1 mb-6 transition-all duration-300 ${adminMenuOpen ? "mt-4" : ""}`}
+        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none bg-[#fafafa]">
+          {/* Main content wrapper */}
+          <div className="p-4 sm:p-6 space-y-5">
+            {/* Orange Card */}
+            <motion.div 
+               initial={{ opacity: 0, y: 15 }}
+               animate={{ opacity: 1, y: 0 }}
+               className="w-full bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded-2xl p-5 text-white shadow-lg relative overflow-hidden"
             >
-              {!adminMenuOpen &&
-                [
-                  {
-                    label:
-                      session.role === "admin" ? "LIHAT DATA" : "DATA KELUARGA",
-                    sub: session.role === "admin" ? "DATABASE" : "AKSES DATA",
-                    icon: "📋",
-                    iconBg: "bg-[#67d5ce] text-white",
-                    action: () => setIsDatabaseViewOpen(true),
-                  },
-                  {
-                    label: "TAMBAH KK",
-                    sub: "OPERASI DATA",
-                    icon: "📝",
-                    iconBg: "bg-[#ff8833] text-white",
-                    action: () => openNewFamilyModal(),
-                  },
-                  ...(session.role === "admin"
-                    ? [
-                        {
-                          label: "EKSPOR DATA",
-                          sub: "EXCEL",
-                          icon: "💾",
-                          iconBg: "bg-[#f9d89b] text-[#331c00]",
-                          action: () => exportToExcel(),
-                        },
-                        {
-                          label: "STATISTIK",
-                          sub: "REKAP",
-                          icon: "📊",
-                          iconBg: "bg-[#67d5ce] text-white",
-                          action: () => openStats(),
-                        }
-                      ]
-                    : []),
-                ].map((item, idx) => {
-                  return (
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+              <div className="absolute -left-8 -bottom-8 w-24 h-24 bg-black/10 rounded-full blur-2xl"></div>
+              
+              <div className="relative z-10 flex justify-between items-start mb-4">
+                <div>
+                   <div className="flex items-center gap-1.5 opacity-90 mb-1">
+                     <span className="text-xs font-medium">
+                       {session.role === "admin" ? "Total Keluarga Terdaftar" : "Data Keluarga Saya"}
+                     </span>
+                     <Eye size={12} />
+                   </div>
+                   <div className="text-3xl font-bold tracking-tight">
+                     {session.role === "admin" ? allFamilies.length : 1}
+                   </div>
+                </div>
+                <button 
+                  onClick={() => setIsDatabaseViewOpen(true)}
+                  className="flex items-center gap-1 text-[10px] font-semibold bg-black/10 hover:bg-black/20 px-2 py-1.5 rounded-full transition-colors"
+                >
+                  Riwayat <ChevronRight size={10} />
+                </button>
+              </div>
+
+              <div className="relative z-10 flex border-t border-white/20 pt-4 mt-2">
+                 <div className="flex-1">
+                    <p className="text-[10px] opacity-90 mb-0.5">{session.role === "admin" ? "Total Jiwa" : "Anggota Keluarga"}</p>
+                    <p className="text-sm font-bold">
+                      {session.role === "admin" 
+                        ? allFamilies.reduce((acc, f) => acc + f.anggota.length, 0)
+                        : (allFamilies.find(f => f.no_kk === session.no_kk)?.anggota.length || 0)} Jiwa
+                    </p>
+                 </div>
+                 <div className="flex-1 pl-4 border-l border-white/20">
+                    <p className="text-[10px] opacity-90 mb-0.5">Status</p>
+                    <p className="text-[10px] font-semibold bg-white/20 inline-block px-1.5 py-0.5 rounded leading-none">Terverifikasi</p>
+                 </div>
+              </div>
+            </motion.div>
+
+            {/* Menu Grid */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+               <div className="grid grid-cols-4 gap-y-6 gap-x-2">
+                  {[
+                    { label: "Transfer", icon: Users, iconColor: "text-orange-500", action: () => setIsDatabaseViewOpen(true), title: "Data KK" },
+                    { label: "Top Up", icon: PlusCircle, iconColor: "text-emerald-500", action: openNewFamilyModal, hide: session.role !== "admin", title: "Tambah KK" },
+                    { label: "E-Wallet", icon: FileText, iconColor: "text-blue-500", action: () => session.role === "admin" && setAdminMenuOpen(!adminMenuOpen), title: "Surat" },
+                    { label: "Undang", icon: Calendar, iconColor: "text-amber-500", action: openArticles, title: "Kegiatan" },
+                    { label: "Deposito", icon: BarChart3, iconColor: "text-indigo-500", action: openStats, hide: session.role !== "admin", title: "Statistik" },
+                    { label: "Tarik Tunai", icon: FileDown, iconColor: "text-rose-500", action: exportToExcel, hide: session.role !== "admin", title: "Ekspor" },
+                    { label: "Pinjaman", icon: Shield, iconColor: "text-teal-500", action: () => {}, title: "Pengaturan" },
+                    { label: "Lihat Semua", icon: MessageSquare, iconColor: "text-slate-400", action: () => {}, title: "Lihat Semua" }
+                  ].filter(m => !m.hide).map((item, idx) => (
                     <motion.div 
                       key={idx}
-                      initial={{ opacity: 0, scale: 0.8, y: 15 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      transition={{ delay: 0.1 + (idx * 0.05), type: "spring", stiffness: 120 }}
-                      className="relative group col-span-1"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="flex flex-col items-center justify-center gap-2 group cursor-pointer"
+                      onClick={item.action}
                     >
-                      <button
-                        onClick={item.action}
-                        className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-3 active:scale-90 group`}
-                      >
-                        <div
-                          className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.75rem] flex items-center justify-center text-3xl md:text-3xl transition-all ${item.iconBg} shadow-[0_8px_20px_-4px_rgba(0,0,0,0.1)] group-hover:shadow-[0_12px_24px_-4px_rgba(0,0,0,0.15)] group-hover:-translate-y-1 font-black`}
-                        >
-                          {item.icon}
-                        </div>
-                        <div className="text-center">
-                          <span className="block text-[10px] md:text-[11px] font-black text-[#995500] uppercase tracking-tight leading-tight">
-                            {item.label}
-                          </span>
-                        </div>
-                      </button>
+                      <div className="w-10 h-10 border border-slate-100 rounded-[0.8rem] flex items-center justify-center bg-white shadow-sm group-hover:bg-slate-50 group-active:scale-95 transition-all">
+                        <item.icon size={18} strokeWidth={2} className={`${item.iconColor}`} />
+                      </div>
+                      <span className="text-[9.5px] font-medium text-slate-600 text-center leading-tight px-1">
+                         {item.title}
+                      </span>
                     </motion.div>
-                  );
-                })}
+                  ))}
+               </div>
+            </div>
 
-              {/* Administrasi Digital Surat & Artikel Section */}
-              {session.role === "admin" && (
-                <>
-                  {!adminMenuOpen && (
-                    <div
-                      className="col-span-1 relative group"
-                    >
-                      <button
-                        onClick={() => setAdminMenuOpen(true)}
-                        className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-2 active:scale-95 relative`}
-                      >
-                        <div
-                          className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] flex items-center justify-center text-3xl md:text-4xl transition-transform bg-[#67d5ce] text-white shadow-lg hover:shadow-xl`}
-                        >
-                          📄
-                        </div>
-                        <div className="text-center mt-1">
-                          <span className="block text-[10px] md:text-[11px] font-black text-[#995500] uppercase tracking-tight leading-tight">
-                            Digital Surat
-                          </span>
-                        </div>
-                      </button>
+            {/* Sub Menu / Admin Docs */}
+            <AnimatePresence>
+               {adminMenuOpen && session.role === "admin" && (
+                 <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="bg-white rounded-2xl border border-sky-100 overflow-hidden shadow-sm flex flex-col"
+                 >
+                    <div className="p-3 bg-sky-50/30 border-b border-sky-50 flex items-center justify-between">
+                       <h3 className="text-xs font-bold text-sky-900 uppercase tracking-widest pl-2">Template Surat</h3>
+                       <button 
+                          onClick={() => setAdminMenuOpen(false)}
+                          className="bg-white text-sky-900 hover:text-rose-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest shadow-sm transition-colors border border-sky-100"
+                       >
+                          Tutup
+                       </button>
                     </div>
-                  )}
-
-                  {!adminMenuOpen && (
-                    <div className="col-span-1 relative group">
-                      <button
-                        onClick={openArticles}
-                        className={`w-full p-2 transition-all flex flex-col items-center justify-center gap-2 active:scale-95 group`}
-                      >
-                        <div
-                          className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] flex items-center justify-center text-3xl md:text-4xl transition-transform bg-[#ff8833] text-white shadow-lg hover:shadow-xl transition-all`}
-                        >
-                          📰
-                        </div>
-                        <div className="text-center mt-1">
-                          <span className="block text-[10px] md:text-[11px] font-black text-[#995500] uppercase tracking-tight leading-tight">
-                            Kegiatan
-                          </span>
-                        </div>
-                      </button>
-                    </div>
-                  )}
-
-                  <AnimatePresence>
-                    {adminMenuOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="col-span-full bg-white rounded-3xl border border-sky-100 border-2 overflow-hidden shadow-inner mt-2 flex flex-col"
-                      >
-                        <div className="p-3 bg-sky-50/50 border-b border-sky-100 flex items-center justify-between">
-                          <h3 className="text-xs font-bold text-sky-900 uppercase tracking-widest pl-2">Menu Surat</h3>
-                          <button 
-                            onClick={() => setAdminMenuOpen(false)}
-                            className="bg-white hover:bg-rose-50 text-sky-900 hover:text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-colors border border-sky-100 hover:border-rose-200"
-                          >
-                            Kembali
-                          </button>
-                        </div>
-                        <div className="p-3 md:p-4 grid grid-cols-3 gap-2 md:gap-3">
-                          {ADMIN_DOC_BUTTONS.map((item) => (
-                            <button
-                              key={item.name}
-                              onClick={() => {
+                    <div className="p-3 md:p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
+                       {ADMIN_DOC_BUTTONS.map((item) => (
+                          <button
+                             key={item.name}
+                             onClick={() => {
                                 openLetter(item.name as LetterType);
                                 setAdminMenuOpen(false);
-                              }}
-                              className="p-3 md:p-4 md:rounded-2xl bg-white rounded-3xl border border-sky-100 hover:bg-sky-100/50 hover:border-blue-500/30 flex flex-col items-start group active:scale-95 transition-all text-left h-full shadow-sm relative overflow-hidden"
-                            >
-                              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-6xl pointer-events-none">
-                                {item.icon}
-                              </div>
-                              <div className="mb-2 md:mb-3 text-xl md:text-2xl group-hover:scale-110 transition-transform relative z-10">
-                                <span className="opacity-80 grayscale group-hover:grayscale-0 transition-all">
-                                  {item.icon}
-                                </span>
-                              </div>
-                              <p className="text-[8px] md:text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1 leading-none opacity-60 relative z-10">
+                             }}
+                             className="p-3 bg-white rounded-xl border border-slate-100 hover:bg-sky-50/50 hover:border-blue-500/30 flex flex-col items-start group active:scale-95 transition-all text-left shadow-sm"
+                          >
+                             <div className="mb-2 text-xl group-hover:scale-110 transition-transform">
+                                <span className="opacity-80 grayscale group-hover:grayscale-0 transition-all">{item.icon}</span>
+                             </div>
+                             <p className="text-[9px] font-bold text-sky-600 uppercase tracking-widest mb-0.5 opacity-70">
                                 {item.sub}
-                              </p>
-                              <h4 className="text-[10px] md:text-sm font-black text-sky-950 tracking-tighter uppercase leading-tight relative z-10">
+                             </p>
+                             <h4 className="text-[10px] font-bold text-slate-800 tracking-tight leading-tight">
                                 {item.label}
-                              </h4>
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </>
-              )}
-            </div>
+                             </h4>
+                          </button>
+                       ))}
+                    </div>
+                 </motion.div>
+               )}
+            </AnimatePresence>
+
+            <div className="pb-8"></div>
           </div>
         </div>
 
