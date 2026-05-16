@@ -542,7 +542,7 @@ export default function App() {
 
               <div
                 ref={chatContainerRef}
-                className="flex-1 p-6 overflow-y-auto bg-sky-50/50 space-y-6 scroll-smooth"
+                className="flex-1 min-h-0 p-6 overflow-y-auto bg-sky-50/50 space-y-6 scroll-smooth"
               >
                 {messages.length === 1 && (
                   <div className="grid grid-cols-1 gap-2 mb-4">
@@ -1087,7 +1087,7 @@ const DashboardView = React.memo(function DashboardView({
             <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[800px] h-[800px] border-[60px] border-[#995500] rotate-45 rounded-[80px]"></div>
           </div>
 
-          <div className="flex-1 overflow-y-auto scrollbar-none pb-20 px-6 pt-8 relative z-10">
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none pb-20 px-6 pt-8 relative z-10">
             {!adminMenuOpen && (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
@@ -1312,7 +1312,7 @@ const DashboardView = React.memo(function DashboardView({
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-none bg-[#f8f8f8]">
+                <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-6 scrollbar-none bg-[#f8f8f8]">
                   <div className="relative group">
                     <Search
                       className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
@@ -1534,7 +1534,7 @@ const FamilyModal = React.memo(function FamilyModal({
   const isReadOnly = session.role === "warga" && family.no_kk !== "";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 no-print">
+    <div className="fixed inset-0 z-[100] flex sm:items-center justify-center p-0 pt-8 sm:p-6 no-print">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -1547,41 +1547,40 @@ const FamilyModal = React.memo(function FamilyModal({
         initial={{ scale: 0.95, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 30 }}
-        className="relative w-full max-w-5xl max-h-[92vh] bg-white rounded-[2.5rem] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col border border-sky-100"
+        className="relative w-full h-full sm:h-auto max-w-5xl sm:max-h-[92vh] bg-white rounded-t-3xl sm:rounded-3xl shadow-[0_32px_80px_-20px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col sm:border border-slate-200"
       >
-        <div className="bg-[#fdfaf5] border-b border-[#f9d89b]/40 px-6 py-6 md:px-10 md:py-8 flex items-center justify-between relative overflow-hidden shrink-0">
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#995500_2px,transparent_2px)] [background-size:12px_12px]"></div>
-          <div className="flex items-center gap-4 md:gap-6 relative z-10">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-2xl border border-[#f9d89b]/40 flex items-center justify-center text-[#d38736] shadow-sm shrink-0">
-              <Users className="w-6 h-6 md:w-8 md:h-8" />
+        <div className="bg-slate-50 border-b border-slate-200 px-6 py-5 md:px-10 md:py-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4 relative z-10 w-full">
+            <div className="w-12 h-12 bg-white rounded-xl border border-slate-200 flex items-center justify-center text-sky-600 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] shrink-0">
+              <Users className="w-6 h-6" />
             </div>
-            <div className="text-left">
-              <h3 className="text-sky-950 text-xl md:text-2xl font-black tracking-tighter uppercase leading-tight">
+            <div className="flex-1 text-left">
+              <h3 className="text-slate-900 text-lg md:text-xl font-extrabold tracking-tight">
                 {isReadOnly
                   ? "Detail Berkas Digital"
                   : data.no_kk
                     ? "Formulir Kartu Keluarga"
                     : "Pendaftaran Keluarga Baru"}
               </h3>
-              <p className="text-[10px] font-black text-[#d38736]/70 uppercase tracking-[0.2em] mt-1">Sistem Administrasi Kependudukan</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">Sistem Administrasi Kependudukan</p>
             </div>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 bg-white border border-slate-200 shadow-sm hover:bg-slate-100 transition-all text-slate-500 rounded-lg flex items-center justify-center active:scale-95 shrink-0"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 md:w-12 md:h-12 bg-white border border-[#f9d89b]/40 shadow-sm hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition-all text-sky-950 rounded-2xl flex items-center justify-center active:scale-90 shrink-0 group"
-          >
-            <X className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-90 transition-transform" />
-          </button>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto p-6 md:p-12 space-y-10 md:space-y-14 scrollbar-none bg-white"
+          className="flex-1 min-h-0 overflow-y-auto p-6 md:p-10 space-y-10 scrollbar-none bg-white"
         >
           {/* Header Data KK */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 bg-[#fdfaf5]/50 p-6 md:p-10 rounded-[2rem] border border-orange-100/30">
-            <div className="space-y-2.5">
-              <label className="text-[10px] font-black text-[#995500] uppercase tracking-[0.2em] ml-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 bg-slate-50/50 p-6 md:p-8 rounded-[1.5rem] border border-slate-100">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                 Nomor Kartu Keluarga
               </label>
               <input
@@ -1596,11 +1595,11 @@ const FamilyModal = React.memo(function FamilyModal({
                 disabled={isReadOnly}
                 required
                 placeholder="16 DIGIT KODE KK"
-                className="w-full px-6 py-4 bg-white border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:ring-4 focus:ring-[#67d5ce]/5 transition-all font-black text-[#995500] placeholder:text-[#995500]/30 text-sm md:text-base leading-none shadow-sm"
+                className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-mono font-bold text-slate-900 placeholder:text-slate-400 text-sm shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
               />
             </div>
-            <div className="space-y-2.5">
-              <label className="text-[10px] font-black text-[#995500] uppercase tracking-[0.2em] ml-2">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                 Alamat Lengkap
               </label>
               <input
@@ -1609,11 +1608,11 @@ const FamilyModal = React.memo(function FamilyModal({
                 disabled={isReadOnly}
                 required
                 placeholder="DUSUN / JALAN"
-                className="w-full px-6 py-4 bg-white border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:ring-4 focus:ring-[#67d5ce]/5 transition-all font-black text-[#995500] placeholder:text-[#995500]/30 text-sm md:text-base leading-none shadow-sm"
+                className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-900 placeholder:text-slate-400 text-sm shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
               />
             </div>
-            <div className="space-y-2.5">
-              <label className="text-[10px] font-black text-[#995500] uppercase tracking-[0.2em] ml-2">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                 Wilayah RT/RW
               </label>
               <input
@@ -1627,57 +1626,54 @@ const FamilyModal = React.memo(function FamilyModal({
                 disabled={isReadOnly}
                 required
                 placeholder="00/00"
-                className="w-full px-6 py-4 bg-white border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:ring-4 focus:ring-[#67d5ce]/5 transition-all font-black text-[#995500] placeholder:text-[#995500]/30 text-center text-sm md:text-base leading-none shadow-sm"
+                className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-mono font-bold text-slate-900 placeholder:text-slate-400 text-center text-sm shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
               />
             </div>
           </div>
 
           {/* Daftar Anggota */}
-          <div className="space-y-8 md:space-y-10">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-2.5 h-10 bg-[#ff8833] rounded-full shadow-[0_0_15px_rgba(255,136,51,0.3)]"></div>
-                <div>
-                  <h4 className="text-xl md:text-2xl font-black text-sky-950 tracking-tight leading-none">
-                    Daftar Anggota Keluarga
-                  </h4>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 leading-none">Total Terdaftar: {data.anggota.length} Jiwa</p>
-                </div>
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h4 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight leading-none">
+                  Anggota Keluarga
+                </h4>
+                <p className="text-[11px] font-medium text-slate-500 mt-2 leading-none uppercase tracking-widest">Total Terdaftar: {data.anggota.length} Jiwa</p>
               </div>
               {!isReadOnly && (
                 <button
                   type="button"
                   onClick={addMember}
-                  className="px-8 py-4 bg-[#67d5ce] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#5bc4bd] transition-all shadow-lg shadow-[#67d5ce]/20 active:scale-95"
+                  className="px-5 py-2.5 bg-sky-50 text-sky-600 border border-sky-100 rounded-xl text-xs font-bold hover:bg-sky-100 hover:border-sky-200 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-sm"
                 >
-                  <PlusCircle size={18} /> Tambah Anggota
+                  <PlusCircle size={16} /> Tambah Anggota
                 </button>
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:gap-10">
+            <div className="grid grid-cols-1 gap-6">
               {data.anggota.map((ag, i) => (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   key={i}
-                  className="p-6 md:p-10 bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_8px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_25px_60px_rgba(0,0,0,0.08)] transition-all relative group overflow-hidden border-2"
+                  className="p-5 md:p-8 bg-slate-50 border border-slate-200 rounded-2xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] transition-all relative group overflow-hidden"
                 >
-                  <div className="absolute top-0 left-0 w-2.5 h-full bg-[#f9d89b]/40 group-hover:bg-[#67d5ce] transition-colors"></div>
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-200 group-hover:bg-sky-500 transition-colors"></div>
                   
                   {!isReadOnly && (
                     <button
                       type="button"
                       onClick={() => removeMember(i)}
-                      className="absolute top-6 right-6 md:top-8 md:right-8 w-11 h-11 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all border border-rose-100 shadow-sm z-20 group-hover:scale-110 active:scale-90"
+                      className="absolute top-4 right-4 w-9 h-9 bg-white text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200 hover:border-rose-200 shadow-sm z-20 group-hover:scale-110 active:scale-90"
                     >
-                      <Trash2 size={20} strokeWidth={2.5} />
+                      <Trash2 size={16} strokeWidth={2.5} />
                     </button>
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 relative z-10">
-                    <div className="md:col-span-1 space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-5 md:gap-6 relative z-10">
+                    <div className="md:col-span-1 space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         Nama Lengkap
                       </label>
                       <input
@@ -1685,11 +1681,11 @@ const FamilyModal = React.memo(function FamilyModal({
                         onChange={(e) => updateMember(i, "nama", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-800 text-sm shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       />
                     </div>
-                    <div className="space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         NIK (16 Digit)
                       </label>
                       <input
@@ -1698,11 +1694,11 @@ const FamilyModal = React.memo(function FamilyModal({
                         disabled={isReadOnly}
                         required
                         maxLength={16}
-                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-mono font-bold text-slate-700 text-sm shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-mono font-bold text-slate-800 text-sm shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       />
                     </div>
-                    <div className="space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         Status Hubungan
                       </label>
                       <select
@@ -1710,7 +1706,7 @@ const FamilyModal = React.memo(function FamilyModal({
                         onChange={(e) => updateMember(i, "hubungan", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm appearance-none cursor-pointer shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-800 text-sm appearance-none cursor-pointer shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       >
                         <option value="">Pilih Hubungan</option>
                         <option value="Kepala Keluarga">Kepala Keluarga</option>
@@ -1719,8 +1715,8 @@ const FamilyModal = React.memo(function FamilyModal({
                         <option value="Lainnya">Lainnya</option>
                       </select>
                     </div>
-                    <div className="space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         Jenis Kelamin
                       </label>
                       <select
@@ -1728,7 +1724,7 @@ const FamilyModal = React.memo(function FamilyModal({
                         onChange={(e) => updateMember(i, "jk", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm appearance-none cursor-pointer shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-800 text-sm appearance-none cursor-pointer shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       >
                         <option value="">Pilih JK</option>
                         <option value="Laki-laki">Laki-laki</option>
@@ -1736,8 +1732,8 @@ const FamilyModal = React.memo(function FamilyModal({
                       </select>
                     </div>
 
-                    <div className="space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         Tempat Lahir
                       </label>
                       <input
@@ -1745,11 +1741,11 @@ const FamilyModal = React.memo(function FamilyModal({
                         onChange={(e) => updateMember(i, "tempat_lahir", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-800 text-sm shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       />
                     </div>
-                    <div className="space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         Tanggal Lahir
                       </label>
                       <input
@@ -1758,11 +1754,11 @@ const FamilyModal = React.memo(function FamilyModal({
                         onChange={(e) => updateMember(i, "tgl", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-800 text-sm shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       />
                     </div>
-                    <div className="space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         Pendidikan Terakhir
                       </label>
                       <select
@@ -1770,7 +1766,7 @@ const FamilyModal = React.memo(function FamilyModal({
                         onChange={(e) => updateMember(i, "pendidikan", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-800 text-sm appearance-none cursor-pointer shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       >
                         <option value="">Pilih Pendidikan</option>
                         <option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option>
@@ -1784,8 +1780,8 @@ const FamilyModal = React.memo(function FamilyModal({
                         <option value="Strata III">Strata III</option>
                       </select>
                     </div>
-                    <div className="space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         Pekerjaan Utama
                       </label>
                       <input
@@ -1793,12 +1789,12 @@ const FamilyModal = React.memo(function FamilyModal({
                         onChange={(e) => updateMember(i, "pekerjaan", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-800 text-sm shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       />
                     </div>
 
-                    <div className="space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         Agama
                       </label>
                       <select
@@ -1806,7 +1802,7 @@ const FamilyModal = React.memo(function FamilyModal({
                         onChange={(e) => updateMember(i, "agama", e.target.value)}
                         disabled={isReadOnly}
                         required
-                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white transition-all font-bold text-slate-700 text-sm shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-800 text-sm appearance-none cursor-pointer shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       >
                         <option value="">Pilih Agama</option>
                         <option value="Islam">Islam</option>
@@ -1817,15 +1813,15 @@ const FamilyModal = React.memo(function FamilyModal({
                         <option value="Khonghucu">Khonghucu</option>
                       </select>
                     </div>
-                    <div className="space-y-2.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider ml-1">
                         Status Bansos
                       </label>
                       <select
                         value={ag.bansos}
                         onChange={(e) => updateMember(i, "bansos", e.target.value)}
                         disabled={isReadOnly}
-                        className="w-full px-5 py-3.5 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-xl outline-none focus:border-[#67d5ce] transition-all font-black text-[#995500] text-sm shadow-sm"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all font-semibold text-slate-800 text-sm appearance-none cursor-pointer shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]"
                       >
                         <option value="">Tidak Menerima</option>
                         <option value="PKH">Penerima PKH</option>
@@ -1842,19 +1838,18 @@ const FamilyModal = React.memo(function FamilyModal({
         </form>
 
         {/* Footer Actions */}
-        <div className="p-6 md:p-10 bg-[#fdfaf5] border-t border-[#f9d89b]/40 flex items-center justify-between gap-4 shrink-0 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#995500_2px,transparent_2px)] [background-size:12px_12px]"></div>
+        <div className="p-5 md:p-6 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-8 py-4 bg-white border-2 border-[#f9d89b]/40 text-[#995500] rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-50 active:scale-95 transition-all relative z-10 shadow-sm"
+            className="px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-100 active:scale-95 transition-all shadow-sm"
           >
             Batalkan
           </button>
           {!isReadOnly && (
             <button
               onClick={handleSubmit}
-              className="px-10 py-5 bg-[#67d5ce] text-white rounded-2xl font-black text-[12px] uppercase tracking-[0.1em] shadow-lg shadow-[#67d5ce]/30 hover:bg-[#5bc4bd] hover:shadow-xl transition-all active:scale-[0.98] relative z-10"
+              className="px-8 py-3 bg-sky-500 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-[0_4px_14px_0_rgba(14,165,233,0.39)] hover:bg-sky-600 hover:shadow-[0_6px_20px_rgba(14,165,233,0.23)] hover:-translate-y-0.5 transition-all active:scale-[0.98] active:translate-y-0"
             >
               Simpan Data Berkas
             </button>
@@ -1937,7 +1932,7 @@ const ArticleModal = React.memo(function ArticleModal({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 scrollbar-none bg-white">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 md:p-8 scrollbar-none bg-white">
           {activeArticle ? (
             <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
               <div>
@@ -2143,7 +2138,7 @@ const StatsModal = React.memo(function StatsModal({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 md:space-y-10 scrollbar-none bg-white">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 space-y-6 md:space-y-10 scrollbar-none bg-white">
           {/* Executive Overview - Image Match */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {[
@@ -2400,7 +2395,7 @@ const LetterModal = React.memo(function LetterModal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 bg-white">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 md:p-8 space-y-8 bg-white">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
             <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
             <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none">
