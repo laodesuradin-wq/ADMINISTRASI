@@ -768,10 +768,10 @@ const LoginView = React.memo(function LoginView({
             </motion.div>
 
             <div>
-              <h1 className="text-2xl font-black leading-tight mb-1.5 tracking-tighter uppercase font-sans">
-                <span className="text-[#ff8833]">SIAK</span><span className="text-[#67d5ce]">DIGITAL</span>
+              <h1 className="text-2xl font-bold leading-tight mb-1 bg-gradient-to-r from-[#f97316] to-[#f59e0b] bg-clip-text text-transparent tracking-tight">
+                SIAK MOBILE
               </h1>
-              <p className="text-[#995500] text-[9.5px] font-black uppercase tracking-[0.25em] leading-none opacity-80">
+              <p className="text-slate-600 text-sm font-medium tracking-tight opacity-90">
                 Dusun Amaholu Losy
               </p>
             </div>
@@ -779,23 +779,23 @@ const LoginView = React.memo(function LoginView({
         </div>
 
         <div className="w-full bg-white p-6 md:p-8 flex flex-col justify-center flex-1">
-          <div className="mb-6 text-center">
-            <h2 className="text-[1.35rem] font-extrabold text-slate-900 tracking-tight">
+          <div className="mb-5 text-center">
+            <h2 className="text-xl font-bold text-slate-800 tracking-tight">
               Masuk Ke Sistem
             </h2>
-            <p className="text-slate-500 text-[13px] mt-1.5 italic">Silahkan pilih metode masuk Anda</p>
+            <p className="text-slate-500 text-xs mt-1">Silahkan pilih metode masuk Anda</p>
           </div>
 
-          <div className="p-1.5 bg-[#fdfaf5] border border-orange-100/50 rounded-2xl flex gap-1.5 mb-7">
+          <div className="p-1 bg-slate-50 border border-slate-100 rounded-xl flex gap-1 mb-6">
             <button
               onClick={() => setRole("warga")}
-              className={`flex-1 py-3 px-2 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all relative group overflow-hidden ${role === "warga" ? "bg-white text-[#67d5ce] shadow-sm border border-slate-100" : "text-[#995500]/60 hover:text-[#995500]"}`}
+              className={`flex-1 py-2.5 px-2 rounded-lg font-semibold text-xs transition-all relative group overflow-hidden ${role === "warga" ? "bg-white text-slate-800 shadow-sm border border-slate-200/60" : "text-slate-500 hover:text-slate-700"}`}
             >
               Login Warga
             </button>
             <button
               onClick={() => setRole("admin")}
-              className={`flex-1 py-3 px-2 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all relative group overflow-hidden ${role === "admin" ? "bg-white text-[#67d5ce] shadow-sm border border-slate-100" : "text-[#995500]/60 hover:text-[#995500]"}`}
+              className={`flex-1 py-2.5 px-2 rounded-lg font-semibold text-xs transition-all relative group overflow-hidden ${role === "admin" ? "bg-white text-slate-800 shadow-sm border border-slate-200/60" : "text-slate-500 hover:text-slate-700"}`}
             >
               Login Admin
             </button>
@@ -805,28 +805,28 @@ const LoginView = React.memo(function LoginView({
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mb-5 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-black uppercase tracking-wider rounded-xl flex items-center gap-2 shadow-sm"
+              className="mb-5 p-3 bg-red-50 border border-red-100 text-red-600 text-xs font-semibold rounded-xl flex items-center gap-2 shadow-sm"
             >
               <X size={14} className="shrink-0" /> <span>{error}</span>
             </motion.div>
           )}
 
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
+          <form onSubmit={handleLoginSubmit} className="space-y-3.5">
             {role === "warga" ? (
               <>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-1">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 ml-1">
                     Nomor Kartu Keluarga (KK)
                   </label>
                   <div className="relative group">
                     <Users
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#67d5ce] transition-colors"
                       size={18}
                     />
                     <input
                       type="text"
                       placeholder="16-digit kode KK"
-                      className="w-full pl-12 pr-4 py-3.5 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all text-sm text-slate-800 placeholder:text-slate-400"
                       value={noKK}
                       onChange={(e) => {
                         const val = e.target.value
@@ -838,19 +838,19 @@ const LoginView = React.memo(function LoginView({
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-1">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 ml-1">
                     Kunci Pribadi (NIK)
                   </label>
                   <div className="relative group">
                     <Shield
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#67d5ce] transition-colors"
                       size={18}
                     />
                     <input
                       type="password"
                       placeholder="NIK Kepala Keluarga"
-                      className="w-full pl-12 pr-4 py-3.5 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all text-sm text-slate-800 placeholder:text-slate-400"
                       value={password}
                       onChange={(e) => {
                         const val = e.target.value
@@ -865,38 +865,38 @@ const LoginView = React.memo(function LoginView({
               </>
             ) : (
               <>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-1">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 ml-1">
                     Identitas Otoritas
                   </label>
                   <div className="relative group">
                     <UserIcon
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#67d5ce] transition-colors"
                       size={18}
                     />
                     <input
                       type="email"
                       placeholder="Email Kedinasan Resmi"
-                      className="w-full pl-12 pr-4 py-3.5 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all text-sm text-slate-800 placeholder:text-slate-400"
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-[#995500] uppercase tracking-[0.1em] ml-1">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 ml-1">
                     Kunci Akses Sistem
                   </label>
                   <div className="relative group">
                     <Shield
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#995500] group-focus-within:text-[#995500] transition-colors"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#67d5ce] transition-colors"
                       size={18}
                     />
                     <input
                       type="password"
                       placeholder="Masukkan kunci administrator"
-                      className="w-full pl-12 pr-4 py-3.5 bg-[#fdfaf5] border-2 border-[#f9d89b]/30 rounded-2xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all font-bold text-sm text-[#995500] placeholder:text-[#995500]/40 shadow-sm"
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl outline-none focus:border-[#67d5ce] focus:bg-white focus:ring-4 focus:ring-[#67d5ce]/10 transition-all text-sm text-slate-800 placeholder:text-slate-400"
                       value={adminPass}
                       onChange={(e) => setAdminPass(e.target.value)}
                       required
@@ -908,9 +908,9 @@ const LoginView = React.memo(function LoginView({
 
             <button
               type="submit"
-              className="w-full py-4 mt-2 bg-[#67d5ce] text-white rounded-2xl font-black text-[13px] uppercase tracking-widest shadow-md shadow-[#67d5ce]/20 hover:bg-[#5bc4bd] hover:shadow-lg transition-all active:scale-[0.98]"
+              className="w-full py-3.5 mt-2 bg-slate-900 text-white rounded-xl font-semibold text-sm shadow-md hover:bg-slate-800 transition-all active:scale-[0.98]"
             >
-              Masuk
+              Masuk Ke Sistem
             </button>
           </form>
 
@@ -1025,11 +1025,11 @@ const DashboardView = React.memo(function DashboardView({
   }, [allFamilies, session]);
 
   const exportToExcel = () => {
-    if (allFamilies.length === 0) return alert("Database kosong.");
+    if (families.length === 0) return alert("Database kosong.");
 
     const wb = XLSX.utils.book_new();
 
-    const familyData = allFamilies.map((f, i) => ({
+    const familyData = families.map((f, i) => ({
       No: i + 1,
       "No. KK": f.no_kk,
       Alamat: f.alamat,
@@ -1047,7 +1047,7 @@ const DashboardView = React.memo(function DashboardView({
       "Data_Keluarga",
     );
 
-    const membersData = allFamilies.flatMap((f) =>
+    const membersData = families.flatMap((f) =>
       f.anggota.map((a) => ({
         "No. KK": f.no_kk,
         Nama: a.nama,
@@ -1090,22 +1090,32 @@ const DashboardView = React.memo(function DashboardView({
               <motion.div 
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-slate-200 bg-slate-50 flex items-center justify-center p-0 shadow-sm"
+                className="w-11 h-11 rounded-xl shrink-0 border border-slate-200 bg-white flex items-center justify-center p-1.5 shadow-sm"
               >
                 <img
-                  src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fsiakdigital.com%2Fassets%2Fimg%2Fdefault-avatar.png&f=1&nofb=1"
-                  onError={(e) => { e.currentTarget.src = "https://iili.io/BbSYeoB.png" }}
-                  className="w-full h-full object-cover"
-                  alt="Avatar"
+                  src="https://iili.io/BbSYeoB.png"
+                  className="w-full h-full object-contain"
+                  alt="Logo"
+                  referrerPolicy="no-referrer"
                 />
               </motion.div>
               <div className="text-left flex flex-col justify-center">
-                <h1 className="text-[15px] font-semibold text-slate-800 leading-tight mb-0.5 tracking-tight">
-                  {session.role === "admin" ? session.nama : session.nama}
+                <h1 className="text-[15px] font-semibold leading-tight mb-0.5 tracking-tight">
+                  {session.role === "admin" ? (
+                    <span className="bg-gradient-to-r from-[#f97316] to-[#f59e0b] bg-clip-text text-transparent font-black tracking-wide">
+                      SIAK MOBILE
+                    </span>
+                  ) : (
+                    <span className="text-slate-800">{session.nama}</span>
+                  )}
                 </h1>
                 <div className="inline-flex items-center gap-1.5 opacity-80">
-                  <p className="text-slate-500 text-[11px] font-medium">
-                    {session.role === "admin" ? "Sistem Informasi" : `No. KK: ${session.no_kk || ""}`}
+                  <p className="text-[11px] font-medium">
+                    {session.role === "admin" ? (
+                      <span className="text-teal-600 font-bold tracking-widest uppercase">Amaholu Losy</span>
+                    ) : (
+                      <span className="text-slate-500">{`No. KK: ${session.no_kk || ""}`}</span>
+                    )}
                   </p>
                   {session.role === "warga" && (
                      <Copy size={10} className="text-slate-400" />
@@ -1115,9 +1125,11 @@ const DashboardView = React.memo(function DashboardView({
             </div>
             
             <div className="flex items-center gap-1 relative">
-              <button className="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-50 rounded-full transition-colors relative">
-                <Bell size={20} strokeWidth={2} />
-                <span className="absolute top-2.5 right-2/4 translate-x-2 w-2 h-2 bg-[#f97316] border-2 border-white rounded-full"></span>
+              <button 
+                onClick={onLogout}
+                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-rose-500 rounded-full transition-colors relative"
+              >
+                <X size={20} strokeWidth={2} />
               </button>
             </div>
           </div>
@@ -1196,14 +1208,14 @@ const DashboardView = React.memo(function DashboardView({
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
                <div className="grid grid-cols-4 gap-y-6 gap-x-2">
                   {[
-                    { label: "Transfer", icon: Users, iconColor: "text-orange-500", action: () => setIsDatabaseViewOpen(true), title: "Data KK" },
-                    { label: "Top Up", icon: PlusCircle, iconColor: "text-emerald-500", action: openNewFamilyModal, hide: session.role !== "admin", title: "Tambah KK" },
-                    { label: "E-Wallet", icon: FileText, iconColor: "text-blue-500", action: () => session.role === "admin" && setAdminMenuOpen(!adminMenuOpen), title: "Surat" },
-                    { label: "Undang", icon: Calendar, iconColor: "text-amber-500", action: openArticles, title: "Kegiatan" },
-                    { label: "Tarik Tunai", icon: FileDown, iconColor: "text-rose-500", action: exportToExcel, hide: session.role !== "admin", title: "Ekspor" },
-                    { label: "Pinjaman", icon: Shield, iconColor: "text-teal-500", action: () => {}, title: "Pengaturan" },
-                    { label: "Lihat Semua", icon: MessageSquare, iconColor: "text-slate-400", action: () => {}, title: "Lihat Semua" }
-                  ].filter(m => !m.hide).map((item, idx) => (
+                    { label: "Data KK", icon: Users, iconColor: "text-orange-500", action: () => setIsDatabaseViewOpen(true), title: "Data KK" },
+                    { label: "Tambah KK", icon: PlusCircle, iconColor: "text-emerald-500", action: openNewFamilyModal, title: "Tambah KK" },
+                    { label: "Surat", icon: FileText, iconColor: "text-blue-500", action: () => setAdminMenuOpen(!adminMenuOpen), title: "Surat" },
+                    { label: "Kegiatan", icon: Calendar, iconColor: "text-amber-500", action: openArticles, title: "Kegiatan" },
+                    { label: "Ekspor", icon: FileDown, iconColor: "text-rose-500", action: exportToExcel, title: "Ekspor" },
+                    { label: "Pengaturan", icon: Shield, iconColor: "text-teal-500", action: () => alert("Fitur sedang dikembangkan"), title: "Pengaturan" },
+                    { label: "Lainnya", icon: MessageSquare, iconColor: "text-slate-400", action: () => alert("Fitur sedang dikembangkan"), title: "Lihat Semua" }
+                  ].map((item, idx) => (
                     <motion.div 
                       key={idx}
                       initial={{ opacity: 0, scale: 0.8 }}
@@ -1237,7 +1249,7 @@ const DashboardView = React.memo(function DashboardView({
 
             {/* Sub Menu / Admin Docs */}
             <AnimatePresence>
-               {adminMenuOpen && session.role === "admin" && (
+               {adminMenuOpen && (
                  <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
@@ -1280,8 +1292,8 @@ const DashboardView = React.memo(function DashboardView({
             </AnimatePresence>
 
             {/* Tabel Data Warga */}
-            {session.role === "admin" && !adminMenuOpen && !showTambahKK && (
-                <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col mt-6 relative overflow-hidden">
+            {!adminMenuOpen && !showTambahKK && (
+              <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col mt-6 relative overflow-hidden">
                     <div className="flex justify-between items-center mb-4">
                         <div>
                             <h3 className="font-bold text-slate-800 tracking-tight flex items-center gap-2">
@@ -1289,9 +1301,6 @@ const DashboardView = React.memo(function DashboardView({
                                 Data Keluarga
                             </h3>
                             <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Daftar kartu keluarga dan jumlah anggota</p>
-                        </div>
-                        <div className="bg-[#fcfaf5] px-3 py-1 rounded-full border border-[#f9d89b] text-[11px] font-bold text-[#995500]">
-                            {families.length} KK
                         </div>
                     </div>
 
