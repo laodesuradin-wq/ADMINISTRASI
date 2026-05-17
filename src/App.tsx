@@ -82,17 +82,6 @@ export default function App() {
   const [activeLetter, setActiveLetter] = useState<LetterType | null>(null);
   const [letterData, setLetterData] = useState<any>(null);
   const [printKKData, setPrintKKData] = useState<Family | null>(null);
-  const [showChat, setShowChat] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] =
-    useState<{ id: string; role: string; content: string }[]>(INITIAL_MESSAGES);
-  const [input, setInput] = useState("");
-
-  // Voice Recognition states
-  const [isRecording, setIsRecording] = useState(false);
-  const recognitionRef = useRef<any>(null);
-  const finalTranscriptRef = useRef("");
-  const [autoSendTrigger, setAutoSendTrigger] = useState("");
 
   const [isMobile, setIsMobile] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -263,152 +252,6 @@ export default function App() {
     [db, editingIndex],
   );
 
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
-    }
-  }, [messages, isTyping]);
-
-  useEffect(() => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = "id-ID";
-
-      recognition.onstart = () => {
-        setIsRecording(true);
-        finalTranscriptRef.current = "";
-      };
-
-      recognition.onresult = (event: any) => {
-        let currentTranscript = "";
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          currentTranscript += event.results[i][0].transcript;
-        }
-        setInput(currentTranscript);
-        finalTranscriptRef.current = currentTranscript;
-      };
-
-      recognition.onerror = (event: any) => {
-        console.error("Speech recognition error", event.error);
-        setIsRecording(false);
-      };
-
-      recognition.onend = () => {
-        setIsRecording(false);
-        if (finalTranscriptRef.current.trim() !== "") {
-          setAutoSendTrigger(finalTranscriptRef.current);
-          finalTranscriptRef.current = "";
-        }
-      };
-
-      recognitionRef.current = recognition;
-    }
-  }, []);
-
-  const toggleRecording = async () => {
-    if (!recognitionRef.current) {
-      alert(
-        "Browser Anda tidak mendukung fitur pengenalan suara (Speech Recognition). Silakan gunakan Google Chrome.",
-      );
-      return;
-    }
-
-    if (isRecording) {
-      recognitionRef.current?.stop();
-    } else {
-      try {
-        // Request microphone permission explicitly first
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        setInput("");
-        recognitionRef.current?.start();
-      } catch (err: any) {
-        console.error("Mic access error:", err);
-        alert(
-          `Gagal mengakses mikrofon: ${err.message || "Izin ditolak atau perangkat tidak ditemukan."}`,
-        );
-        setIsRecording(false);
-      }
-    }
-  };
-
-  const handleSendMessage = async (text: string) => {
-    if (!text.trim() || isTyping) return;
-
-    const userMsg = { id: Date.now().toString(), role: "user", content: text };
-    const newMessages = [...messages, userMsg];
-    setMessages((prev) => [...prev, userMsg]);
-    setIsTyping(true);
-    setInput("");
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newMessages }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Gagal terhubung ke layanan AI.");
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      setMessages((prev) => [
-        ...prev,
-        { id: Date.now().toString() + "ai", role: "assistant", content: "" },
-      ]);
-
-      let assistantMessage = "";
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          assistantMessage += decoder.decode(value, { stream: true });
-
-          setMessages((prev) => {
-            const updated = [...prev];
-            if (
-              updated.length > 0 &&
-              updated[updated.length - 1].role === "assistant"
-            ) {
-              updated[updated.length - 1].content = assistantMessage;
-            }
-            return updated;
-          });
-        }
-      }
-    } catch (error: any) {
-      console.error(error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString() + "err",
-          role: "assistant",
-          content: `Maaf, terjadi kesalahan: ${error.message || "Kesalahan teknis"}. Silakan coba lagi.`,
-        },
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
-  useEffect(() => {
-    if (autoSendTrigger) {
-      handleSendMessage(autoSendTrigger);
-      setAutoSendTrigger("");
-    }
-  }, [autoSendTrigger, messages]);
-
   return (
     <div className="min-h-screen bg-transparent font-sans text-sky-950 relative">
       <BackgroundIllustration />
@@ -506,185 +349,6 @@ export default function App() {
           </div>
         )}
       </div>
-
-      {/* CHATBOT */}
-      <motion.div
-        drag
-        dragMomentum={false}
-        className="fixed bottom-6 right-6 z-50 no-print touch-none"
-      >
-        <AnimatePresence>
-          {showChat && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              className="mb-6 w-[calc(100vw-48px)] max-w-[400px] h-[75vh] max-h-[600px] bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.25)] border border-sky-100 flex flex-col overflow-hidden relative"
-            >
-              <div className="p-6 bg-blue-600 text-white flex justify-between items-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                <div className="flex items-center gap-4 relative z-10">
-                  <div className="w-12 h-12 bg-white rounded-2xl border border-sky-100 shadow-sm flex items-center justify-center">
-                    <MessageSquare size={24} className="text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-base leading-none tracking-tight">
-                      KONSULTASI DIGITAL
-                    </h3>
-                    <p className="text-[10px] text-blue-400 font-bold uppercase mt-1.5 flex items-center gap-2 tracking-widest">
-                      <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>{" "}
-                      Asisten AI Aktif
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowChat(false)}
-                  className="p-3 hover:bg-white rounded-3xl border border-sky-100 shadow-sm hover:shadow-md transition-all active:scale-90"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div
-                ref={chatContainerRef}
-                className="flex-1 min-h-0 p-6 overflow-y-auto bg-sky-50/50 space-y-6 scroll-smooth"
-              >
-                {messages.length === 1 && (
-                  <div className="grid grid-cols-1 gap-2 mb-4">
-                    {[
-                      "Bagaimana cara buat SKTM?",
-                      "Syarat Surat Domisili apa saja?",
-                      "Lupa password login warga",
-                      "Info bantuan sosial (Bansos)",
-                    ].map((q) => (
-                      <button
-                        key={q}
-                        onClick={() => {
-                          setInput(q);
-                        }}
-                        className="px-4 py-2 bg-white border border-blue-100 rounded-xl text-[10px] font-bold text-blue-600 text-left hover:bg-blue-50 transition-colors shadow-sm"
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {messages.map((msg) => (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    key={msg.id}
-                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[88%] px-5 py-4 rounded-[1.5rem] text-[13px] leading-relaxed relative whitespace-pre-wrap ${
-                        msg.role === "user"
-                          ? "bg-blue-600 text-white rounded-br-none shadow-xl shadow-blue-500/20 font-medium"
-                          : "bg-white border border-sky-100 text-slate-700 rounded-bl-none shadow-sm font-semibold"
-                      }`}
-                    >
-                      {msg.content || (msg.role === "assistant" ? "..." : "")}
-                      <div
-                        className={`absolute bottom-[-4px] ${msg.role === "user" ? "right-0 border-t-[8px] border-t-blue-600 border-l-[8px] border-l-transparent" : "left-0 border-t-[8px] border-t-white border-r-[8px] border-r-transparent"}`}
-                      ></div>
-                    </div>
-                  </motion.div>
-                ))}
-                {isTyping && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex justify-start"
-                  >
-                    <div className="bg-white border border-sky-100 p-4 rounded-bl-none shadow-sm flex items-center gap-1.5">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
-              <div className="p-6 bg-white border-t border-sky-100">
-                <form
-                  className="flex gap-3 relative"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (input) {
-                      handleSendMessage(input);
-                    }
-                  }}
-                >
-                  <div className="flex-1 relative">
-                    <input
-                      autoComplete="off"
-                      name="message"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      type="text"
-                      placeholder="Tanyakan sesuatu..."
-                      className="w-full bg-slate-100/80 rounded-2xl pl-6 pr-14 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-blue-500/5 focus:bg-white focus:border-blue-500/20 transition-all border-2 border-transparent"
-                      disabled={isTyping}
-                    />
-                    <button
-                      type="button"
-                      onClick={toggleRecording}
-                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
-                        isRecording
-                          ? "bg-red-100 text-red-500 animate-pulse"
-                          : "text-sky-600 hover:text-blue-500 hover:bg-blue-50"
-                      }`}
-                      title={isRecording ? "Hentikan merekam" : "Mulai suara"}
-                    >
-                      {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
-                    </button>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isTyping}
-                    className="bg-blue-600 text-white w-14 h-14 rounded-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-blue-600/20 flex items-center justify-center p-0 shrink-0"
-                  >
-                    <Send size={22} className="relative left-0.5" />
-                  </button>
-                </form>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="flex justify-end items-center gap-4">
-          <motion.button
-            onClick={() => setShowChat(!showChat)}
-            animate={{
-              y: showChat ? 0 : [0, -10, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.5rem] text-sky-950 shadow-2xl flex items-center justify-center transition-all duration-500 group relative ${
-              showChat
-                ? "bg-white rounded-3xl border border-sky-100 shadow-sm rotate-90 shadow-slate-900/40"
-                : "bg-blue-600 shadow-blue-600/20 text-white"
-            }`}
-          >
-            {showChat ? (
-              <X size={24} className="md:w-7 md:h-7" />
-            ) : (
-              <>
-                <MessageSquare
-                  size={22}
-                  className="md:w-7 md:h-7 group-hover:scale-110 transition-transform"
-                />
-                <span className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-emerald-500 rounded-full border-[3px] md:border-4 border-white shadow-sm"></span>
-              </>
-            )}
-          </motion.button>
-        </div>
-      </motion.div>
     </div>
   );
 }
@@ -1211,12 +875,7 @@ const DashboardView = React.memo(function DashboardView({
                     { label: "Data KK", icon: Users, iconColor: "text-orange-500", action: () => setIsDatabaseViewOpen(true), title: "Data KK" },
                     { label: "Tambah KK", icon: PlusCircle, iconColor: "text-emerald-500", action: openNewFamilyModal, title: "Tambah KK" },
                     { label: "Surat", icon: FileText, iconColor: "text-blue-500", action: () => setAdminMenuOpen(!adminMenuOpen), title: "Surat" },
-                    { label: "Kegiatan", icon: Calendar, iconColor: "text-amber-500", action: openArticles, title: "Kegiatan" },
-                    ...(session.role === "admin" ? [
-                      { label: "Ekspor", icon: FileDown, iconColor: "text-rose-500", action: exportToExcel, title: "Ekspor" },
-                      { label: "Pengaturan", icon: Shield, iconColor: "text-teal-500", action: () => alert("Fitur sedang dikembangkan"), title: "Pengaturan" },
-                      { label: "Lainnya", icon: MessageSquare, iconColor: "text-slate-400", action: () => alert("Fitur sedang dikembangkan"), title: "Lihat Semua" }
-                    ] : [])
+                    { label: "Kegiatan", icon: Calendar, iconColor: "text-amber-500", action: openArticles, title: "Kegiatan" }
                   ].map((item, idx) => (
                     <motion.div 
                       key={idx}
@@ -1251,7 +910,7 @@ const DashboardView = React.memo(function DashboardView({
 
             {/* Sub Menu / Admin Docs */}
             <AnimatePresence>
-               {adminMenuOpen && (
+               {adminMenuOpen && !showTambahKK && (
                  <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
@@ -1304,6 +963,15 @@ const DashboardView = React.memo(function DashboardView({
                             </h3>
                             <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Daftar kartu keluarga dan jumlah anggota</p>
                         </div>
+                        {session.role === "admin" && (
+                          <button
+                            onClick={exportToExcel}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors border border-rose-100 text-xs font-bold"
+                          >
+                            <FileDown size={14} />
+                            <span className="hidden sm:inline">Ekspor Data</span>
+                          </button>
+                        )}
                     </div>
 
                     <div className="overflow-x-auto -mx-4 sm:-mx-5 border-t border-slate-100">
@@ -2137,6 +1805,102 @@ const ArticleModal = React.memo(function ArticleModal({
               ))}
             </div>
           )}
+        </div>
+      </motion.div>
+    </div>
+  );
+});
+
+const SettingsModal = React.memo(function SettingsModal({
+  session,
+  onClose,
+}: {
+  session: AuthSession;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[150] bg-sky-950/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="w-full max-w-md bg-white rounded-[2rem] shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
+      >
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-slate-800">Pengaturan</h2>
+            <p className="text-xs text-slate-500 mt-1">Konfigurasi sistem dan preferensi</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-slate-100/80 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <div className="p-6 overflow-y-auto">
+          {session.role === "admin" ? (
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Akun Administrator</h3>
+                <div className="p-4 rounded-xl border border-sky-100 bg-sky-50/30 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center">
+                    <Shield size={20} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-800">{session.nama}</p>
+                    <p className="text-xs text-slate-500">{session.email}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Preferensi Sistem</h3>
+                <div className="space-y-2">
+                  <label className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
+                    <span className="text-sm font-medium text-slate-700">Notifikasi Terdengar</span>
+                    <input type="checkbox" className="w-4 h-4 text-sky-500 rounded focus:ring-sky-500" defaultChecked />
+                  </label>
+                  <label className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
+                    <span className="text-sm font-medium text-slate-700">Mode Layar Penuh</span>
+                    <input type="checkbox" className="w-4 h-4 text-sky-500 rounded focus:ring-sky-500" />
+                  </label>
+                </div>
+                <p className="text-[10px] text-slate-400 italic mt-2">Bebarapa fitur sedang dalam tahap pengembangan.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Profil Warga</h3>
+                <div className="p-4 rounded-xl border border-sky-100 bg-sky-50/30 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center">
+                    <UserIcon size={20} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-800">{session.nama}</p>
+                    <p className="text-xs text-slate-500">No. KK: {session.no_kk}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Preferensi Notifikasi</h3>
+                <label className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
+                  <span className="text-sm font-medium text-slate-700">Notifikasi Pesan Baru</span>
+                  <input type="checkbox" className="w-4 h-4 text-sky-500 rounded focus:ring-sky-500" defaultChecked />
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors"
+          >
+            Tutup
+          </button>
         </div>
       </motion.div>
     </div>
