@@ -1212,9 +1212,11 @@ const DashboardView = React.memo(function DashboardView({
                     { label: "Tambah KK", icon: PlusCircle, iconColor: "text-emerald-500", action: openNewFamilyModal, title: "Tambah KK" },
                     { label: "Surat", icon: FileText, iconColor: "text-blue-500", action: () => setAdminMenuOpen(!adminMenuOpen), title: "Surat" },
                     { label: "Kegiatan", icon: Calendar, iconColor: "text-amber-500", action: openArticles, title: "Kegiatan" },
-                    { label: "Ekspor", icon: FileDown, iconColor: "text-rose-500", action: exportToExcel, title: "Ekspor" },
-                    { label: "Pengaturan", icon: Shield, iconColor: "text-teal-500", action: () => alert("Fitur sedang dikembangkan"), title: "Pengaturan" },
-                    { label: "Lainnya", icon: MessageSquare, iconColor: "text-slate-400", action: () => alert("Fitur sedang dikembangkan"), title: "Lihat Semua" }
+                    ...(session.role === "admin" ? [
+                      { label: "Ekspor", icon: FileDown, iconColor: "text-rose-500", action: exportToExcel, title: "Ekspor" },
+                      { label: "Pengaturan", icon: Shield, iconColor: "text-teal-500", action: () => alert("Fitur sedang dikembangkan"), title: "Pengaturan" },
+                      { label: "Lainnya", icon: MessageSquare, iconColor: "text-slate-400", action: () => alert("Fitur sedang dikembangkan"), title: "Lihat Semua" }
+                    ] : [])
                   ].map((item, idx) => (
                     <motion.div 
                       key={idx}
